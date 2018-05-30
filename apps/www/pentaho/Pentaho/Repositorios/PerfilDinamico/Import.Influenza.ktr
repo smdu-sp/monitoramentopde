@@ -1,0 +1,2070 @@
+<transformation>
+  <info>
+    <name>Import.Influenza</name>
+    <description/>
+    <extended_description/>
+    <trans_version/>
+    <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
+    <directory>&#x2f;</directory>
+    <parameters>
+    </parameters>
+    <log>
+<trans-log-table><connection/>
+<schema/>
+<table/>
+<size_limit_lines/>
+<interval/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STATUS</id><enabled>Y</enabled><name>STATUS</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name><subject/></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name><subject/></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name><subject/></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name><subject/></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name><subject/></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name><subject/></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>STARTDATE</id><enabled>Y</enabled><name>STARTDATE</name></field><field><id>ENDDATE</id><enabled>Y</enabled><name>ENDDATE</name></field><field><id>LOGDATE</id><enabled>Y</enabled><name>LOGDATE</name></field><field><id>DEPDATE</id><enabled>Y</enabled><name>DEPDATE</name></field><field><id>REPLAYDATE</id><enabled>Y</enabled><name>REPLAYDATE</name></field><field><id>LOG_FIELD</id><enabled>Y</enabled><name>LOG_FIELD</name></field><field><id>EXECUTING_SERVER</id><enabled>N</enabled><name>EXECUTING_SERVER</name></field><field><id>EXECUTING_USER</id><enabled>N</enabled><name>EXECUTING_USER</name></field><field><id>CLIENT</id><enabled>N</enabled><name>CLIENT</name></field></trans-log-table>
+<perf-log-table><connection/>
+<schema/>
+<table/>
+<interval/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>SEQ_NR</id><enabled>Y</enabled><name>SEQ_NR</name></field><field><id>LOGDATE</id><enabled>Y</enabled><name>LOGDATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>INPUT_BUFFER_ROWS</id><enabled>Y</enabled><name>INPUT_BUFFER_ROWS</name></field><field><id>OUTPUT_BUFFER_ROWS</id><enabled>Y</enabled><name>OUTPUT_BUFFER_ROWS</name></field></perf-log-table>
+<channel-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>LOGGING_OBJECT_TYPE</id><enabled>Y</enabled><name>LOGGING_OBJECT_TYPE</name></field><field><id>OBJECT_NAME</id><enabled>Y</enabled><name>OBJECT_NAME</name></field><field><id>OBJECT_COPY</id><enabled>Y</enabled><name>OBJECT_COPY</name></field><field><id>REPOSITORY_DIRECTORY</id><enabled>Y</enabled><name>REPOSITORY_DIRECTORY</name></field><field><id>FILENAME</id><enabled>Y</enabled><name>FILENAME</name></field><field><id>OBJECT_ID</id><enabled>Y</enabled><name>OBJECT_ID</name></field><field><id>OBJECT_REVISION</id><enabled>Y</enabled><name>OBJECT_REVISION</name></field><field><id>PARENT_CHANNEL_ID</id><enabled>Y</enabled><name>PARENT_CHANNEL_ID</name></field><field><id>ROOT_CHANNEL_ID</id><enabled>Y</enabled><name>ROOT_CHANNEL_ID</name></field></channel-log-table>
+<step-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></step-log-table>
+<metrics-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>METRICS_DATE</id><enabled>Y</enabled><name>METRICS_DATE</name></field><field><id>METRICS_CODE</id><enabled>Y</enabled><name>METRICS_CODE</name></field><field><id>METRICS_DESCRIPTION</id><enabled>Y</enabled><name>METRICS_DESCRIPTION</name></field><field><id>METRICS_SUBJECT</id><enabled>Y</enabled><name>METRICS_SUBJECT</name></field><field><id>METRICS_TYPE</id><enabled>Y</enabled><name>METRICS_TYPE</name></field><field><id>METRICS_VALUE</id><enabled>Y</enabled><name>METRICS_VALUE</name></field></metrics-log-table>
+    </log>
+    <maxdate>
+      <connection/>
+      <table/>
+      <field/>
+      <offset>0.0</offset>
+      <maxdiff>0.0</maxdiff>
+    </maxdate>
+    <size_rowset>10000</size_rowset>
+    <sleep_time_empty>0</sleep_time_empty>
+    <sleep_time_full>0</sleep_time_full>
+    <unique_connections>N</unique_connections>
+    <feedback_shown>Y</feedback_shown>
+    <feedback_size>50000</feedback_size>
+    <using_thread_priorities>Y</using_thread_priorities>
+    <shared_objects_file/>
+    <capture_step_performance>N</capture_step_performance>
+    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
+    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <dependencies>
+    </dependencies>
+    <partitionschemas>
+    </partitionschemas>
+    <slaveservers>
+         <slaveserver><name>CARTE</name><hostname>&#x24;&#x7b;CARTE_HOSTNAME&#x7d;</hostname><port>&#x24;&#x7b;CARTE_PORT&#x7d;</port><webAppName/><username>&#x24;&#x7b;CARTE_USER&#x7d;</username><password>&#x24;&#x7b;CARTE_PWD&#x7d;</password><proxy_hostname>&#x24;&#x7b;CARTE_PROXY_HOST&#x7d;</proxy_hostname><proxy_port>&#x24;&#x7b;CARTE_PROXY_PORT&#x7d;</proxy_port><non_proxy_hosts>&#x24;&#x7b;CARTE_NON_PROXY&#x7d;</non_proxy_hosts><master>Y</master><sslMode>N</sslMode></slaveserver>
+    </slaveservers>
+    <clusterschemas>
+    </clusterschemas>
+  <created_user/>
+  <created_date>2016&#x2f;06&#x2f;01 22&#x3a;08&#x3a;44.487</created_date>
+  <modified_user>admin</modified_user>
+  <modified_date>2012&#x2f;08&#x2f;16 16&#x3a;26&#x3a;21.705</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <connection>
+    <name>PerfilDinamico</name>
+    <server>localhost</server>
+    <type>POSTGRESQL</type>
+    <access>Native</access>
+    <database>PerfilDinamico</database>
+    <port>5432</port>
+    <username>admin</username>
+    <password>Encrypted 2be98afc86aa7f2afa41fbe78c68aa18b</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>5432</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <order>
+  <hop> <from>Modified Java Script Value</from><to>Carrega Dados</to><enabled>Y</enabled> </hop>
+  <hop> <from>Formula</from><to>Modified Java Script Value</to><enabled>Y</enabled> </hop>
+  <hop> <from>Base </from><to>Formula</to><enabled>Y</enabled> </hop>
+  </order>
+  <step>
+    <name>Base </name>
+    <type>XBaseInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <file_dbf>&#x24;&#x7b;NOME_ARQUIVO&#x7d;</file_dbf>
+    <limit>0</limit>
+    <add_rownr>N</add_rownr>
+    <field_rownr/>
+    <include>N</include>
+    <include_field/>
+    <charset_name/>
+    <accept_filenames>N</accept_filenames>
+    <accept_field>filename</accept_field>
+    <accept_stepname/>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>157</xloc>
+      <yloc>140</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Carrega Dados</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>PerfilDinamico</connection>
+    <schema>import</schema>
+    <table>&#x24;&#x7b;NOME_TABELA&#x7d;</table>
+    <commit>1000</commit>
+    <truncate>N</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>N</use_batch>
+    <specify_fields>Y</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field/>
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field/>
+    <fields>
+        <field>
+          <column_name>NU_NOTIFIC</column_name>
+          <stream_name>NU_NOTIFIC</stream_name>
+        </field>
+        <field>
+          <column_name>TP_NOT</column_name>
+          <stream_name>TP_NOT</stream_name>
+        </field>
+        <field>
+          <column_name>ID_AGRAVO</column_name>
+          <stream_name>ID_AGRAVO</stream_name>
+        </field>
+        <field>
+          <column_name>DT_NOTIFIC</column_name>
+          <stream_name>DT_NOTIFIC</stream_name>
+        </field>
+        <field>
+          <column_name>SEM_NOT</column_name>
+          <stream_name>SEM_NOT</stream_name>
+        </field>
+        <field>
+          <column_name>NU_ANO</column_name>
+          <stream_name>NU_ANO</stream_name>
+        </field>
+        <field>
+          <column_name>SG_UF_NOT</column_name>
+          <stream_name>SG_UF_NOT</stream_name>
+        </field>
+        <field>
+          <column_name>ID_MUNICIP</column_name>
+          <stream_name>ID_MUNICIP</stream_name>
+        </field>
+        <field>
+          <column_name>ID_REGIONA</column_name>
+          <stream_name>ID_REGIONA</stream_name>
+        </field>
+        <field>
+          <column_name>ID_UNIDADE</column_name>
+          <stream_name>ID_UNIDADE</stream_name>
+        </field>
+        <field>
+          <column_name>DT_SIN_PRI</column_name>
+          <stream_name>DT_SIN_PRI</stream_name>
+        </field>
+        <field>
+          <column_name>SEM_PRI</column_name>
+          <stream_name>SEM_PRI</stream_name>
+        </field>
+        <field>
+          <column_name>NM_PACIENT</column_name>
+          <stream_name>NM_PACIENT</stream_name>
+        </field>
+        <field>
+          <column_name>DT_NASC</column_name>
+          <stream_name>DT_NASC</stream_name>
+        </field>
+        <field>
+          <column_name>FONETICA_N</column_name>
+          <stream_name>FONETICA_N</stream_name>
+        </field>
+        <field>
+          <column_name>SOUNDEX</column_name>
+          <stream_name>SOUNDEX</stream_name>
+        </field>
+        <field>
+          <column_name>NU_IDADE_N</column_name>
+          <stream_name>NU_IDADE_N</stream_name>
+        </field>
+        <field>
+          <column_name>CS_SEXO</column_name>
+          <stream_name>CS_SEXO</stream_name>
+        </field>
+        <field>
+          <column_name>CS_GESTANT</column_name>
+          <stream_name>CS_GESTANT</stream_name>
+        </field>
+        <field>
+          <column_name>CS_RACA</column_name>
+          <stream_name>CS_RACA</stream_name>
+        </field>
+        <field>
+          <column_name>CS_ESCOL_N</column_name>
+          <stream_name>CS_ESCOL_N</stream_name>
+        </field>
+        <field>
+          <column_name>ID_CNS_SUS</column_name>
+          <stream_name>ID_CNS_SUS</stream_name>
+        </field>
+        <field>
+          <column_name>NM_MAE_PAC</column_name>
+          <stream_name>NM_MAE_PAC</stream_name>
+        </field>
+        <field>
+          <column_name>SG_UF</column_name>
+          <stream_name>SG_UF</stream_name>
+        </field>
+        <field>
+          <column_name>ID_MN_RESI</column_name>
+          <stream_name>ID_MN_RESI</stream_name>
+        </field>
+        <field>
+          <column_name>ID_RG_RESI</column_name>
+          <stream_name>ID_RG_RESI</stream_name>
+        </field>
+        <field>
+          <column_name>ID_DISTRIT</column_name>
+          <stream_name>ID_DISTRIT</stream_name>
+        </field>
+        <field>
+          <column_name>ID_BAIRRO</column_name>
+          <stream_name>ID_BAIRRO</stream_name>
+        </field>
+        <field>
+          <column_name>NM_BAIRRO</column_name>
+          <stream_name>NM_BAIRRO</stream_name>
+        </field>
+        <field>
+          <column_name>ID_LOGRADO</column_name>
+          <stream_name>ID_LOGRADO</stream_name>
+        </field>
+        <field>
+          <column_name>NM_LOGRADO</column_name>
+          <stream_name>NM_LOGRADO</stream_name>
+        </field>
+        <field>
+          <column_name>NU_NUMERO</column_name>
+          <stream_name>NU_NUMERO</stream_name>
+        </field>
+        <field>
+          <column_name>NM_COMPLEM</column_name>
+          <stream_name>NM_COMPLEM</stream_name>
+        </field>
+        <field>
+          <column_name>ID_GEO1</column_name>
+          <stream_name>ID_GEO1</stream_name>
+        </field>
+        <field>
+          <column_name>ID_GEO2</column_name>
+          <stream_name>ID_GEO2</stream_name>
+        </field>
+        <field>
+          <column_name>NM_REFEREN</column_name>
+          <stream_name>NM_REFEREN</stream_name>
+        </field>
+        <field>
+          <column_name>NU_CEP</column_name>
+          <stream_name>NU_CEP</stream_name>
+        </field>
+        <field>
+          <column_name>NU_DDD_TEL</column_name>
+          <stream_name>NU_DDD_TEL</stream_name>
+        </field>
+        <field>
+          <column_name>NU_TELEFON</column_name>
+          <stream_name>NU_TELEFON</stream_name>
+        </field>
+        <field>
+          <column_name>CS_ZONA</column_name>
+          <stream_name>CS_ZONA</stream_name>
+        </field>
+        <field>
+          <column_name>ID_PAIS</column_name>
+          <stream_name>ID_PAIS</stream_name>
+        </field>
+        <field>
+          <column_name>DT_INVEST</column_name>
+          <stream_name>DT_INVEST</stream_name>
+        </field>
+        <field>
+          <column_name>ID_OCUPA_N</column_name>
+          <stream_name>ID_OCUPA_N</stream_name>
+        </field>
+        <field>
+          <column_name>VACINA</column_name>
+          <stream_name>VACINA</stream_name>
+        </field>
+        <field>
+          <column_name>DT_UT_DOSE</column_name>
+          <stream_name>DT_UT_DOSE</stream_name>
+        </field>
+        <field>
+          <column_name>ANT_PNEUMO</column_name>
+          <stream_name>ANT_PNEUMO</stream_name>
+        </field>
+        <field>
+          <column_name>DT_PNEUM</column_name>
+          <stream_name>DT_PNEUM</stream_name>
+        </field>
+        <field>
+          <column_name>CONTATO1</column_name>
+          <stream_name>CONTATO1</stream_name>
+        </field>
+        <field>
+          <column_name>CONTATO2</column_name>
+          <stream_name>CONTATO2</stream_name>
+        </field>
+        <field>
+          <column_name>TRANSPORTE</column_name>
+          <stream_name>TRANSPORTE</stream_name>
+        </field>
+        <field>
+          <column_name>OUTRO_LOC</column_name>
+          <stream_name>OUTRO_LOC</stream_name>
+        </field>
+        <field>
+          <column_name>DT_DESC1</column_name>
+          <stream_name>DT_DESC1</stream_name>
+        </field>
+        <field>
+          <column_name>DT_DESC2</column_name>
+          <stream_name>DT_DESC2</stream_name>
+        </field>
+        <field>
+          <column_name>DT_DESC3</column_name>
+          <stream_name>DT_DESC3</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_DES1</column_name>
+          <stream_name>CO_UF_DES1</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_DES2</column_name>
+          <stream_name>CO_UF_DES2</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_DES3</column_name>
+          <stream_name>CO_UF_DES3</stream_name>
+        </field>
+        <field>
+          <column_name>MUN_DES1</column_name>
+          <stream_name>MUN_DES1</stream_name>
+        </field>
+        <field>
+          <column_name>MUN_DES2</column_name>
+          <stream_name>MUN_DES2</stream_name>
+        </field>
+        <field>
+          <column_name>MUN_DES3</column_name>
+          <stream_name>MUN_DES3</stream_name>
+        </field>
+        <field>
+          <column_name>PA_DES1</column_name>
+          <stream_name>PA_DES1</stream_name>
+        </field>
+        <field>
+          <column_name>PA_DES2</column_name>
+          <stream_name>PA_DES2</stream_name>
+        </field>
+        <field>
+          <column_name>PA_DES3</column_name>
+          <stream_name>PA_DES3</stream_name>
+        </field>
+        <field>
+          <column_name>DS_TRANS1</column_name>
+          <stream_name>DS_TRANS1</stream_name>
+        </field>
+        <field>
+          <column_name>DS_TRANS2</column_name>
+          <stream_name>DS_TRANS2</stream_name>
+        </field>
+        <field>
+          <column_name>DS_TRANS3</column_name>
+          <stream_name>DS_TRANS3</stream_name>
+        </field>
+        <field>
+          <column_name>AVE_10_DIA</column_name>
+          <stream_name>AVE_10_DIA</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_AVE</column_name>
+          <stream_name>CO_UF_AVE</stream_name>
+        </field>
+        <field>
+          <column_name>CO_MU_AVE</column_name>
+          <stream_name>CO_MU_AVE</stream_name>
+        </field>
+        <field>
+          <column_name>CO_PA_AVE</column_name>
+          <stream_name>CO_PA_AVE</stream_name>
+        </field>
+        <field>
+          <column_name>FEBRE</column_name>
+          <stream_name>FEBRE</stream_name>
+        </field>
+        <field>
+          <column_name>TOSSE</column_name>
+          <stream_name>TOSSE</stream_name>
+        </field>
+        <field>
+          <column_name>CALAFRIO</column_name>
+          <stream_name>CALAFRIO</stream_name>
+        </field>
+        <field>
+          <column_name>DISPNEIA</column_name>
+          <stream_name>DISPNEIA</stream_name>
+        </field>
+        <field>
+          <column_name>GARGANTA</column_name>
+          <stream_name>GARGANTA</stream_name>
+        </field>
+        <field>
+          <column_name>ARTRALGIA</column_name>
+          <stream_name>ARTRALGIA</stream_name>
+        </field>
+        <field>
+          <column_name>MIALGIA</column_name>
+          <stream_name>MIALGIA</stream_name>
+        </field>
+        <field>
+          <column_name>CONJUNTIV</column_name>
+          <stream_name>CONJUNTIV</stream_name>
+        </field>
+        <field>
+          <column_name>CORIZA</column_name>
+          <stream_name>CORIZA</stream_name>
+        </field>
+        <field>
+          <column_name>DIARREIA</column_name>
+          <stream_name>DIARREIA</stream_name>
+        </field>
+        <field>
+          <column_name>OUTRO_SIN</column_name>
+          <stream_name>OUTRO_SIN</stream_name>
+        </field>
+        <field>
+          <column_name>OUTRO_DES</column_name>
+          <stream_name>OUTRO_DES</stream_name>
+        </field>
+        <field>
+          <column_name>CARDIOPATI</column_name>
+          <stream_name>CARDIOPATI</stream_name>
+        </field>
+        <field>
+          <column_name>PNEUMOPATI</column_name>
+          <stream_name>PNEUMOPATI</stream_name>
+        </field>
+        <field>
+          <column_name>RENAL</column_name>
+          <stream_name>RENAL</stream_name>
+        </field>
+        <field>
+          <column_name>HEMOGLOBI</column_name>
+          <stream_name>HEMOGLOBI</stream_name>
+        </field>
+        <field>
+          <column_name>IMUNODEPRE</column_name>
+          <stream_name>IMUNODEPRE</stream_name>
+        </field>
+        <field>
+          <column_name>TABAGISMO</column_name>
+          <stream_name>TABAGISMO</stream_name>
+        </field>
+        <field>
+          <column_name>METABOLICA</column_name>
+          <stream_name>METABOLICA</stream_name>
+        </field>
+        <field>
+          <column_name>OUT_MORBI</column_name>
+          <stream_name>OUT_MORBI</stream_name>
+        </field>
+        <field>
+          <column_name>MORB_DESC</column_name>
+          <stream_name>MORB_DESC</stream_name>
+        </field>
+        <field>
+          <column_name>HOSPITAL</column_name>
+          <stream_name>HOSPITAL</stream_name>
+        </field>
+        <field>
+          <column_name>DT_INTERNA</column_name>
+          <stream_name>DT_INTERNA</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_INTE</column_name>
+          <stream_name>CO_UF_INTE</stream_name>
+        </field>
+        <field>
+          <column_name>CO_MU_INTE</column_name>
+          <stream_name>CO_MU_INTE</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UN_INTE</column_name>
+          <stream_name>CO_UN_INTE</stream_name>
+        </field>
+        <field>
+          <column_name>DT_PCR</column_name>
+          <stream_name>DT_PCR</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_AMOSTR</column_name>
+          <stream_name>PCR_AMOSTR</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_OUT</column_name>
+          <stream_name>PCR_OUT</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_RES</column_name>
+          <stream_name>PCR_RES</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_ETIOL</column_name>
+          <stream_name>PCR_ETIOL</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_TIPO_H</column_name>
+          <stream_name>PCR_TIPO_H</stream_name>
+        </field>
+        <field>
+          <column_name>PCR_TIPO_N</column_name>
+          <stream_name>PCR_TIPO_N</stream_name>
+        </field>
+        <field>
+          <column_name>DT_CULTURA</column_name>
+          <stream_name>DT_CULTURA</stream_name>
+        </field>
+        <field>
+          <column_name>CULT_AMOST</column_name>
+          <stream_name>CULT_AMOST</stream_name>
+        </field>
+        <field>
+          <column_name>CULT_OUT</column_name>
+          <stream_name>CULT_OUT</stream_name>
+        </field>
+        <field>
+          <column_name>CULT_RES</column_name>
+          <stream_name>CULT_RES</stream_name>
+        </field>
+        <field>
+          <column_name>DT_HEMAGLU</column_name>
+          <stream_name>DT_HEMAGLU</stream_name>
+        </field>
+        <field>
+          <column_name>HEMA_RES</column_name>
+          <stream_name>HEMA_RES</stream_name>
+        </field>
+        <field>
+          <column_name>HEMA_ETIOL</column_name>
+          <stream_name>HEMA_ETIOL</stream_name>
+        </field>
+        <field>
+          <column_name>HEM_TIPO_H</column_name>
+          <stream_name>HEM_TIPO_H</stream_name>
+        </field>
+        <field>
+          <column_name>HEM_TIPO_N</column_name>
+          <stream_name>HEM_TIPO_N</stream_name>
+        </field>
+        <field>
+          <column_name>DT_RAIOX</column_name>
+          <stream_name>DT_RAIOX</stream_name>
+        </field>
+        <field>
+          <column_name>RAIOX_RES</column_name>
+          <stream_name>RAIOX_RES</stream_name>
+        </field>
+        <field>
+          <column_name>RAIOX_OUT</column_name>
+          <stream_name>RAIOX_OUT</stream_name>
+        </field>
+        <field>
+          <column_name>CLASSI_FIN</column_name>
+          <stream_name>CLASSI_FIN</stream_name>
+        </field>
+        <field>
+          <column_name>CRITERIO</column_name>
+          <stream_name>CRITERIO</stream_name>
+        </field>
+        <field>
+          <column_name>TPAUTOCTO</column_name>
+          <stream_name>TPAUTOCTO</stream_name>
+        </field>
+        <field>
+          <column_name>COUFINF</column_name>
+          <stream_name>COUFINF</stream_name>
+        </field>
+        <field>
+          <column_name>COPAISINF</column_name>
+          <stream_name>COPAISINF</stream_name>
+        </field>
+        <field>
+          <column_name>COMUNINF</column_name>
+          <stream_name>COMUNINF</stream_name>
+        </field>
+        <field>
+          <column_name>CODISINF</column_name>
+          <stream_name>CODISINF</stream_name>
+        </field>
+        <field>
+          <column_name>CO_BAINFC</column_name>
+          <stream_name>CO_BAINFC</stream_name>
+        </field>
+        <field>
+          <column_name>NOBAIINF</column_name>
+          <stream_name>NOBAIINF</stream_name>
+        </field>
+        <field>
+          <column_name>DOENCA_TRA</column_name>
+          <stream_name>DOENCA_TRA</stream_name>
+        </field>
+        <field>
+          <column_name>EVOLUCAO</column_name>
+          <stream_name>EVOLUCAO</stream_name>
+        </field>
+        <field>
+          <column_name>DT_OBITO</column_name>
+          <stream_name>DT_OBITO</stream_name>
+        </field>
+        <field>
+          <column_name>DT_ENCERRA</column_name>
+          <stream_name>DT_ENCERRA</stream_name>
+        </field>
+        <field>
+          <column_name>ACUPUNTURA</column_name>
+          <stream_name>ACUPUNTURA</stream_name>
+        </field>
+        <field>
+          <column_name>AGHBE</column_name>
+          <stream_name>AGHBE</stream_name>
+        </field>
+        <field>
+          <column_name>AGHBS</column_name>
+          <stream_name>AGHBS</stream_name>
+        </field>
+        <field>
+          <column_name>AGUA_ALIME</column_name>
+          <stream_name>AGUA_ALIME</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHAVIGM</column_name>
+          <stream_name>ANTIHAVIGM</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHBCIGM</column_name>
+          <stream_name>ANTIHBCIGM</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHBE</column_name>
+          <stream_name>ANTIHBE</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHBS</column_name>
+          <stream_name>ANTIHBS</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHCV</column_name>
+          <stream_name>ANTIHCV</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHDV</column_name>
+          <stream_name>ANTIHDV</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHDVIGM</column_name>
+          <stream_name>ANTIHDVIGM</stream_name>
+        </field>
+        <field>
+          <column_name>ANTIHEVIGM</column_name>
+          <stream_name>ANTIHEVIGM</stream_name>
+        </field>
+        <field>
+          <column_name>BANCOSANGU</column_name>
+          <stream_name>BANCOSANGU</stream_name>
+        </field>
+        <field>
+          <column_name>CIRURGICO</column_name>
+          <stream_name>CIRURGICO</stream_name>
+        </field>
+        <field>
+          <column_name>CLAS_ETIOL</column_name>
+          <stream_name>CLAS_ETIOL</stream_name>
+        </field>
+        <field>
+          <column_name>CO_MUN_EX2</column_name>
+          <stream_name>CO_MUN_EX2</stream_name>
+        </field>
+        <field>
+          <column_name>CO_MUN_EX3</column_name>
+          <stream_name>CO_MUN_EX3</stream_name>
+        </field>
+        <field>
+          <column_name>CO_MUN_EXP</column_name>
+          <stream_name>CO_MUN_EXP</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_EX2</column_name>
+          <stream_name>CO_UF_EX2</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_EX3</column_name>
+          <stream_name>CO_UF_EX3</stream_name>
+        </field>
+        <field>
+          <column_name>CO_UF_EXP</column_name>
+          <stream_name>CO_UF_EXP</stream_name>
+        </field>
+        <field>
+          <column_name>CO_USUALT</column_name>
+          <stream_name>CO_USUALT</stream_name>
+        </field>
+        <field>
+          <column_name>CO_USUCAD</column_name>
+          <stream_name>CO_USUCAD</stream_name>
+        </field>
+        <field>
+          <column_name>COLETAMARC</column_name>
+          <stream_name>COLETAMARC</stream_name>
+        </field>
+        <field>
+          <column_name>CS_CNS_SUS</column_name>
+          <stream_name>CS_CNS_SUS</stream_name>
+        </field>
+        <field>
+          <column_name>CS_FLXRET</column_name>
+          <stream_name>CS_FLXRET</stream_name>
+        </field>
+        <field>
+          <column_name>DENTARIO</column_name>
+          <stream_name>DENTARIO</stream_name>
+        </field>
+        <field>
+          <column_name>DOMICILI</column_name>
+          <stream_name>DOMICILI</stream_name>
+        </field>
+        <field>
+          <column_name>DS_LOC_EX2</column_name>
+          <stream_name>DS_LOC_EX2</stream_name>
+        </field>
+        <field>
+          <column_name>DS_LOC_EX3</column_name>
+          <stream_name>DS_LOC_EX3</stream_name>
+        </field>
+        <field>
+          <column_name>DS_LOC_EXP</column_name>
+          <stream_name>DS_LOC_EXP</stream_name>
+        </field>
+        <field>
+          <column_name>DS_OBSERVA</column_name>
+          <stream_name>DS_OBSERVA</stream_name>
+        </field>
+        <field>
+          <column_name>DSFONTE</column_name>
+          <stream_name>DSFONTE</stream_name>
+        </field>
+        <field>
+          <column_name>DT_ACIDENT</column_name>
+          <stream_name>DT_ACIDENT</stream_name>
+        </field>
+        <field>
+          <column_name>DT_COLETA</column_name>
+          <stream_name>DT_COLETA</stream_name>
+        </field>
+        <field>
+          <column_name>DT_DIGITA</column_name>
+          <stream_name>DT_DIGITA</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSDM</column_name>
+          <stream_name>DT_TRANSDM</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSRM</column_name>
+          <stream_name>DT_TRANSRM</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSRS</column_name>
+          <stream_name>DT_TRANSRS</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSSE</column_name>
+          <stream_name>DT_TRANSSE</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSSM</column_name>
+          <stream_name>DT_TRANSSM</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRANSUS</column_name>
+          <stream_name>DT_TRANSUS</stream_name>
+        </field>
+        <field>
+          <column_name>DT_TRASSE</column_name>
+          <stream_name>DT_TRASSE</stream_name>
+        </field>
+        <field>
+          <column_name>FLXRECEBI</column_name>
+          <stream_name>FLXRECEBI</stream_name>
+        </field>
+        <field>
+          <column_name>FONTE</column_name>
+          <stream_name>FONTE</stream_name>
+        </field>
+        <field>
+          <column_name>FORMA</column_name>
+          <stream_name>FORMA</stream_name>
+        </field>
+        <field>
+          <column_name>GEN_VHC</column_name>
+          <stream_name>GEN_VHC</stream_name>
+        </field>
+        <field>
+          <column_name>HBC_TOTAL</column_name>
+          <stream_name>HBC_TOTAL</stream_name>
+        </field>
+        <field>
+          <column_name>HEMODIALIS</column_name>
+          <stream_name>HEMODIALIS</stream_name>
+        </field>
+        <field>
+          <column_name>HEPATITA</column_name>
+          <stream_name>HEPATITA</stream_name>
+        </field>
+        <field>
+          <column_name>HEPATITB</column_name>
+          <stream_name>HEPATITB</stream_name>
+        </field>
+        <field>
+          <column_name>HEPATITE_N</column_name>
+          <stream_name>HEPATITE_N</stream_name>
+        </field>
+        <field>
+          <column_name>HIV</column_name>
+          <stream_name>HIV</stream_name>
+        </field>
+        <field>
+          <column_name>IDENT_MICR</column_name>
+          <stream_name>IDENT_MICR</stream_name>
+        </field>
+        <field>
+          <column_name>INAL_CRACK</column_name>
+          <stream_name>INAL_CRACK</stream_name>
+        </field>
+        <field>
+          <column_name>INJETAVEIS</column_name>
+          <stream_name>INJETAVEIS</stream_name>
+        </field>
+        <field>
+          <column_name>INSTITUCIO</column_name>
+          <stream_name>INSTITUCIO</stream_name>
+        </field>
+        <field>
+          <column_name>MATBIOLOGI</column_name>
+          <stream_name>MATBIOLOGI</stream_name>
+        </field>
+        <field>
+          <column_name>MEDICAMENT</column_name>
+          <stream_name>MEDICAMENT</stream_name>
+        </field>
+        <field>
+          <column_name>MIGRADO_W</column_name>
+          <stream_name>MIGRADO_W</stream_name>
+        </field>
+        <field>
+          <column_name>MONITORA</column_name>
+          <stream_name>MONITORA</stream_name>
+        </field>
+        <field>
+          <column_name>NDUPLIC_N</column_name>
+          <stream_name>NDUPLIC_N</stream_name>
+        </field>
+        <field>
+          <column_name>NU_LOTE_H</column_name>
+          <stream_name>NU_LOTE_H</stream_name>
+        </field>
+        <field>
+          <column_name>NU_LOTE_I</column_name>
+          <stream_name>NU_LOTE_I</stream_name>
+        </field>
+        <field>
+          <column_name>NU_LOTE_V</column_name>
+          <stream_name>NU_LOTE_V</stream_name>
+        </field>
+        <field>
+          <column_name>NU_TEL_EX2</column_name>
+          <stream_name>NU_TEL_EX2</stream_name>
+        </field>
+        <field>
+          <column_name>NU_TEL_EX3</column_name>
+          <stream_name>NU_TEL_EX3</stream_name>
+        </field>
+        <field>
+          <column_name>NU_TEL_EXP</column_name>
+          <stream_name>NU_TEL_EXP</stream_name>
+        </field>
+        <field>
+          <column_name>OCUPACIO</column_name>
+          <stream_name>OCUPACIO</stream_name>
+        </field>
+        <field>
+          <column_name>OUTRA_DST</column_name>
+          <stream_name>OUTRA_DST</stream_name>
+        </field>
+        <field>
+          <column_name>OUTRAS</column_name>
+          <stream_name>OUTRAS</stream_name>
+        </field>
+        <field>
+          <column_name>RE_ANTIHBC</column_name>
+          <stream_name>RE_ANTIHBC</stream_name>
+        </field>
+        <field>
+          <column_name>RE_ANTIHCV</column_name>
+          <stream_name>RE_ANTIHCV</stream_name>
+        </field>
+        <field>
+          <column_name>RES_HBSAG</column_name>
+          <stream_name>RES_HBSAG</stream_name>
+        </field>
+        <field>
+          <column_name>SEXUAL</column_name>
+          <stream_name>SEXUAL</stream_name>
+        </field>
+        <field>
+          <column_name>SRAG</column_name>
+          <stream_name>SRAG</stream_name>
+        </field>
+        <field>
+          <column_name>SRAGHOSP</column_name>
+          <stream_name>SRAGHOSP</stream_name>
+        </field>
+        <field>
+          <column_name>TATU_PIER</column_name>
+          <stream_name>TATU_PIER</stream_name>
+        </field>
+        <field>
+          <column_name>TP_SOROHCV</column_name>
+          <stream_name>TP_SOROHCV</stream_name>
+        </field>
+        <field>
+          <column_name>TRANSFUSAO</column_name>
+          <stream_name>TRANSFUSAO</stream_name>
+        </field>
+        <field>
+          <column_name>TRANSPLA</column_name>
+          <stream_name>TRANSPLA</stream_name>
+        </field>
+        <field>
+          <column_name>TRESMAIS</column_name>
+          <stream_name>TRESMAIS</stream_name>
+        </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>706</xloc>
+      <yloc>173</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Formula</name>
+    <type>Formula</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <formula><field_name>ID_BAIRRO</field_name>
+<formula_string>RIGHT&#x28;&#x22;000&#x22;&#x26;&#x5b;id_bairro&#x5d;&#x3b;3&#x29;</formula_string>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<replace_field>ID_BAIRRO</replace_field>
+</formula>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>385</xloc>
+      <yloc>170</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Modified Java Script Value</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>var ACUPUNTURA &#x3d; ACUPUNTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; ACUPUNTURA&#xd;&#xa;var AGHBE &#x3d; AGHBE &#x3d;&#x3d; undefined&#x3f; null&#x3a; AGHBE&#xd;&#xa;var AGHBS &#x3d; AGHBS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AGHBS&#xd;&#xa;var AGUA_ALIME &#x3d; AGUA_ALIME &#x3d;&#x3d; undefined&#x3f; null&#x3a; AGUA_ALIME&#xd;&#xa;var ANT_PNEUMO &#x3d; ANT_PNEUMO &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANT_PNEUMO&#xd;&#xa;var ANTIHAVIGM &#x3d; ANTIHAVIGM &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHAVIGM&#xd;&#xa;var ANTIHBCIGM &#x3d; ANTIHBCIGM &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHBCIGM&#xd;&#xa;var ANTIHBE &#x3d; ANTIHBE &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHBE&#xd;&#xa;var ANTIHBS &#x3d; ANTIHBS &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHBS&#xd;&#xa;var ANTIHCV &#x3d; ANTIHCV &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHCV&#xd;&#xa;var ANTIHDV &#x3d; ANTIHDV &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHDV&#xd;&#xa;var ANTIHDVIGM &#x3d; ANTIHDVIGM &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHDVIGM&#xd;&#xa;var ANTIHEVIGM &#x3d; ANTIHEVIGM &#x3d;&#x3d; undefined&#x3f; null&#x3a; ANTIHEVIGM&#xd;&#xa;var ARTRALGIA &#x3d; ARTRALGIA &#x3d;&#x3d; undefined&#x3f; null&#x3a; ARTRALGIA&#xd;&#xa;var AVE_10_DIA &#x3d; AVE_10_DIA &#x3d;&#x3d; undefined&#x3f; null&#x3a; AVE_10_DIA&#xd;&#xa;var BANCOSANGU &#x3d; BANCOSANGU &#x3d;&#x3d; undefined&#x3f; null&#x3a; BANCOSANGU&#xd;&#xa;var CALAFRIO &#x3d; CALAFRIO &#x3d;&#x3d; undefined&#x3f; null&#x3a; CALAFRIO&#xd;&#xa;var CARDIOPATI &#x3d; CARDIOPATI &#x3d;&#x3d; undefined&#x3f; null&#x3a; CARDIOPATI&#xd;&#xa;var CIRURGICO &#x3d; CIRURGICO &#x3d;&#x3d; undefined&#x3f; null&#x3a; CIRURGICO&#xd;&#xa;var CLAS_ETIOL &#x3d; CLAS_ETIOL &#x3d;&#x3d; undefined&#x3f; null&#x3a; CLAS_ETIOL&#xd;&#xa;var CO_BAINFC &#x3d; CO_BAINFC &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_BAINFC&#xd;&#xa;var CO_MU_AVE &#x3d; CO_MU_AVE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_MU_AVE&#xd;&#xa;var CO_MU_INTE &#x3d; CO_MU_INTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_MU_INTE&#xd;&#xa;var CO_MUN_EX2 &#x3d; CO_MUN_EX2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_MUN_EX2&#xd;&#xa;var CO_MUN_EX3 &#x3d; CO_MUN_EX3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_MUN_EX3&#xd;&#xa;var CO_MUN_EXP &#x3d; CO_MUN_EXP &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_MUN_EXP&#xd;&#xa;var CO_PA_AVE &#x3d; CO_PA_AVE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_PA_AVE&#xd;&#xa;var CO_UF_AVE &#x3d; CO_UF_AVE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_AVE&#xd;&#xa;var CO_UF_DES1 &#x3d; CO_UF_DES1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_DES1&#xd;&#xa;var CO_UF_DES2 &#x3d; CO_UF_DES2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_DES2&#xd;&#xa;var CO_UF_DES3 &#x3d; CO_UF_DES3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_DES3&#xd;&#xa;var CO_UF_EX2 &#x3d; CO_UF_EX2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_EX2&#xd;&#xa;var CO_UF_EX3 &#x3d; CO_UF_EX3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_EX3&#xd;&#xa;var CO_UF_EXP &#x3d; CO_UF_EXP &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_EXP&#xd;&#xa;var CO_UF_INTE &#x3d; CO_UF_INTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UF_INTE&#xd;&#xa;var CO_UN_INTE &#x3d; CO_UN_INTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_UN_INTE&#xd;&#xa;var CO_USUALT &#x3d; CO_USUALT &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_USUALT&#xd;&#xa;var CO_USUCAD &#x3d; CO_USUCAD &#x3d;&#x3d; undefined&#x3f; null&#x3a; CO_USUCAD&#xd;&#xa;var CODISINF &#x3d; CODISINF &#x3d;&#x3d; undefined&#x3f; null&#x3a; CODISINF&#xd;&#xa;var COLETAMARC &#x3d; COLETAMARC &#x3d;&#x3d; undefined&#x3f; null&#x3a; COLETAMARC&#xd;&#xa;var COMUNINF &#x3d; COMUNINF &#x3d;&#x3d; undefined&#x3f; null&#x3a; COMUNINF&#xd;&#xa;var CONJUNTIV &#x3d; CONJUNTIV &#x3d;&#x3d; undefined&#x3f; null&#x3a; CONJUNTIV&#xd;&#xa;var CONTATO1 &#x3d; CONTATO1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CONTATO1&#xd;&#xa;var CONTATO2 &#x3d; CONTATO2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; CONTATO2&#xd;&#xa;var COPAISINF &#x3d; COPAISINF &#x3d;&#x3d; undefined&#x3f; null&#x3a; COPAISINF&#xd;&#xa;var CORIZA &#x3d; CORIZA &#x3d;&#x3d; undefined&#x3f; null&#x3a; CORIZA&#xd;&#xa;var COUFINF &#x3d; COUFINF &#x3d;&#x3d; undefined&#x3f; null&#x3a; COUFINF&#xd;&#xa;var CRITERIO &#x3d; CRITERIO &#x3d;&#x3d; undefined&#x3f; null&#x3a; CRITERIO&#xd;&#xa;var CS_CNS_SUS &#x3d; CS_CNS_SUS &#x3d;&#x3d; undefined&#x3f; null&#x3a; CS_CNS_SUS&#xd;&#xa;var CS_FLXRET &#x3d; CS_FLXRET &#x3d;&#x3d; undefined&#x3f; null&#x3a; CS_FLXRET&#xd;&#xa;var CULT_AMOST &#x3d; CULT_AMOST &#x3d;&#x3d; undefined&#x3f; null&#x3a; CULT_AMOST&#xd;&#xa;var CULT_OUT &#x3d; CULT_OUT &#x3d;&#x3d; undefined&#x3f; null&#x3a; CULT_OUT&#xd;&#xa;var CULT_RES &#x3d; CULT_RES &#x3d;&#x3d; undefined&#x3f; null&#x3a; CULT_RES&#xd;&#xa;var DENTARIO &#x3d; DENTARIO &#x3d;&#x3d; undefined&#x3f; null&#x3a; DENTARIO&#xd;&#xa;var DIARREIA &#x3d; DIARREIA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DIARREIA&#xd;&#xa;var DISPNEIA &#x3d; DISPNEIA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DISPNEIA&#xd;&#xa;var DOENCA_TRA &#x3d; DOENCA_TRA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DOENCA_TRA&#xd;&#xa;var DOMICILI &#x3d; DOMICILI &#x3d;&#x3d; undefined&#x3f; null&#x3a; DOMICILI&#xd;&#xa;var DS_LOC_EX2 &#x3d; DS_LOC_EX2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_LOC_EX2&#xd;&#xa;var DS_LOC_EX3 &#x3d; DS_LOC_EX3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_LOC_EX3&#xd;&#xa;var DS_LOC_EXP &#x3d; DS_LOC_EXP &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_LOC_EXP&#xd;&#xa;var DS_OBSERVA &#x3d; DS_OBSERVA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_OBSERVA&#xd;&#xa;var DS_TRANS1 &#x3d; DS_TRANS1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_TRANS1&#xd;&#xa;var DS_TRANS2 &#x3d; DS_TRANS2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_TRANS2&#xd;&#xa;var DS_TRANS3 &#x3d; DS_TRANS3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DS_TRANS3&#xd;&#xa;var DSFONTE &#x3d; DSFONTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; DSFONTE&#xd;&#xa;var DT_ACIDENT &#x3d; DT_ACIDENT &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_ACIDENT&#xd;&#xa;var DT_COLETA &#x3d; DT_COLETA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_COLETA&#xd;&#xa;var DT_CULTURA &#x3d; DT_CULTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_CULTURA&#xd;&#xa;var DT_DESC1 &#x3d; DT_DESC1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_DESC1&#xd;&#xa;var DT_DESC2 &#x3d; DT_DESC2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_DESC2&#xd;&#xa;var DT_DESC3 &#x3d; DT_DESC3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_DESC3&#xd;&#xa;var DT_DIGITA &#x3d; DT_DIGITA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_DIGITA&#xd;&#xa;var DT_HEMAGLU &#x3d; DT_HEMAGLU &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_HEMAGLU&#xd;&#xa;var DT_INTERNA &#x3d; DT_INTERNA &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_INTERNA&#xd;&#xa;var DT_OBITO &#x3d; DT_OBITO &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_OBITO&#xd;&#xa;var DT_PCR &#x3d; DT_PCR &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_PCR&#xd;&#xa;var DT_PNEUM &#x3d; DT_PNEUM &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_PNEUM&#xd;&#xa;var DT_RAIOX &#x3d; DT_RAIOX &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_RAIOX&#xd;&#xa;var DT_TRANSDM &#x3d; DT_TRANSDM &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSDM&#xd;&#xa;var DT_TRANSRM &#x3d; DT_TRANSRM &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSRM&#xd;&#xa;var DT_TRANSRS &#x3d; DT_TRANSRS &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSRS&#xd;&#xa;var DT_TRANSSE &#x3d; DT_TRANSSE &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSSE&#xd;&#xa;var DT_TRANSSM &#x3d; DT_TRANSSM &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSSM&#xd;&#xa;var DT_TRANSUS &#x3d; DT_TRANSUS &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRANSUS&#xd;&#xa;var DT_TRASSE &#x3d; DT_TRASSE &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_TRASSE&#xd;&#xa;var DT_UT_DOSE &#x3d; DT_UT_DOSE &#x3d;&#x3d; undefined&#x3f; null&#x3a; DT_UT_DOSE&#xd;&#xa;var EVOLUCAO &#x3d; EVOLUCAO &#x3d;&#x3d; undefined&#x3f; null&#x3a; EVOLUCAO&#xd;&#xa;var FEBRE &#x3d; FEBRE &#x3d;&#x3d; undefined&#x3f; null&#x3a; FEBRE&#xd;&#xa;var FLXRECEBI &#x3d; FLXRECEBI &#x3d;&#x3d; undefined&#x3f; null&#x3a; FLXRECEBI&#xd;&#xa;var FONTE &#x3d; FONTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; FONTE&#xd;&#xa;var FORMA &#x3d; FORMA &#x3d;&#x3d; undefined&#x3f; null&#x3a; FORMA&#xd;&#xa;var GARGANTA &#x3d; GARGANTA &#x3d;&#x3d; undefined&#x3f; null&#x3a; GARGANTA&#xd;&#xa;var GEN_VHC &#x3d; GEN_VHC &#x3d;&#x3d; undefined&#x3f; null&#x3a; GEN_VHC&#xd;&#xa;var HBC_TOTAL &#x3d; HBC_TOTAL &#x3d;&#x3d; undefined&#x3f; null&#x3a; HBC_TOTAL&#xd;&#xa;var HEM_TIPO_H &#x3d; HEM_TIPO_H &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEM_TIPO_H&#xd;&#xa;var HEM_TIPO_N &#x3d; HEM_TIPO_N &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEM_TIPO_N&#xd;&#xa;var HEMA_ETIOL &#x3d; HEMA_ETIOL &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEMA_ETIOL&#xd;&#xa;var HEMA_RES &#x3d; HEMA_RES &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEMA_RES&#xd;&#xa;var HEMODIALIS &#x3d; HEMODIALIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEMODIALIS&#xd;&#xa;var HEMOGLOBI &#x3d; HEMOGLOBI &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEMOGLOBI&#xd;&#xa;var HEPATITA &#x3d; HEPATITA &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEPATITA&#xd;&#xa;var HEPATITB &#x3d; HEPATITB &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEPATITB&#xd;&#xa;var HEPATITE_N &#x3d; HEPATITE_N &#x3d;&#x3d; undefined&#x3f; null&#x3a; HEPATITE_N&#xd;&#xa;var HIV &#x3d; HIV &#x3d;&#x3d; undefined&#x3f; null&#x3a; HIV&#xd;&#xa;var HOSPITAL &#x3d; HOSPITAL &#x3d;&#x3d; undefined&#x3f; null&#x3a; HOSPITAL&#xd;&#xa;var ID_CNS_SUS &#x3d; ID_CNS_SUS &#x3d;&#x3d; undefined&#x3f; null&#x3a; ID_CNS_SUS&#xd;&#xa;var IDENT_MICR &#x3d; IDENT_MICR &#x3d;&#x3d; undefined&#x3f; null&#x3a; IDENT_MICR&#xd;&#xa;var IMUNODEPRE &#x3d; IMUNODEPRE &#x3d;&#x3d; undefined&#x3f; null&#x3a; IMUNODEPRE&#xd;&#xa;var INAL_CRACK &#x3d; INAL_CRACK &#x3d;&#x3d; undefined&#x3f; null&#x3a; INAL_CRACK&#xd;&#xa;var INJETAVEIS &#x3d; INJETAVEIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; INJETAVEIS&#xd;&#xa;var INSTITUCIO &#x3d; INSTITUCIO &#x3d;&#x3d; undefined&#x3f; null&#x3a; INSTITUCIO&#xd;&#xa;var MATBIOLOGI &#x3d; MATBIOLOGI &#x3d;&#x3d; undefined&#x3f; null&#x3a; MATBIOLOGI&#xd;&#xa;var MEDICAMENT &#x3d; MEDICAMENT &#x3d;&#x3d; undefined&#x3f; null&#x3a; MEDICAMENT&#xd;&#xa;var METABOLICA &#x3d; METABOLICA &#x3d;&#x3d; undefined&#x3f; null&#x3a; METABOLICA&#xd;&#xa;var MIALGIA &#x3d; MIALGIA &#x3d;&#x3d; undefined&#x3f; null&#x3a; MIALGIA&#xd;&#xa;var MIGRADO_W &#x3d; MIGRADO_W &#x3d;&#x3d; undefined&#x3f; null&#x3a; MIGRADO_W&#xd;&#xa;var MONITORA &#x3d; MONITORA &#x3d;&#x3d; undefined&#x3f; null&#x3a; MONITORA&#xd;&#xa;var MONITORA_1 &#x3d; MONITORA_1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; MONITORA_1&#xd;&#xa;var MORB_DESC &#x3d; MORB_DESC &#x3d;&#x3d; undefined&#x3f; null&#x3a; MORB_DESC&#xd;&#xa;var MUN_DES1 &#x3d; MUN_DES1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; MUN_DES1&#xd;&#xa;var MUN_DES2 &#x3d; MUN_DES2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; MUN_DES2&#xd;&#xa;var MUN_DES3 &#x3d; MUN_DES3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; MUN_DES3&#xd;&#xa;var NDUPLIC_N &#x3d; NDUPLIC_N &#x3d;&#x3d; undefined&#x3f; null&#x3a; NDUPLIC_N&#xd;&#xa;var NOBAIINF &#x3d; NOBAIINF &#x3d;&#x3d; undefined&#x3f; null&#x3a; NOBAIINF&#xd;&#xa;var NU_LOTE_H &#x3d; NU_LOTE_H &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_LOTE_H&#xd;&#xa;var NU_LOTE_I &#x3d; NU_LOTE_I &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_LOTE_I&#xd;&#xa;var NU_LOTE_V &#x3d; NU_LOTE_V &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_LOTE_V&#xd;&#xa;var NU_TEL_EX2 &#x3d; NU_TEL_EX2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_TEL_EX2&#xd;&#xa;var NU_TEL_EX3 &#x3d; NU_TEL_EX3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_TEL_EX3&#xd;&#xa;var NU_TEL_EXP &#x3d; NU_TEL_EXP &#x3d;&#x3d; undefined&#x3f; null&#x3a; NU_TEL_EXP&#xd;&#xa;var OCUPACIO &#x3d; OCUPACIO &#x3d;&#x3d; undefined&#x3f; null&#x3a; OCUPACIO&#xd;&#xa;var OUT_MORBI &#x3d; OUT_MORBI &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUT_MORBI&#xd;&#xa;var OUTRA_DST &#x3d; OUTRA_DST &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUTRA_DST&#xd;&#xa;var OUTRAS &#x3d; OUTRAS &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUTRAS&#xd;&#xa;var OUTRO_DES &#x3d; OUTRO_DES &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUTRO_DES&#xd;&#xa;var OUTRO_LOC &#x3d; OUTRO_LOC &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUTRO_LOC&#xd;&#xa;var OUTRO_SIN &#x3d; OUTRO_SIN &#x3d;&#x3d; undefined&#x3f; null&#x3a; OUTRO_SIN&#xd;&#xa;var PA_DES1 &#x3d; PA_DES1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; PA_DES1&#xd;&#xa;var PA_DES2 &#x3d; PA_DES2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; PA_DES2&#xd;&#xa;var PA_DES3 &#x3d; PA_DES3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; PA_DES3&#xd;&#xa;var PCR_AMOSTR &#x3d; PCR_AMOSTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_AMOSTR&#xd;&#xa;var PCR_ETIOL &#x3d; PCR_ETIOL &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_ETIOL&#xd;&#xa;var PCR_OUT &#x3d; PCR_OUT &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_OUT&#xd;&#xa;var PCR_RES &#x3d; PCR_RES &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_RES&#xd;&#xa;var PCR_TIPO_H &#x3d; PCR_TIPO_H &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_TIPO_H&#xd;&#xa;var PCR_TIPO_N &#x3d; PCR_TIPO_N &#x3d;&#x3d; undefined&#x3f; null&#x3a; PCR_TIPO_N&#xd;&#xa;var PNEUMOPATI &#x3d; PNEUMOPATI &#x3d;&#x3d; undefined&#x3f; null&#x3a; PNEUMOPATI&#xd;&#xa;var RAIOX_OUT &#x3d; RAIOX_OUT &#x3d;&#x3d; undefined&#x3f; null&#x3a; RAIOX_OUT&#xd;&#xa;var RAIOX_RES &#x3d; RAIOX_RES &#x3d;&#x3d; undefined&#x3f; null&#x3a; RAIOX_RES&#xd;&#xa;var RE_ANTIHBC &#x3d; RE_ANTIHBC &#x3d;&#x3d; undefined&#x3f; null&#x3a; RE_ANTIHBC&#xd;&#xa;var RE_ANTIHCV &#x3d; RE_ANTIHCV &#x3d;&#x3d; undefined&#x3f; null&#x3a; RE_ANTIHCV&#xd;&#xa;var RENAL &#x3d; RENAL &#x3d;&#x3d; undefined&#x3f; null&#x3a; RENAL&#xd;&#xa;var RES_HBSAG &#x3d; RES_HBSAG &#x3d;&#x3d; undefined&#x3f; null&#x3a; RES_HBSAG&#xd;&#xa;var SEXUAL &#x3d; SEXUAL &#x3d;&#x3d; undefined&#x3f; null&#x3a; SEXUAL&#xd;&#xa;var SRAG &#x3d; SRAG &#x3d;&#x3d; undefined&#x3f; null&#x3a; SRAG&#xd;&#xa;var SRAGHOSP &#x3d; SRAGHOSP &#x3d;&#x3d; undefined&#x3f; null&#x3a; SRAGHOSP&#xd;&#xa;var TABAGISMO &#x3d; TABAGISMO &#x3d;&#x3d; undefined&#x3f; null&#x3a; TABAGISMO&#xd;&#xa;var TATU_PIER &#x3d; TATU_PIER &#x3d;&#x3d; undefined&#x3f; null&#x3a; TATU_PIER&#xd;&#xa;var TOSSE &#x3d; TOSSE &#x3d;&#x3d; undefined&#x3f; null&#x3a; TOSSE&#xd;&#xa;var TP_SOROHCV &#x3d; TP_SOROHCV &#x3d;&#x3d; undefined&#x3f; null&#x3a; TP_SOROHCV&#xd;&#xa;var TPAUTOCTO &#x3d; TPAUTOCTO &#x3d;&#x3d; undefined&#x3f; null&#x3a; TPAUTOCTO&#xd;&#xa;var TRANSFUSAO &#x3d; TRANSFUSAO &#x3d;&#x3d; undefined&#x3f; null&#x3a; TRANSFUSAO&#xd;&#xa;var TRANSPLA &#x3d; TRANSPLA &#x3d;&#x3d; undefined&#x3f; null&#x3a; TRANSPLA&#xd;&#xa;var TRANSPORTE &#x3d; TRANSPORTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; TRANSPORTE&#xd;&#xa;var TRESMAIS &#x3d; TRESMAIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; TRESMAIS&#xd;&#xa;var VACINA &#x3d; VACINA &#x3d;&#x3d; undefined&#x3f; null&#x3a; VACINA</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>ACUPUNTURA</name>
+        <rename>ACUPUNTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AGHBE</name>
+        <rename>AGHBE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AGHBS</name>
+        <rename>AGHBS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AGUA_ALIME</name>
+        <rename>AGUA_ALIME</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANT_PNEUMO</name>
+        <rename>ANT_PNEUMO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHAVIGM</name>
+        <rename>ANTIHAVIGM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHBCIGM</name>
+        <rename>ANTIHBCIGM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHBE</name>
+        <rename>ANTIHBE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHBS</name>
+        <rename>ANTIHBS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHCV</name>
+        <rename>ANTIHCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHDV</name>
+        <rename>ANTIHDV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHDVIGM</name>
+        <rename>ANTIHDVIGM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ANTIHEVIGM</name>
+        <rename>ANTIHEVIGM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ARTRALGIA</name>
+        <rename>ARTRALGIA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AVE_10_DIA</name>
+        <rename>AVE_10_DIA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>BANCOSANGU</name>
+        <rename>BANCOSANGU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CALAFRIO</name>
+        <rename>CALAFRIO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CARDIOPATI</name>
+        <rename>CARDIOPATI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CIRURGICO</name>
+        <rename>CIRURGICO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CLAS_ETIOL</name>
+        <rename>CLAS_ETIOL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_BAINFC</name>
+        <rename>CO_BAINFC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_MU_AVE</name>
+        <rename>CO_MU_AVE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_MU_INTE</name>
+        <rename>CO_MU_INTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_MUN_EX2</name>
+        <rename>CO_MUN_EX2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_MUN_EX3</name>
+        <rename>CO_MUN_EX3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_MUN_EXP</name>
+        <rename>CO_MUN_EXP</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_PA_AVE</name>
+        <rename>CO_PA_AVE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_AVE</name>
+        <rename>CO_UF_AVE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_DES1</name>
+        <rename>CO_UF_DES1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_DES2</name>
+        <rename>CO_UF_DES2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_DES3</name>
+        <rename>CO_UF_DES3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_EX2</name>
+        <rename>CO_UF_EX2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_EX3</name>
+        <rename>CO_UF_EX3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_EXP</name>
+        <rename>CO_UF_EXP</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UF_INTE</name>
+        <rename>CO_UF_INTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_UN_INTE</name>
+        <rename>CO_UN_INTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_USUALT</name>
+        <rename>CO_USUALT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CO_USUCAD</name>
+        <rename>CO_USUCAD</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CODISINF</name>
+        <rename>CODISINF</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>COLETAMARC</name>
+        <rename>COLETAMARC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>COMUNINF</name>
+        <rename>COMUNINF</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CONJUNTIV</name>
+        <rename>CONJUNTIV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CONTATO1</name>
+        <rename>CONTATO1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CONTATO2</name>
+        <rename>CONTATO2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>COPAISINF</name>
+        <rename>COPAISINF</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CORIZA</name>
+        <rename>CORIZA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>COUFINF</name>
+        <rename>COUFINF</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CRITERIO</name>
+        <rename>CRITERIO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CS_CNS_SUS</name>
+        <rename>CS_CNS_SUS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CS_FLXRET</name>
+        <rename>CS_FLXRET</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CULT_AMOST</name>
+        <rename>CULT_AMOST</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CULT_OUT</name>
+        <rename>CULT_OUT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CULT_RES</name>
+        <rename>CULT_RES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DENTARIO</name>
+        <rename>DENTARIO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DIARREIA</name>
+        <rename>DIARREIA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DISPNEIA</name>
+        <rename>DISPNEIA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DOENCA_TRA</name>
+        <rename>DOENCA_TRA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DOMICILI</name>
+        <rename>DOMICILI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_LOC_EX2</name>
+        <rename>DS_LOC_EX2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_LOC_EX3</name>
+        <rename>DS_LOC_EX3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_LOC_EXP</name>
+        <rename>DS_LOC_EXP</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_OBSERVA</name>
+        <rename>DS_OBSERVA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_TRANS1</name>
+        <rename>DS_TRANS1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_TRANS2</name>
+        <rename>DS_TRANS2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DS_TRANS3</name>
+        <rename>DS_TRANS3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DSFONTE</name>
+        <rename>DSFONTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_ACIDENT</name>
+        <rename>DT_ACIDENT</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_COLETA</name>
+        <rename>DT_COLETA</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_CULTURA</name>
+        <rename>DT_CULTURA</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_DESC1</name>
+        <rename>DT_DESC1</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_DESC2</name>
+        <rename>DT_DESC2</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_DESC3</name>
+        <rename>DT_DESC3</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_DIGITA</name>
+        <rename>DT_DIGITA</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_HEMAGLU</name>
+        <rename>DT_HEMAGLU</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_INTERNA</name>
+        <rename>DT_INTERNA</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_OBITO</name>
+        <rename>DT_OBITO</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_PCR</name>
+        <rename>DT_PCR</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_PNEUM</name>
+        <rename>DT_PNEUM</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_RAIOX</name>
+        <rename>DT_RAIOX</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSDM</name>
+        <rename>DT_TRANSDM</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSRM</name>
+        <rename>DT_TRANSRM</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSRS</name>
+        <rename>DT_TRANSRS</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSSE</name>
+        <rename>DT_TRANSSE</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSSM</name>
+        <rename>DT_TRANSSM</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRANSUS</name>
+        <rename>DT_TRANSUS</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_TRASSE</name>
+        <rename>DT_TRASSE</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DT_UT_DOSE</name>
+        <rename>DT_UT_DOSE</rename>
+        <type>Date</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>EVOLUCAO</name>
+        <rename>EVOLUCAO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>FEBRE</name>
+        <rename>FEBRE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>FLXRECEBI</name>
+        <rename>FLXRECEBI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>FONTE</name>
+        <rename>FONTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>FORMA</name>
+        <rename>FORMA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>GARGANTA</name>
+        <rename>GARGANTA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>GEN_VHC</name>
+        <rename>GEN_VHC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HBC_TOTAL</name>
+        <rename>HBC_TOTAL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEM_TIPO_H</name>
+        <rename>HEM_TIPO_H</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEM_TIPO_N</name>
+        <rename>HEM_TIPO_N</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEMA_ETIOL</name>
+        <rename>HEMA_ETIOL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEMA_RES</name>
+        <rename>HEMA_RES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEMODIALIS</name>
+        <rename>HEMODIALIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEMOGLOBI</name>
+        <rename>HEMOGLOBI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEPATITA</name>
+        <rename>HEPATITA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEPATITB</name>
+        <rename>HEPATITB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HEPATITE_N</name>
+        <rename>HEPATITE_N</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HIV</name>
+        <rename>HIV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>HOSPITAL</name>
+        <rename>HOSPITAL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ID_CNS_SUS</name>
+        <rename>ID_CNS_SUS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>IDENT_MICR</name>
+        <rename>IDENT_MICR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>IMUNODEPRE</name>
+        <rename>IMUNODEPRE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>INAL_CRACK</name>
+        <rename>INAL_CRACK</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>INJETAVEIS</name>
+        <rename>INJETAVEIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>INSTITUCIO</name>
+        <rename>INSTITUCIO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MATBIOLOGI</name>
+        <rename>MATBIOLOGI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MEDICAMENT</name>
+        <rename>MEDICAMENT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>METABOLICA</name>
+        <rename>METABOLICA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MIALGIA</name>
+        <rename>MIALGIA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MIGRADO_W</name>
+        <rename>MIGRADO_W</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MONITORA</name>
+        <rename>MONITORA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MONITORA_1</name>
+        <rename>MONITORA_1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MORB_DESC</name>
+        <rename>MORB_DESC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MUN_DES1</name>
+        <rename>MUN_DES1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MUN_DES2</name>
+        <rename>MUN_DES2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>MUN_DES3</name>
+        <rename>MUN_DES3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NDUPLIC_N</name>
+        <rename>NDUPLIC_N</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NOBAIINF</name>
+        <rename>NOBAIINF</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_LOTE_H</name>
+        <rename>NU_LOTE_H</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_LOTE_I</name>
+        <rename>NU_LOTE_I</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_LOTE_V</name>
+        <rename>NU_LOTE_V</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_TEL_EX2</name>
+        <rename>NU_TEL_EX2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_TEL_EX3</name>
+        <rename>NU_TEL_EX3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>NU_TEL_EXP</name>
+        <rename>NU_TEL_EXP</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OCUPACIO</name>
+        <rename>OCUPACIO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUT_MORBI</name>
+        <rename>OUT_MORBI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUTRA_DST</name>
+        <rename>OUTRA_DST</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUTRAS</name>
+        <rename>OUTRAS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUTRO_DES</name>
+        <rename>OUTRO_DES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUTRO_LOC</name>
+        <rename>OUTRO_LOC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>OUTRO_SIN</name>
+        <rename>OUTRO_SIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PA_DES1</name>
+        <rename>PA_DES1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PA_DES2</name>
+        <rename>PA_DES2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PA_DES3</name>
+        <rename>PA_DES3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_AMOSTR</name>
+        <rename>PCR_AMOSTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_ETIOL</name>
+        <rename>PCR_ETIOL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_OUT</name>
+        <rename>PCR_OUT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_RES</name>
+        <rename>PCR_RES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_TIPO_H</name>
+        <rename>PCR_TIPO_H</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PCR_TIPO_N</name>
+        <rename>PCR_TIPO_N</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PNEUMOPATI</name>
+        <rename>PNEUMOPATI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RAIOX_OUT</name>
+        <rename>RAIOX_OUT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RAIOX_RES</name>
+        <rename>RAIOX_RES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RE_ANTIHBC</name>
+        <rename>RE_ANTIHBC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RE_ANTIHCV</name>
+        <rename>RE_ANTIHCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RENAL</name>
+        <rename>RENAL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>RES_HBSAG</name>
+        <rename>RES_HBSAG</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>SEXUAL</name>
+        <rename>SEXUAL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>SRAG</name>
+        <rename>SRAG</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>SRAGHOSP</name>
+        <rename>SRAGHOSP</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TABAGISMO</name>
+        <rename>TABAGISMO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TATU_PIER</name>
+        <rename>TATU_PIER</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TOSSE</name>
+        <rename>TOSSE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TP_SOROHCV</name>
+        <rename>TP_SOROHCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TPAUTOCTO</name>
+        <rename>TPAUTOCTO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TRANSFUSAO</name>
+        <rename>TRANSFUSAO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TRANSPLA</name>
+        <rename>TRANSPLA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TRANSPORTE</name>
+        <rename>TRANSPORTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TRESMAIS</name>
+        <rename>TRESMAIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>VACINA</name>
+        <rename>VACINA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>540</xloc>
+      <yloc>175</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step_error_handling>
+  </step_error_handling>
+   <slave-step-copy-partition-distribution>
+</slave-step-copy-partition-distribution>
+   <slave_transformation>N</slave_transformation>
+
+</transformation>

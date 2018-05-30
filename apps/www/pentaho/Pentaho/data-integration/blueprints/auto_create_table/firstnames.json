@@ -1,0 +1,36 @@
+{
+   "targettable" : "firstnames",
+   "targetschema" : "",
+   "targetdatabase" : "demo",
+ 
+   "modelname" : "First names",
+ 
+   "separator" : ",",
+
+   "fields":[
+      {
+         "name":"name",
+         "type":"String",
+         "flength":"20",
+         "precision":"-1"
+      },
+      {
+         "name":"percentage",
+         "type":"Number",
+         "flength":"6",
+         "precision":"3"
+      },
+      {
+         "name":"rank",
+         "type":"Integer",
+         "flength":"7",
+         "precision":"0"
+      },
+      {
+         "name":"gender",
+         "type":"String",
+         "flength":"1",
+         "precision":"-1"
+      }
+   ]
+}

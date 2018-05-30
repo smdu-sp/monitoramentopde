@@ -1,0 +1,2438 @@
+<transformation>
+  <info>
+    <name>Import.SiaApa</name>
+    <description/>
+    <extended_description/>
+    <trans_version/>
+    <trans_type>Normal</trans_type>
+    <trans_status>0</trans_status>
+    <directory>&#x2f;</directory>
+    <parameters>
+    </parameters>
+    <log>
+<trans-log-table><connection/>
+<schema/>
+<table/>
+<size_limit_lines/>
+<interval/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STATUS</id><enabled>Y</enabled><name>STATUS</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name><subject/></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name><subject/></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name><subject/></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name><subject/></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name><subject/></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name><subject/></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>STARTDATE</id><enabled>Y</enabled><name>STARTDATE</name></field><field><id>ENDDATE</id><enabled>Y</enabled><name>ENDDATE</name></field><field><id>LOGDATE</id><enabled>Y</enabled><name>LOGDATE</name></field><field><id>DEPDATE</id><enabled>Y</enabled><name>DEPDATE</name></field><field><id>REPLAYDATE</id><enabled>Y</enabled><name>REPLAYDATE</name></field><field><id>LOG_FIELD</id><enabled>Y</enabled><name>LOG_FIELD</name></field><field><id>EXECUTING_SERVER</id><enabled>N</enabled><name>EXECUTING_SERVER</name></field><field><id>EXECUTING_USER</id><enabled>N</enabled><name>EXECUTING_USER</name></field><field><id>CLIENT</id><enabled>N</enabled><name>CLIENT</name></field></trans-log-table>
+<perf-log-table><connection/>
+<schema/>
+<table/>
+<interval/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>SEQ_NR</id><enabled>Y</enabled><name>SEQ_NR</name></field><field><id>LOGDATE</id><enabled>Y</enabled><name>LOGDATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>INPUT_BUFFER_ROWS</id><enabled>Y</enabled><name>INPUT_BUFFER_ROWS</name></field><field><id>OUTPUT_BUFFER_ROWS</id><enabled>Y</enabled><name>OUTPUT_BUFFER_ROWS</name></field></perf-log-table>
+<channel-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>LOGGING_OBJECT_TYPE</id><enabled>Y</enabled><name>LOGGING_OBJECT_TYPE</name></field><field><id>OBJECT_NAME</id><enabled>Y</enabled><name>OBJECT_NAME</name></field><field><id>OBJECT_COPY</id><enabled>Y</enabled><name>OBJECT_COPY</name></field><field><id>REPOSITORY_DIRECTORY</id><enabled>Y</enabled><name>REPOSITORY_DIRECTORY</name></field><field><id>FILENAME</id><enabled>Y</enabled><name>FILENAME</name></field><field><id>OBJECT_ID</id><enabled>Y</enabled><name>OBJECT_ID</name></field><field><id>OBJECT_REVISION</id><enabled>Y</enabled><name>OBJECT_REVISION</name></field><field><id>PARENT_CHANNEL_ID</id><enabled>Y</enabled><name>PARENT_CHANNEL_ID</name></field><field><id>ROOT_CHANNEL_ID</id><enabled>Y</enabled><name>ROOT_CHANNEL_ID</name></field></channel-log-table>
+<step-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>TRANSNAME</id><enabled>Y</enabled><name>TRANSNAME</name></field><field><id>STEPNAME</id><enabled>Y</enabled><name>STEPNAME</name></field><field><id>STEP_COPY</id><enabled>Y</enabled><name>STEP_COPY</name></field><field><id>LINES_READ</id><enabled>Y</enabled><name>LINES_READ</name></field><field><id>LINES_WRITTEN</id><enabled>Y</enabled><name>LINES_WRITTEN</name></field><field><id>LINES_UPDATED</id><enabled>Y</enabled><name>LINES_UPDATED</name></field><field><id>LINES_INPUT</id><enabled>Y</enabled><name>LINES_INPUT</name></field><field><id>LINES_OUTPUT</id><enabled>Y</enabled><name>LINES_OUTPUT</name></field><field><id>LINES_REJECTED</id><enabled>Y</enabled><name>LINES_REJECTED</name></field><field><id>ERRORS</id><enabled>Y</enabled><name>ERRORS</name></field><field><id>LOG_FIELD</id><enabled>N</enabled><name>LOG_FIELD</name></field></step-log-table>
+<metrics-log-table><connection/>
+<schema/>
+<table/>
+<timeout_days/>
+<field><id>ID_BATCH</id><enabled>Y</enabled><name>ID_BATCH</name></field><field><id>CHANNEL_ID</id><enabled>Y</enabled><name>CHANNEL_ID</name></field><field><id>LOG_DATE</id><enabled>Y</enabled><name>LOG_DATE</name></field><field><id>METRICS_DATE</id><enabled>Y</enabled><name>METRICS_DATE</name></field><field><id>METRICS_CODE</id><enabled>Y</enabled><name>METRICS_CODE</name></field><field><id>METRICS_DESCRIPTION</id><enabled>Y</enabled><name>METRICS_DESCRIPTION</name></field><field><id>METRICS_SUBJECT</id><enabled>Y</enabled><name>METRICS_SUBJECT</name></field><field><id>METRICS_TYPE</id><enabled>Y</enabled><name>METRICS_TYPE</name></field><field><id>METRICS_VALUE</id><enabled>Y</enabled><name>METRICS_VALUE</name></field></metrics-log-table>
+    </log>
+    <maxdate>
+      <connection/>
+      <table/>
+      <field/>
+      <offset>0.0</offset>
+      <maxdiff>0.0</maxdiff>
+    </maxdate>
+    <size_rowset>10000</size_rowset>
+    <sleep_time_empty>0</sleep_time_empty>
+    <sleep_time_full>0</sleep_time_full>
+    <unique_connections>N</unique_connections>
+    <feedback_shown>Y</feedback_shown>
+    <feedback_size>50000</feedback_size>
+    <using_thread_priorities>Y</using_thread_priorities>
+    <shared_objects_file/>
+    <capture_step_performance>N</capture_step_performance>
+    <step_performance_capturing_delay>1000</step_performance_capturing_delay>
+    <step_performance_capturing_size_limit>100</step_performance_capturing_size_limit>
+    <dependencies>
+    </dependencies>
+    <partitionschemas>
+    </partitionschemas>
+    <slaveservers>
+         <slaveserver><name>CARTE</name><hostname>&#x24;&#x7b;CARTE_HOSTNAME&#x7d;</hostname><port>&#x24;&#x7b;CARTE_PORT&#x7d;</port><webAppName/><username>&#x24;&#x7b;CARTE_USER&#x7d;</username><password>&#x24;&#x7b;CARTE_PWD&#x7d;</password><proxy_hostname>&#x24;&#x7b;CARTE_PROXY_HOST&#x7d;</proxy_hostname><proxy_port>&#x24;&#x7b;CARTE_PROXY_PORT&#x7d;</proxy_port><non_proxy_hosts>&#x24;&#x7b;CARTE_NON_PROXY&#x7d;</non_proxy_hosts><master>Y</master><sslMode>N</sslMode></slaveserver>
+    </slaveservers>
+    <clusterschemas>
+    </clusterschemas>
+  <created_user/>
+  <created_date>2016&#x2f;06&#x2f;01 22&#x3a;08&#x3a;45.010</created_date>
+  <modified_user>admin</modified_user>
+  <modified_date>2012&#x2f;06&#x2f;22 14&#x3a;16&#x3a;42.155</modified_date>
+    <key_for_session_key>H4sIAAAAAAAAAAMAAAAAAAAAAAA&#x3d;</key_for_session_key>
+    <is_key_private>N</is_key_private>
+  </info>
+  <notepads>
+  </notepads>
+  <connection>
+    <name>PerfilDinamico</name>
+    <server>localhost</server>
+    <type>POSTGRESQL</type>
+    <access>Native</access>
+    <database>PerfilDinamico</database>
+    <port>5432</port>
+    <username>admin</username>
+    <password>Encrypted 2be98afc86aa7f2afa41fbe78c68aa18b</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>5432</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+  <order>
+  <hop> <from>Base SIA</from><to>Ajusta Campos Old</to><enabled>N</enabled> </hop>
+  <hop> <from>Ajusta Campos Old</from><to>Select values</to><enabled>N</enabled> </hop>
+  <hop> <from>Select values</from><to>Calculator</to><enabled>Y</enabled> </hop>
+  <hop> <from>Base SIA</from><to>Ajusta Campos</to><enabled>Y</enabled> </hop>
+  <hop> <from>Ajusta Campos</from><to>Select values</to><enabled>Y</enabled> </hop>
+  <hop> <from>Calculator</from><to>Carrega Dados SIA</to><enabled>Y</enabled> </hop>
+  </order>
+  <step>
+    <name>Ajusta Campos</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#x2f;&#x2f;Script here&#xd;&#xa;var AR_LINFIN &#x3d; AR_LINFIN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_LINFIN&#xd;&#xa;var AM_GESTANT &#x3d; AM_GESTANT&#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_GESTANT&#xd;&#xa;var AR_INIAR3 &#x3d; AR_INIAR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR3&#xd;&#xa;var AR_NUMC1 &#x3d; AR_NUMC1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC1&#xd;&#xa;var AB_NUMAIH &#x3d; AB_NUMAIH &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_NUMAIH&#xd;&#xa;var AQ_GRAHIS &#x3d; AQ_GRAHIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_GRAHIS&#xd;&#xa;var AR_CIDINI2 &#x3d; AR_CIDINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI2&#xd;&#xa;var AM_PESO &#x3d; AM_PESO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_PESO&#xd;&#xa;var AM_TRANSPL &#x3d; AM_TRANSPL &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_TRANSPL&#xd;&#xa;var AN_INTFIS &#x3d; AN_INTFIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_INTFIS&#xd;&#xa;var AQ_ESQU_P1 &#x3d; AQ_ESQU_P1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESQU_P1&#xd;&#xa;var AQ_CIDINI2 &#x3d; AQ_CIDINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI2&#xd;&#xa;var AQ_ESTADI &#x3d; AQ_ESTADI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESTADI&#xd;&#xa;var AQ_DTINI2 &#x3d; AQ_DTINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI2&#xd;&#xa;var AR_CIDINI1 &#x3d; AR_CIDINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI1&#xd;&#xa;var AR_FIMAR1 &#x3d; AR_FIMAR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR1&#xd;&#xa;var AQ_ESQU_P2 &#x3d; AQ_ESQU_P2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESQU_P2&#xd;&#xa;var AN_HIV &#x3d; AN_HIV &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HIV&#xd;&#xa;var AN_PESO &#x3d; AN_PESO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_PESO&#xd;&#xa;var AR_GRAHIS &#x3d; AR_GRAHIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_GRAHIS&#xd;&#xa;var AB_IMC &#x3d; AB_IMC &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_IMC&#xd;&#xa;var AR_FINALI &#x3d; AR_FINALI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FINALI&#xd;&#xa;var AN_ULSOAB &#x3d; AN_ULSOAB &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ULSOAB&#xd;&#xa;var AB_PONTBAR &#x3d; AB_PONTBAR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PONTBAR&#xd;&#xa;var AB_DTCIRUR &#x3d; AB_DTCIRUR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_DTCIRUR&#xd;&#xa;var AN_ACEVAS &#x3d; AN_ACEVAS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ACEVAS&#xd;&#xa;var AR_DTINI2 &#x3d; AR_DTINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI2&#xd;&#xa;var AQ_DTINI3 &#x3d; AQ_DTINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI3&#xd;&#xa;var AM_ALTURA &#x3d; AM_ALTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_ALTURA&#xd;&#xa;var AN_CNCDO &#x3d; AN_CNCDO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_CNCDO&#xd;&#xa;var AB_TABBARR &#x3d; AB_TABBARR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_TABBARR&#xd;&#xa;var AB_DTCIRG2 &#x3d; AB_DTCIRG2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_DTCIRG2&#xd;&#xa;var AR_INIAR2 &#x3d; AR_INIAR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR2&#xd;&#xa;var AN_HBSAG &#x3d; AN_HBSAG &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HBSAG&#xd;&#xa;var AQ_CID10 &#x3d; AQ_CID10 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CID10&#xd;&#xa;var AR_DTINTR &#x3d; AR_DTINTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINTR&#xd;&#xa;var AB_PROCAIH &#x3d; AB_PROCAIH &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PROCAIH&#xd;&#xa;var AN_HB &#x3d; AN_HB &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HB&#xd;&#xa;var AB_MESACOM &#x3d; AB_MESACOM &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_MESACOM&#xd;&#xa;var AR_DTINI1 &#x3d; AR_DTINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI1&#xd;&#xa;var AR_CONTTR &#x3d; AR_CONTTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CONTTR&#xd;&#xa;var AN_ALTURA &#x3d; AN_ALTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ALTURA&#xd;&#xa;var AN_TRU &#x3d; AN_TRU &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_TRU&#xd;&#xa;var AQ_TRANTE &#x3d; AQ_TRANTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TRANTE&#xd;&#xa;var AQ_CIDINI1 &#x3d; AQ_CIDINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI1&#xd;&#xa;var AR_CIDINI3 &#x3d; AR_CIDINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI3&#xd;&#xa;var AR_CIDTR2 &#x3d; AR_CIDTR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR2&#xd;&#xa;var AR_NUMC3 &#x3d; AR_NUMC3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC3&#xd;&#xa;var AB_ANOACOM &#x3d; AB_ANOACOM &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_ANOACOM&#xd;&#xa;var AN_DTPDR &#x3d; AN_DTPDR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_DTPDR&#xd;&#xa;var AR_ESTADI &#x3d; AR_ESTADI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_ESTADI&#xd;&#xa;var AR_CIDTR1 &#x3d; AR_CIDTR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR1&#xd;&#xa;var AB_NUMAIH2 &#x3d; AB_NUMAIH2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_NUMAIH2&#xd;&#xa;var AR_FIMAR3 &#x3d; AR_FIMAR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR3&#xd;&#xa;var AQ_CIDINI3 &#x3d; AQ_CIDINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI3&#xd;&#xa;var AR_CID10 &#x3d; AR_CID10 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CID10&#xd;&#xa;var AN_DIURES &#x3d; AN_DIURES &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_DIURES&#xd;&#xa;var AR_TRANTE &#x3d; AR_TRANTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_TRANTE&#xd;&#xa;var AR_SMRD &#x3d; AR_SMRD &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_SMRD&#xd;&#xa;var AM_QTDTRAN &#x3d; AM_QTDTRAN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_QTDTRAN&#xd;&#xa;var AQ_CONTTR &#x3d; AQ_CONTTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CONTTR&#xd;&#xa;var AN_ALBUMI &#x3d; AN_ALBUMI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ALBUMI&#xd;&#xa;var AQ_DTINI1 &#x3d; AQ_DTINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI1&#xd;&#xa;var AN_GLICOS &#x3d; AN_GLICOS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_GLICOS&#xd;&#xa;var AQ_TOTMPL &#x3d; AQ_TOTMPL &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TOTMPL&#xd;&#xa;var AR_FIMAR2 &#x3d; AR_FIMAR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR2&#xd;&#xa;var AR_CIDTR3 &#x3d; AR_CIDTR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR3&#xd;&#xa;var AQ_DTINTR &#x3d; AQ_DTINTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINTR&#xd;&#xa;var AQ_TOTMAU &#x3d; AQ_TOTMAU &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TOTMAU&#xd;&#xa;var AR_DTINI3 &#x3d; AR_DTINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI3&#xd;&#xa;var AR_DTIDEN &#x3d; AR_DTIDEN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTIDEN&#xd;&#xa;var AQ_DTIDEN &#x3d; AQ_DTIDEN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTIDEN&#xd;&#xa;var AB_PRCAIH2 &#x3d; AB_PRCAIH2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PRCAIH2&#xd;&#xa;var AQ_LINFIN &#x3d; AQ_LINFIN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_LINFIN&#xd;&#xa;var AB_PRCAIH3 &#x3d; AB_PRCAIH3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PRCAIH3&#xd;&#xa;var AR_NUMC2 &#x3d; AR_NUMC2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC2&#xd;&#xa;var AR_INIAR1 &#x3d; AR_INIAR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR1&#xd;&#xa;var AN_HCV &#x3d; AN_HCV &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HCV&#xd;&#xa;&#xd;&#xa;var CID10   &#x3d; AQ_CID10   &#x3d;&#x3d; undefined&#x3f; &#x28;AR_CID10   &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_CID10&#x29; &#x3a; AQ_CID10&#xd;&#xa;var CIDINI1 &#x3d; AQ_CIDINI1 &#x3d;&#x3d; undefined&#x3f; &#x28;AR_CIDINI1 &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_CIDINI1&#x29; &#x3a; AQ_CIDINI1&#xd;&#xa;var CIDINI2 &#x3d; AQ_CIDINI2 &#x3d;&#x3d; undefined&#x3f; &#x28;AR_CIDINI2 &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_CIDINI2&#x29; &#x3a; AQ_CIDINI2&#xd;&#xa;var CIDINI3 &#x3d; AQ_CIDINI3 &#x3d;&#x3d; undefined&#x3f; &#x28;AR_CIDINI3 &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_CIDINI3&#x29; &#x3a; AQ_CIDINI3&#xd;&#xa;var CONTTR  &#x3d; AQ_CONTTR  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_CONTTR  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_CONTTR&#x29; &#x3a; AQ_CONTTR&#xd;&#xa;var DTIDEN  &#x3d; AQ_DTIDEN  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_DTIDEN  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_DTIDEN&#x29; &#x3a; AQ_DTIDEN&#xd;&#xa;var DTINI1  &#x3d; AQ_DTINI1  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_DTINI1  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_DTINI1&#x29; &#x3a; AQ_DTINI1&#xd;&#xa;var DTINI2  &#x3d; AQ_DTINI2  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_DTINI2  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_DTINI2&#x29; &#x3a; AQ_DTINI2&#xd;&#xa;var DTINI3  &#x3d; AQ_DTINI3  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_DTINI3  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_DTINI3&#x29; &#x3a; AQ_DTINI3&#xd;&#xa;var DTINTR  &#x3d; AQ_DTINTR  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_DTINTR  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_DTINTR&#x29; &#x3a; AQ_DTINTR&#xd;&#xa;var ESTADI  &#x3d; AQ_ESTADI  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_ESTADI  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_ESTADI&#x29; &#x3a; AQ_ESTADI&#xd;&#xa;var GRAHIS  &#x3d; AQ_GRAHIS  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_GRAHIS  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_GRAHIS&#x29; &#x3a; AQ_GRAHIS&#xd;&#xa;var LINFIN  &#x3d; AQ_LINFIN  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_LINFIN  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_LINFIN&#x29; &#x3a; AQ_LINFIN&#xd;&#xa;var PESO    &#x3d;  AN_PESO   &#x3d;&#x3d; undefined&#x3f; &#x28;AM_PESO    &#x3d;&#x3d; undefined &#x3f; null &#x3a; AM_PESO&#x29; &#x3a; AN_PESO&#xd;&#xa;var TRANTE  &#x3d; AQ_TRANTE  &#x3d;&#x3d; undefined&#x3f; &#x28;AR_TRANTE  &#x3d;&#x3d; undefined &#x3f; null &#x3a; AR_TRANTE&#x29; &#x3a; AQ_TRANTE&#xd;&#xa;&#xd;&#xa;var TIPO&#xd;&#xa;var ABREVIACAO&#xd;&#xa;&#xd;&#xa;if&#x28;indexOf&#x28;filename,&#x22;ABSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;bariatrica&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AB&#x22;&#x3b;&#xd;&#xa;&#x7d;	&#xd;&#xa;if&#x28;indexOf&#x28;filename,&#x22;ADSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;diversos&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AD&#x22;&#x3b;	&#xd;&#xa;&#x7d;&#xd;&#xa;if&#x28;substr&#x28;filename,&#x22;AMSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;medicamentos&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AM&#x22;&#x3b;	&#xd;&#xa;&#x7d;&#xd;&#xa;if&#x28;substr&#x28;filename,&#x22;ANSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;nefrologia&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AN&#x22;&#x3b;	&#xd;&#xa;&#x7d;&#xd;&#xa;if&#x28;substr&#x28;filename,&#x22;AQSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;quimioterapia&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AQ&#x22;&#x3b;	&#xd;&#xa;&#x7d;&#xd;&#xa;if&#x28;substr&#x28;filename,&#x22;ARSP&#x22;&#x29; &#x3e; 0&#x29;&#xd;&#xa;&#x7b;&#xd;&#xa;	TIPO &#x3d; &#x22;radioterapia&#x22;&#x3b;&#xd;&#xa;	ABREVIACAO &#x3d; &#x22;AR&#x22;&#x3b;	&#xd;&#xa;&#x7d;&#xd;&#xa;</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>AR_LINFIN</name>
+        <rename>AR_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_GESTANT</name>
+        <rename>AM_GESTANT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR3</name>
+        <rename>AR_INIAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC1</name>
+        <rename>AR_NUMC1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH</name>
+        <rename>AB_NUMAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_GRAHIS</name>
+        <rename>AQ_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI2</name>
+        <rename>AR_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_PESO</name>
+        <rename>AM_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_TRANSPL</name>
+        <rename>AM_TRANSPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_INTFIS</name>
+        <rename>AN_INTFIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P1</name>
+        <rename>AQ_ESQU_P1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI2</name>
+        <rename>AQ_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESTADI</name>
+        <rename>AQ_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI2</name>
+        <rename>AQ_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI1</name>
+        <rename>AR_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR1</name>
+        <rename>AR_FIMAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P2</name>
+        <rename>AQ_ESQU_P2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HIV</name>
+        <rename>AN_HIV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_PESO</name>
+        <rename>AN_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_GRAHIS</name>
+        <rename>AR_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_IMC</name>
+        <rename>AB_IMC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FINALI</name>
+        <rename>AR_FINALI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ULSOAB</name>
+        <rename>AN_ULSOAB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PONTBAR</name>
+        <rename>AB_PONTBAR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRUR</name>
+        <rename>AB_DTCIRUR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ACEVAS</name>
+        <rename>AN_ACEVAS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI2</name>
+        <rename>AR_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI3</name>
+        <rename>AQ_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_ALTURA</name>
+        <rename>AM_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_CNCDO</name>
+        <rename>AN_CNCDO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_TABBARR</name>
+        <rename>AB_TABBARR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRG2</name>
+        <rename>AB_DTCIRG2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR2</name>
+        <rename>AR_INIAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HBSAG</name>
+        <rename>AN_HBSAG</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CID10</name>
+        <rename>AQ_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINTR</name>
+        <rename>AR_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PROCAIH</name>
+        <rename>AB_PROCAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HB</name>
+        <rename>AN_HB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_MESACOM</name>
+        <rename>AB_MESACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI1</name>
+        <rename>AR_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CONTTR</name>
+        <rename>AR_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALTURA</name>
+        <rename>AN_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_TRU</name>
+        <rename>AN_TRU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TRANTE</name>
+        <rename>AQ_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI1</name>
+        <rename>AQ_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI3</name>
+        <rename>AR_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR2</name>
+        <rename>AR_CIDTR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC3</name>
+        <rename>AR_NUMC3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_ANOACOM</name>
+        <rename>AB_ANOACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DTPDR</name>
+        <rename>AN_DTPDR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_ESTADI</name>
+        <rename>AR_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR1</name>
+        <rename>AR_CIDTR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH2</name>
+        <rename>AB_NUMAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR3</name>
+        <rename>AR_FIMAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI3</name>
+        <rename>AQ_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CID10</name>
+        <rename>AR_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DIURES</name>
+        <rename>AN_DIURES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_TRANTE</name>
+        <rename>AR_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_SMRD</name>
+        <rename>AR_SMRD</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_QTDTRAN</name>
+        <rename>AM_QTDTRAN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CONTTR</name>
+        <rename>AQ_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALBUMI</name>
+        <rename>AN_ALBUMI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI1</name>
+        <rename>AQ_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_GLICOS</name>
+        <rename>AN_GLICOS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMPL</name>
+        <rename>AQ_TOTMPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR2</name>
+        <rename>AR_FIMAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR3</name>
+        <rename>AR_CIDTR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINTR</name>
+        <rename>AQ_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMAU</name>
+        <rename>AQ_TOTMAU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI3</name>
+        <rename>AR_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTIDEN</name>
+        <rename>AR_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTIDEN</name>
+        <rename>AQ_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH2</name>
+        <rename>AB_PRCAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_LINFIN</name>
+        <rename>AQ_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH3</name>
+        <rename>AB_PRCAIH3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC2</name>
+        <rename>AR_NUMC2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR1</name>
+        <rename>AR_INIAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HCV</name>
+        <rename>AN_HCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_GESTANT</name>
+        <rename>AM_GESTANT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR3</name>
+        <rename>AR_INIAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC1</name>
+        <rename>AR_NUMC1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH</name>
+        <rename>AB_NUMAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_TRANSPL</name>
+        <rename>AM_TRANSPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_INTFIS</name>
+        <rename>AN_INTFIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P1</name>
+        <rename>AQ_ESQU_P1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR1</name>
+        <rename>AR_FIMAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P2</name>
+        <rename>AQ_ESQU_P2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HIV</name>
+        <rename>AN_HIV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_IMC</name>
+        <rename>AB_IMC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FINALI</name>
+        <rename>AR_FINALI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ULSOAB</name>
+        <rename>AN_ULSOAB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PONTBAR</name>
+        <rename>AB_PONTBAR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRUR</name>
+        <rename>AB_DTCIRUR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ACEVAS</name>
+        <rename>AN_ACEVAS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_ALTURA</name>
+        <rename>AM_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_CNCDO</name>
+        <rename>AN_CNCDO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_TABBARR</name>
+        <rename>AB_TABBARR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRG2</name>
+        <rename>AB_DTCIRG2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR2</name>
+        <rename>AR_INIAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HBSAG</name>
+        <rename>AN_HBSAG</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PROCAIH</name>
+        <rename>AB_PROCAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HB</name>
+        <rename>AN_HB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_MESACOM</name>
+        <rename>AB_MESACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALTURA</name>
+        <rename>AN_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_TRU</name>
+        <rename>AN_TRU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR2</name>
+        <rename>AR_CIDTR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC3</name>
+        <rename>AR_NUMC3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_ANOACOM</name>
+        <rename>AB_ANOACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DTPDR</name>
+        <rename>AN_DTPDR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR1</name>
+        <rename>AR_CIDTR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH2</name>
+        <rename>AB_NUMAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR3</name>
+        <rename>AR_FIMAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DIURES</name>
+        <rename>AN_DIURES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_SMRD</name>
+        <rename>AR_SMRD</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_QTDTRAN</name>
+        <rename>AM_QTDTRAN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALBUMI</name>
+        <rename>AN_ALBUMI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_GLICOS</name>
+        <rename>AN_GLICOS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMPL</name>
+        <rename>AQ_TOTMPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR2</name>
+        <rename>AR_FIMAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR3</name>
+        <rename>AR_CIDTR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMAU</name>
+        <rename>AQ_TOTMAU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH2</name>
+        <rename>AB_PRCAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH3</name>
+        <rename>AB_PRCAIH3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC2</name>
+        <rename>AR_NUMC2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR1</name>
+        <rename>AR_INIAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HCV</name>
+        <rename>AN_HCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CID10</name>
+        <rename>AQ_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI1</name>
+        <rename>AQ_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI2</name>
+        <rename>AQ_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI3</name>
+        <rename>AQ_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CONTTR</name>
+        <rename>AQ_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTIDEN</name>
+        <rename>AQ_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI1</name>
+        <rename>AQ_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI2</name>
+        <rename>AQ_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI3</name>
+        <rename>AQ_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINTR</name>
+        <rename>AQ_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESTADI</name>
+        <rename>AQ_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_GRAHIS</name>
+        <rename>AQ_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_LINFIN</name>
+        <rename>AQ_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_PESO</name>
+        <rename>AN_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TRANTE</name>
+        <rename>AQ_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CID10</name>
+        <rename>AR_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI1</name>
+        <rename>AR_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI2</name>
+        <rename>AR_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI3</name>
+        <rename>AR_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CONTTR</name>
+        <rename>AR_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTIDEN</name>
+        <rename>AR_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI1</name>
+        <rename>AR_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI2</name>
+        <rename>AR_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI3</name>
+        <rename>AR_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINTR</name>
+        <rename>AR_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_ESTADI</name>
+        <rename>AR_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_GRAHIS</name>
+        <rename>AR_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_LINFIN</name>
+        <rename>AR_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_PESO</name>
+        <rename>AM_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_TRANTE</name>
+        <rename>AR_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CID10</name>
+        <rename>CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CIDINI1</name>
+        <rename>CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CIDINI2</name>
+        <rename>CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CIDINI3</name>
+        <rename>CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>CONTTR</name>
+        <rename>CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DTIDEN</name>
+        <rename>DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DTINI1</name>
+        <rename>DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DTINI2</name>
+        <rename>DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DTINI3</name>
+        <rename>DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>DTINTR</name>
+        <rename>DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ESTADI</name>
+        <rename>ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>GRAHIS</name>
+        <rename>GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>LINFIN</name>
+        <rename>LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>PESO</name>
+        <rename>PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TRANTE</name>
+        <rename>TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>TIPO</name>
+        <rename>TIPO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>ABREVIACAO</name>
+        <rename>ABREVIACAO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>280</xloc>
+      <yloc>196</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Ajusta Campos Old</name>
+    <type>ScriptValueMod</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <compatible>N</compatible>
+    <optimizationLevel>9</optimizationLevel>
+    <jsScripts>      <jsScript>        <jsScript_type>0</jsScript_type>
+        <jsScript_name>Script 1</jsScript_name>
+        <jsScript_script>&#x2f;&#x2f;Script here&#xa;&#xd;&#xa;var AR_LINFIN &#x3d; AR_LINFIN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_LINFIN&#xd;&#xa;var AM_GESTANT &#x3d; AM_GESTANT&#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_GESTANT&#xd;&#xa;var AR_INIAR3 &#x3d; AR_INIAR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR3&#xd;&#xa;var AR_NUMC1 &#x3d; AR_NUMC1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC1&#xd;&#xa;var AB_NUMAIH &#x3d; AB_NUMAIH &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_NUMAIH&#xd;&#xa;var AQ_GRAHIS &#x3d; AQ_GRAHIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_GRAHIS&#xd;&#xa;var AR_CIDINI2 &#x3d; AR_CIDINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI2&#xd;&#xa;var AM_PESO &#x3d; AM_PESO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_PESO&#xd;&#xa;var AM_TRANSPL &#x3d; AM_TRANSPL &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_TRANSPL&#xd;&#xa;var AN_INTFIS &#x3d; AN_INTFIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_INTFIS&#xd;&#xa;var AQ_ESQU_P1 &#x3d; AQ_ESQU_P1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESQU_P1&#xd;&#xa;var AQ_CIDINI2 &#x3d; AQ_CIDINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI2&#xd;&#xa;var AQ_ESTADI &#x3d; AQ_ESTADI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESTADI&#xd;&#xa;var AQ_DTINI2 &#x3d; AQ_DTINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI2&#xd;&#xa;var AR_CIDINI1 &#x3d; AR_CIDINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI1&#xd;&#xa;var AR_FIMAR1 &#x3d; AR_FIMAR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR1&#xd;&#xa;var AQ_ESQU_P2 &#x3d; AQ_ESQU_P2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_ESQU_P2&#xd;&#xa;var AN_HIV &#x3d; AN_HIV &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HIV&#xd;&#xa;var AN_PESO &#x3d; AN_PESO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_PESO&#xd;&#xa;var AR_GRAHIS &#x3d; AR_GRAHIS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_GRAHIS&#xd;&#xa;var AB_IMC &#x3d; AB_IMC &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_IMC&#xd;&#xa;var AR_FINALI &#x3d; AR_FINALI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FINALI&#xd;&#xa;var AN_ULSOAB &#x3d; AN_ULSOAB &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ULSOAB&#xd;&#xa;var AB_PONTBAR &#x3d; AB_PONTBAR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PONTBAR&#xd;&#xa;var AB_DTCIRUR &#x3d; AB_DTCIRUR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_DTCIRUR&#xd;&#xa;var AN_ACEVAS &#x3d; AN_ACEVAS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ACEVAS&#xd;&#xa;var AR_DTINI2 &#x3d; AR_DTINI2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI2&#xd;&#xa;var AQ_DTINI3 &#x3d; AQ_DTINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI3&#xd;&#xa;var AM_ALTURA &#x3d; AM_ALTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_ALTURA&#xd;&#xa;var AN_CNCDO &#x3d; AN_CNCDO &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_CNCDO&#xd;&#xa;var AB_TABBARR &#x3d; AB_TABBARR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_TABBARR&#xd;&#xa;var AB_DTCIRG2 &#x3d; AB_DTCIRG2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_DTCIRG2&#xd;&#xa;var AR_INIAR2 &#x3d; AR_INIAR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR2&#xd;&#xa;var AN_HBSAG &#x3d; AN_HBSAG &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HBSAG&#xd;&#xa;var AQ_CID10 &#x3d; AQ_CID10 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CID10&#xd;&#xa;var AR_DTINTR &#x3d; AR_DTINTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINTR&#xd;&#xa;var AB_PROCAIH &#x3d; AB_PROCAIH &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PROCAIH&#xd;&#xa;var AN_HB &#x3d; AN_HB &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HB&#xd;&#xa;var AB_MESACOM &#x3d; AB_MESACOM &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_MESACOM&#xd;&#xa;var AR_DTINI1 &#x3d; AR_DTINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI1&#xd;&#xa;var AR_CONTTR &#x3d; AR_CONTTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CONTTR&#xd;&#xa;var AN_ALTURA &#x3d; AN_ALTURA &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ALTURA&#xd;&#xa;var AN_TRU &#x3d; AN_TRU &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_TRU&#xd;&#xa;var AQ_TRANTE &#x3d; AQ_TRANTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TRANTE&#xd;&#xa;var AQ_CIDINI1 &#x3d; AQ_CIDINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI1&#xd;&#xa;var AR_CIDINI3 &#x3d; AR_CIDINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDINI3&#xd;&#xa;var AR_CIDTR2 &#x3d; AR_CIDTR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR2&#xd;&#xa;var AR_NUMC3 &#x3d; AR_NUMC3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC3&#xd;&#xa;var AB_ANOACOM &#x3d; AB_ANOACOM &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_ANOACOM&#xd;&#xa;var AN_DTPDR &#x3d; AN_DTPDR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_DTPDR&#xd;&#xa;var AR_ESTADI &#x3d; AR_ESTADI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_ESTADI&#xd;&#xa;var AR_CIDTR1 &#x3d; AR_CIDTR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR1&#xd;&#xa;var AB_NUMAIH2 &#x3d; AB_NUMAIH2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_NUMAIH2&#xd;&#xa;var AR_FIMAR3 &#x3d; AR_FIMAR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR3&#xd;&#xa;var AQ_CIDINI3 &#x3d; AQ_CIDINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CIDINI3&#xd;&#xa;var AR_CID10 &#x3d; AR_CID10 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CID10&#xd;&#xa;var AN_DIURES &#x3d; AN_DIURES &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_DIURES&#xd;&#xa;var AR_TRANTE &#x3d; AR_TRANTE &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_TRANTE&#xd;&#xa;var AR_SMRD &#x3d; AR_SMRD &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_SMRD&#xd;&#xa;var AM_QTDTRAN &#x3d; AM_QTDTRAN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AM_QTDTRAN&#xd;&#xa;var AQ_CONTTR &#x3d; AQ_CONTTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_CONTTR&#xd;&#xa;var AN_ALBUMI &#x3d; AN_ALBUMI &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_ALBUMI&#xd;&#xa;var AQ_DTINI1 &#x3d; AQ_DTINI1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINI1&#xd;&#xa;var AN_GLICOS &#x3d; AN_GLICOS &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_GLICOS&#xd;&#xa;var AQ_TOTMPL &#x3d; AQ_TOTMPL &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TOTMPL&#xd;&#xa;var AR_FIMAR2 &#x3d; AR_FIMAR2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_FIMAR2&#xd;&#xa;var AR_CIDTR3 &#x3d; AR_CIDTR3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_CIDTR3&#xd;&#xa;var AQ_DTINTR &#x3d; AQ_DTINTR &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTINTR&#xd;&#xa;var AQ_TOTMAU &#x3d; AQ_TOTMAU &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_TOTMAU&#xd;&#xa;var AR_DTINI3 &#x3d; AR_DTINI3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTINI3&#xd;&#xa;var AR_DTIDEN &#x3d; AR_DTIDEN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_DTIDEN&#xd;&#xa;var AQ_DTIDEN &#x3d; AQ_DTIDEN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_DTIDEN&#xd;&#xa;var AB_PRCAIH2 &#x3d; AB_PRCAIH2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PRCAIH2&#xd;&#xa;var AQ_LINFIN &#x3d; AQ_LINFIN &#x3d;&#x3d; undefined&#x3f; null&#x3a; AQ_LINFIN&#xd;&#xa;var AB_PRCAIH3 &#x3d; AB_PRCAIH3 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AB_PRCAIH3&#xd;&#xa;var AR_NUMC2 &#x3d; AR_NUMC2 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_NUMC2&#xd;&#xa;var AR_INIAR1 &#x3d; AR_INIAR1 &#x3d;&#x3d; undefined&#x3f; null&#x3a; AR_INIAR1&#xd;&#xa;var AN_HCV &#x3d; AN_HCV &#x3d;&#x3d; undefined&#x3f; null&#x3a; AN_HCV</jsScript_script>
+      </jsScript>    </jsScripts>    <fields>      <field>        <name>AR_LINFIN</name>
+        <rename>AR_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_GESTANT</name>
+        <rename>AM_GESTANT</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR3</name>
+        <rename>AR_INIAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC1</name>
+        <rename>AR_NUMC1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH</name>
+        <rename>AB_NUMAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_GRAHIS</name>
+        <rename>AQ_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI2</name>
+        <rename>AR_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_PESO</name>
+        <rename>AM_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_TRANSPL</name>
+        <rename>AM_TRANSPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_INTFIS</name>
+        <rename>AN_INTFIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P1</name>
+        <rename>AQ_ESQU_P1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI2</name>
+        <rename>AQ_CIDINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESTADI</name>
+        <rename>AQ_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI2</name>
+        <rename>AQ_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI1</name>
+        <rename>AR_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR1</name>
+        <rename>AR_FIMAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_ESQU_P2</name>
+        <rename>AQ_ESQU_P2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HIV</name>
+        <rename>AN_HIV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_PESO</name>
+        <rename>AN_PESO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_GRAHIS</name>
+        <rename>AR_GRAHIS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_IMC</name>
+        <rename>AB_IMC</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FINALI</name>
+        <rename>AR_FINALI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ULSOAB</name>
+        <rename>AN_ULSOAB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PONTBAR</name>
+        <rename>AB_PONTBAR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRUR</name>
+        <rename>AB_DTCIRUR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ACEVAS</name>
+        <rename>AN_ACEVAS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI2</name>
+        <rename>AR_DTINI2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI3</name>
+        <rename>AQ_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_ALTURA</name>
+        <rename>AM_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_CNCDO</name>
+        <rename>AN_CNCDO</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_TABBARR</name>
+        <rename>AB_TABBARR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_DTCIRG2</name>
+        <rename>AB_DTCIRG2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR2</name>
+        <rename>AR_INIAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HBSAG</name>
+        <rename>AN_HBSAG</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CID10</name>
+        <rename>AQ_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINTR</name>
+        <rename>AR_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PROCAIH</name>
+        <rename>AB_PROCAIH</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HB</name>
+        <rename>AN_HB</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_MESACOM</name>
+        <rename>AB_MESACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI1</name>
+        <rename>AR_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CONTTR</name>
+        <rename>AR_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALTURA</name>
+        <rename>AN_ALTURA</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_TRU</name>
+        <rename>AN_TRU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TRANTE</name>
+        <rename>AQ_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI1</name>
+        <rename>AQ_CIDINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDINI3</name>
+        <rename>AR_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR2</name>
+        <rename>AR_CIDTR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC3</name>
+        <rename>AR_NUMC3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_ANOACOM</name>
+        <rename>AB_ANOACOM</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DTPDR</name>
+        <rename>AN_DTPDR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_ESTADI</name>
+        <rename>AR_ESTADI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR1</name>
+        <rename>AR_CIDTR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_NUMAIH2</name>
+        <rename>AB_NUMAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR3</name>
+        <rename>AR_FIMAR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CIDINI3</name>
+        <rename>AQ_CIDINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CID10</name>
+        <rename>AR_CID10</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_DIURES</name>
+        <rename>AN_DIURES</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_TRANTE</name>
+        <rename>AR_TRANTE</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_SMRD</name>
+        <rename>AR_SMRD</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AM_QTDTRAN</name>
+        <rename>AM_QTDTRAN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_CONTTR</name>
+        <rename>AQ_CONTTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_ALBUMI</name>
+        <rename>AN_ALBUMI</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINI1</name>
+        <rename>AQ_DTINI1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_GLICOS</name>
+        <rename>AN_GLICOS</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMPL</name>
+        <rename>AQ_TOTMPL</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_FIMAR2</name>
+        <rename>AR_FIMAR2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_CIDTR3</name>
+        <rename>AR_CIDTR3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTINTR</name>
+        <rename>AQ_DTINTR</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_TOTMAU</name>
+        <rename>AQ_TOTMAU</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTINI3</name>
+        <rename>AR_DTINI3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_DTIDEN</name>
+        <rename>AR_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_DTIDEN</name>
+        <rename>AQ_DTIDEN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH2</name>
+        <rename>AB_PRCAIH2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AQ_LINFIN</name>
+        <rename>AQ_LINFIN</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AB_PRCAIH3</name>
+        <rename>AB_PRCAIH3</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_NUMC2</name>
+        <rename>AR_NUMC2</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AR_INIAR1</name>
+        <rename>AR_INIAR1</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>      <field>        <name>AN_HCV</name>
+        <rename>AN_HCV</rename>
+        <type>String</type>
+        <length>-1</length>
+        <precision>-1</precision>
+        <replace>N</replace>
+      </field>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>277</xloc>
+      <yloc>95</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Base SIA</name>
+    <type>XBaseInput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <file_dbf>&#x24;&#x7b;NOME_ARQUIVO&#x7d;</file_dbf>
+    <limit>0</limit>
+    <add_rownr>N</add_rownr>
+    <field_rownr/>
+    <include>Y</include>
+    <include_field>filename</include_field>
+    <charset_name/>
+    <accept_filenames>N</accept_filenames>
+    <accept_field>filename</accept_field>
+    <accept_stepname/>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>168</xloc>
+      <yloc>193</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Calculator</name>
+    <type>Calculator</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+       <calculation><field_name>ano</field_name>
+<calc_type>YEAR_OF_DATE</calc_type>
+<field_a>AP_CMP</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>0000</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>trimestre</field_name>
+<calc_type>QUARTER_OF_DATE</calc_type>
+<field_a>AP_CMP</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>00</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>data_competencia</field_name>
+<calc_type>ADD</calc_type>
+<field_a>ano</field_a>
+<field_b>trimestre</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyyMM</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>ano_mvm</field_name>
+<calc_type>YEAR_OF_DATE</calc_type>
+<field_a>AP_MVM</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>0000</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>trimestre_mvm</field_name>
+<calc_type>QUARTER_OF_DATE</calc_type>
+<field_a>AP_MVM</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>00</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>data_movimentacao</field_name>
+<calc_type>ADD</calc_type>
+<field_a>ano_mvm</field_a>
+<field_b>trimestre_mvm</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyyMM</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>ano_inicio</field_name>
+<calc_type>YEAR_OF_DATE</calc_type>
+<field_a>AP_DTINIC</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>0000</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>trimestre_inicio</field_name>
+<calc_type>QUARTER_OF_DATE</calc_type>
+<field_a>AP_DTINIC</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>00</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>data_inicio</field_name>
+<calc_type>ADD</calc_type>
+<field_a>ano_inicio</field_a>
+<field_b>trimestre_inicio</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyyMM</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>ano_fim</field_name>
+<calc_type>YEAR_OF_DATE</calc_type>
+<field_a>AP_DTFIM</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>0000</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>trimestre_fim</field_name>
+<calc_type>QUARTER_OF_DATE</calc_type>
+<field_a>AP_DTFIM</field_a>
+<field_b/>
+<field_c/>
+<value_type>String</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>00</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+       <calculation><field_name>data_fim</field_name>
+<calc_type>ADD</calc_type>
+<field_a>ano_fim</field_a>
+<field_b>trimestre_fim</field_b>
+<field_c/>
+<value_type>Date</value_type>
+<value_length>-1</value_length>
+<value_precision>-1</value_precision>
+<remove>N</remove>
+<conversion_mask>yyyyMM</conversion_mask>
+<decimal_symbol/>
+<grouping_symbol/>
+<currency_symbol/>
+</calculation>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>506</xloc>
+      <yloc>194</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Carrega Dados SIA</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <connection>PerfilDinamico</connection>
+    <schema>import</schema>
+    <table>sia_apa</table>
+    <commit>25000</commit>
+    <truncate>N</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>Y</use_batch>
+    <specify_fields>Y</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field/>
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field/>
+    <fields>
+        <field>
+          <column_name>AB_ANOACOM</column_name>
+          <stream_name>AB_ANOACOM</stream_name>
+        </field>
+        <field>
+          <column_name>AB_DTCIRG2</column_name>
+          <stream_name>AB_DTCIRG2</stream_name>
+        </field>
+        <field>
+          <column_name>AB_DTCIRUR</column_name>
+          <stream_name>AB_DTCIRUR</stream_name>
+        </field>
+        <field>
+          <column_name>AB_IMC</column_name>
+          <stream_name>AB_IMC</stream_name>
+        </field>
+        <field>
+          <column_name>AB_MESACOM</column_name>
+          <stream_name>AB_MESACOM</stream_name>
+        </field>
+        <field>
+          <column_name>AB_NUMAIH</column_name>
+          <stream_name>AB_NUMAIH</stream_name>
+        </field>
+        <field>
+          <column_name>AB_NUMAIH2</column_name>
+          <stream_name>AB_NUMAIH2</stream_name>
+        </field>
+        <field>
+          <column_name>AB_PONTBAR</column_name>
+          <stream_name>AB_PONTBAR</stream_name>
+        </field>
+        <field>
+          <column_name>AB_PRCAIH2</column_name>
+          <stream_name>AB_PRCAIH2</stream_name>
+        </field>
+        <field>
+          <column_name>AB_PRCAIH3</column_name>
+          <stream_name>AB_PRCAIH3</stream_name>
+        </field>
+        <field>
+          <column_name>AB_PROCAIH</column_name>
+          <stream_name>AB_PROCAIH</stream_name>
+        </field>
+        <field>
+          <column_name>AB_TABBARR</column_name>
+          <stream_name>AB_TABBARR</stream_name>
+        </field>
+        <field>
+          <column_name>AM_ALTURA</column_name>
+          <stream_name>AM_ALTURA</stream_name>
+        </field>
+        <field>
+          <column_name>AM_GESTANT</column_name>
+          <stream_name>AM_GESTANT</stream_name>
+        </field>
+        <field>
+          <column_name>AM_QTDTRAN</column_name>
+          <stream_name>AM_QTDTRAN</stream_name>
+        </field>
+        <field>
+          <column_name>AM_TRANSPL</column_name>
+          <stream_name>AM_TRANSPL</stream_name>
+        </field>
+        <field>
+          <column_name>AN_ACEVAS</column_name>
+          <stream_name>AN_ACEVAS</stream_name>
+        </field>
+        <field>
+          <column_name>AN_ALBUMI</column_name>
+          <stream_name>AN_ALBUMI</stream_name>
+        </field>
+        <field>
+          <column_name>AN_ALTURA</column_name>
+          <stream_name>AN_ALTURA</stream_name>
+        </field>
+        <field>
+          <column_name>AN_CNCDO</column_name>
+          <stream_name>AN_CNCDO</stream_name>
+        </field>
+        <field>
+          <column_name>AN_DIURES</column_name>
+          <stream_name>AN_DIURES</stream_name>
+        </field>
+        <field>
+          <column_name>AN_DTPDR</column_name>
+          <stream_name>AN_DTPDR</stream_name>
+        </field>
+        <field>
+          <column_name>AN_GLICOS</column_name>
+          <stream_name>AN_GLICOS</stream_name>
+        </field>
+        <field>
+          <column_name>AN_HB</column_name>
+          <stream_name>AN_HB</stream_name>
+        </field>
+        <field>
+          <column_name>AN_HBSAG</column_name>
+          <stream_name>AN_HBSAG</stream_name>
+        </field>
+        <field>
+          <column_name>AN_HCV</column_name>
+          <stream_name>AN_HCV</stream_name>
+        </field>
+        <field>
+          <column_name>AN_HIV</column_name>
+          <stream_name>AN_HIV</stream_name>
+        </field>
+        <field>
+          <column_name>AN_INTFIS</column_name>
+          <stream_name>AN_INTFIS</stream_name>
+        </field>
+        <field>
+          <column_name>AN_TRU</column_name>
+          <stream_name>AN_TRU</stream_name>
+        </field>
+        <field>
+          <column_name>AN_ULSOAB</column_name>
+          <stream_name>AN_ULSOAB</stream_name>
+        </field>
+        <field>
+          <column_name>AP_ALTA</column_name>
+          <stream_name>AP_ALTA</stream_name>
+        </field>
+        <field>
+          <column_name>AP_APACANT</column_name>
+          <stream_name>AP_APACANT</stream_name>
+        </field>
+        <field>
+          <column_name>AP_AUTORIZ</column_name>
+          <stream_name>AP_AUTORIZ</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CATEND</column_name>
+          <stream_name>AP_CATEND</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CEPPCN</column_name>
+          <stream_name>AP_CEPPCN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CIDCAS</column_name>
+          <stream_name>AP_CIDCAS</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CIDPRI</column_name>
+          <stream_name>AP_CIDPRI</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CIDSEC</column_name>
+          <stream_name>AP_CIDSEC</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CNPJCPF</column_name>
+          <stream_name>AP_CNPJCPF</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CNPJMNT</column_name>
+          <stream_name>AP_CNPJMNT</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CNSPCN</column_name>
+          <stream_name>AP_CNSPCN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CODEMI</column_name>
+          <stream_name>AP_CODEMI</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CODUNI</column_name>
+          <stream_name>AP_CODUNI</stream_name>
+        </field>
+        <field>
+          <column_name>AP_COIDADE</column_name>
+          <stream_name>AP_COIDADE</stream_name>
+        </field>
+        <field>
+          <column_name>AP_CONDIC</column_name>
+          <stream_name>AP_CONDIC</stream_name>
+        </field>
+        <field>
+          <column_name>AP_ENCERR</column_name>
+          <stream_name>AP_ENCERR</stream_name>
+        </field>
+        <field>
+          <column_name>AP_ETNIA</column_name>
+          <stream_name>AP_ETNIA</stream_name>
+        </field>
+        <field>
+          <column_name>AP_GESTAO</column_name>
+          <stream_name>AP_GESTAO</stream_name>
+        </field>
+        <field>
+          <column_name>AP_MNDIF</column_name>
+          <stream_name>AP_MNDIF</stream_name>
+        </field>
+        <field>
+          <column_name>AP_MN_IND</column_name>
+          <stream_name>AP_MN_IND</stream_name>
+        </field>
+        <field>
+          <column_name>AP_MOTSAI</column_name>
+          <stream_name>AP_MOTSAI</stream_name>
+        </field>
+        <field>
+          <column_name>AP_MUNPCN</column_name>
+          <stream_name>AP_MUNPCN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_NUIDADE</column_name>
+          <stream_name>AP_NUIDADE</stream_name>
+        </field>
+        <field>
+          <column_name>AP_OBITO</column_name>
+          <stream_name>AP_OBITO</stream_name>
+        </field>
+        <field>
+          <column_name>AP_PERMAN</column_name>
+          <stream_name>AP_PERMAN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_PRIPAL</column_name>
+          <stream_name>AP_PRIPAL</stream_name>
+        </field>
+        <field>
+          <column_name>AP_RACACOR</column_name>
+          <stream_name>AP_RACACOR</stream_name>
+        </field>
+        <field>
+          <column_name>AP_SEXO</column_name>
+          <stream_name>AP_SEXO</stream_name>
+        </field>
+        <field>
+          <column_name>AP_TIPPRE</column_name>
+          <stream_name>AP_TIPPRE</stream_name>
+        </field>
+        <field>
+          <column_name>AP_TPAPAC</column_name>
+          <stream_name>AP_TPAPAC</stream_name>
+        </field>
+        <field>
+          <column_name>AP_TPATEN</column_name>
+          <stream_name>AP_TPATEN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_TPUPS</column_name>
+          <stream_name>AP_TPUPS</stream_name>
+        </field>
+        <field>
+          <column_name>AP_TRANSF</column_name>
+          <stream_name>AP_TRANSF</stream_name>
+        </field>
+        <field>
+          <column_name>AP_UFDIF</column_name>
+          <stream_name>AP_UFDIF</stream_name>
+        </field>
+        <field>
+          <column_name>AP_UFMUN</column_name>
+          <stream_name>AP_UFMUN</stream_name>
+        </field>
+        <field>
+          <column_name>AP_UFNACIO</column_name>
+          <stream_name>AP_UFNACIO</stream_name>
+        </field>
+        <field>
+          <column_name>AP_UNISOL</column_name>
+          <stream_name>AP_UNISOL</stream_name>
+        </field>
+        <field>
+          <column_name>AP_VL_AP</column_name>
+          <stream_name>AP_VL_AP</stream_name>
+        </field>
+        <field>
+          <column_name>AQ_ESQU_P1</column_name>
+          <stream_name>AQ_ESQU_P1</stream_name>
+        </field>
+        <field>
+          <column_name>AQ_ESQU_P2</column_name>
+          <stream_name>AQ_ESQU_P2</stream_name>
+        </field>
+        <field>
+          <column_name>AQ_TOTMAU</column_name>
+          <stream_name>AQ_TOTMAU</stream_name>
+        </field>
+        <field>
+          <column_name>AQ_TOTMPL</column_name>
+          <stream_name>AQ_TOTMPL</stream_name>
+        </field>
+        <field>
+          <column_name>AR_CIDTR1</column_name>
+          <stream_name>AR_CIDTR1</stream_name>
+        </field>
+        <field>
+          <column_name>AR_CIDTR2</column_name>
+          <stream_name>AR_CIDTR2</stream_name>
+        </field>
+        <field>
+          <column_name>AR_CIDTR3</column_name>
+          <stream_name>AR_CIDTR3</stream_name>
+        </field>
+        <field>
+          <column_name>AR_FIMAR1</column_name>
+          <stream_name>AR_FIMAR1</stream_name>
+        </field>
+        <field>
+          <column_name>AR_FIMAR2</column_name>
+          <stream_name>AR_FIMAR2</stream_name>
+        </field>
+        <field>
+          <column_name>AR_FIMAR3</column_name>
+          <stream_name>AR_FIMAR3</stream_name>
+        </field>
+        <field>
+          <column_name>AR_FINALI</column_name>
+          <stream_name>AR_FINALI</stream_name>
+        </field>
+        <field>
+          <column_name>AR_INIAR1</column_name>
+          <stream_name>AR_INIAR1</stream_name>
+        </field>
+        <field>
+          <column_name>AR_INIAR2</column_name>
+          <stream_name>AR_INIAR2</stream_name>
+        </field>
+        <field>
+          <column_name>AR_INIAR3</column_name>
+          <stream_name>AR_INIAR3</stream_name>
+        </field>
+        <field>
+          <column_name>AR_NUMC1</column_name>
+          <stream_name>AR_NUMC1</stream_name>
+        </field>
+        <field>
+          <column_name>AR_NUMC2</column_name>
+          <stream_name>AR_NUMC2</stream_name>
+        </field>
+        <field>
+          <column_name>AR_NUMC3</column_name>
+          <stream_name>AR_NUMC3</stream_name>
+        </field>
+        <field>
+          <column_name>AR_SMRD</column_name>
+          <stream_name>AR_SMRD</stream_name>
+        </field>
+        <field>
+          <column_name>CID10</column_name>
+          <stream_name>CID10</stream_name>
+        </field>
+        <field>
+          <column_name>CIDINI1</column_name>
+          <stream_name>CIDINI1</stream_name>
+        </field>
+        <field>
+          <column_name>CIDINI2</column_name>
+          <stream_name>CIDINI2</stream_name>
+        </field>
+        <field>
+          <column_name>CIDINI3</column_name>
+          <stream_name>CIDINI3</stream_name>
+        </field>
+        <field>
+          <column_name>CONTTR</column_name>
+          <stream_name>CONTTR</stream_name>
+        </field>
+        <field>
+          <column_name>DTIDEN</column_name>
+          <stream_name>DTIDEN</stream_name>
+        </field>
+        <field>
+          <column_name>DTINI1</column_name>
+          <stream_name>DTINI1</stream_name>
+        </field>
+        <field>
+          <column_name>DTINI2</column_name>
+          <stream_name>DTINI2</stream_name>
+        </field>
+        <field>
+          <column_name>DTINI3</column_name>
+          <stream_name>DTINI3</stream_name>
+        </field>
+        <field>
+          <column_name>DTINTR</column_name>
+          <stream_name>DTINTR</stream_name>
+        </field>
+        <field>
+          <column_name>ESTADI</column_name>
+          <stream_name>ESTADI</stream_name>
+        </field>
+        <field>
+          <column_name>GRAHIS</column_name>
+          <stream_name>GRAHIS</stream_name>
+        </field>
+        <field>
+          <column_name>LINFIN</column_name>
+          <stream_name>LINFIN</stream_name>
+        </field>
+        <field>
+          <column_name>PESO</column_name>
+          <stream_name>PESO</stream_name>
+        </field>
+        <field>
+          <column_name>TRANTE</column_name>
+          <stream_name>TRANTE</stream_name>
+        </field>
+        <field>
+          <column_name>data_competencia</column_name>
+          <stream_name>data_competencia</stream_name>
+        </field>
+        <field>
+          <column_name>data_movimentacao</column_name>
+          <stream_name>data_movimentacao</stream_name>
+        </field>
+        <field>
+          <column_name>TIPO</column_name>
+          <stream_name>TIPO</stream_name>
+        </field>
+        <field>
+          <column_name>ABREVIACAO</column_name>
+          <stream_name>ABREVIACAO</stream_name>
+        </field>
+        <field>
+          <column_name>data_inicio</column_name>
+          <stream_name>data_inicio</stream_name>
+        </field>
+        <field>
+          <column_name>data_fim</column_name>
+          <stream_name>data_fim</stream_name>
+        </field>
+        <field>
+          <column_name>AP_DTSOLIC</column_name>
+          <stream_name>AP_DTSOLIC</stream_name>
+        </field>
+        <field>
+          <column_name>AP_DTAUT</column_name>
+          <stream_name>AP_DTAUT</stream_name>
+        </field>
+    </fields>
+     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>736</xloc>
+      <yloc>193</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step>
+    <name>Select values</name>
+    <type>SelectValues</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+         <partitioning>
+           <method>none</method>
+           <schema_name/>
+           </partitioning>
+    <fields>        <select_unspecified>N</select_unspecified>
+      <meta>        <name>AP_MVM</name>
+        <rename>AP_MVM</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMM</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>AP_CMP</name>
+        <rename>AP_CMP</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMM</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>AP_DTINIC</name>
+        <rename>AP_DTINIC</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>      <meta>        <name>AP_DTFIM</name>
+        <rename>AP_DTFIM</rename>
+        <type>Date</type>
+        <length>-2</length>
+        <precision>-2</precision>
+        <conversion_mask>yyyyMMdd</conversion_mask>
+        <date_format_lenient>false</date_format_lenient>
+        <date_format_locale/>
+        <date_format_timezone/>
+        <lenient_string_to_number>false</lenient_string_to_number>
+        <encoding/>
+        <decimal_symbol/>
+        <grouping_symbol/>
+        <currency_symbol/>
+        <storage_type/>
+      </meta>    </fields>     <cluster_schema/>
+ <remotesteps>   <input>   </input>   <output>   </output> </remotesteps>    <GUI>
+      <xloc>399</xloc>
+      <yloc>193</yloc>
+      <draw>Y</draw>
+      </GUI>
+    </step>
+
+  <step_error_handling>
+  </step_error_handling>
+   <slave-step-copy-partition-distribution>
+</slave-step-copy-partition-distribution>
+   <slave_transformation>N</slave_transformation>
+
+</transformation>

@@ -1,0 +1,30 @@
+06-04 18:15:49 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:15:49 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:15:50 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:15:50 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:38 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:38 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:38 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:38 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:42 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]
+06-04 18:20:42 jdbc[2]: SQLException
+org.h2.jdbc.JdbcSQLException: Table "D_CUSTOMER" not found; SQL statement:
+SELECT * FROM D_CUSTOMER [42102-131]

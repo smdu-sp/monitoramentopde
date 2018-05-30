@@ -1,0 +1,524 @@
+/*
+Theme Name:         Monitoramento do Plano diretor estratégico
+Theme URI:          http://gestaourbana.prefeitura.sp.gov.br/marco-regulatorio/plano-diretor/
+Description:        Tema para o portal de indicadores do plano diretor. <a href="https://github.com/felipematheus/monitoramento_pde">GitHub</a>
+Version:            1.0
+Author:             Felipe Matheus Rosa
+Author URI:         http://fmr.io
+Text Domain:        sage
+
+License:            MIT License
+License URI:        http://opensource.org/licenses/MIT
+*/
+
+
+
+@font-face {
+    font-family: museo_slab500;
+    src: url('assets/fonts/museoslab_500/museo_slab_500-webfont.eot');
+    src: url('assets/fonts/museoslab_500/museo_slab_500-webfont.eot?#iefix') format('embedded-opentype'),
+         url('assets/fonts/museoslab_500/museo_slab_500-webfont.woff') format('woff'),
+         url('assets/fonts/museoslab_500/museo_slab_500-webfont.ttf') format('truetype'),
+         url('assets/fonts/museoslab_500/museo_slab_500-webfont.svg#museo_slab500') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: museo_sans300;
+    src: url('assets/fonts/museosans_300/museosans-300-webfont.eot');
+    src: url('assets/fonts/museosans_300/museosans-300-webfont.eot?#iefix') format('embedded-opentype'),
+         url('assets/fonts/museosans_300/museosans-300-webfont.woff') format('woff'),
+         url('assets/fonts/museosans_300/museosans-300-webfont.ttf') format('truetype'),
+         url('assets/fonts/museosans_300/museosans-300-webfont.svg#museo_sans300') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: museo_sans500;
+    src: url('assets/fonts/museosans_500/museosans-500-webfont.eot');
+    src: url('assets/fonts/museosans_500/museosans-500-webfont.eot?#iefix') format('embedded-opentype'),
+         url('assets/fonts/museosans_500/museosans-500-webfont.woff') format('woff'),
+         url('assets/fonts/museosans_500/museosans-500-webfont.ttf') format('truetype'),
+         url('assets/fonts/museosans_500/museosans-500-webfont.svg#museo_sans500') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: museo_700;
+    src: url('assets/fonts/museo_700/museo700-regular-webfont.eot');
+    src: url('assets/fonts/museo_700/museo700-regular-webfont.eot?#iefix') format('embedded-opentype'),
+         url('assets/fonts/museo_700/museo700-regular-webfont.woff') format('woff'),
+         url('assets/fonts/museo_700/museo700-regular-webfont.ttf') format('truetype'),
+         url('assets/fonts/museo_700/museo700-regular-webfont.svg#museo_700') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
+body{
+	font-family:museo_slab500, museo_sans500;
+}
+/* template header.php */
+.navbar-default .navbar-brand{
+	font-size:21px;
+	font-weight:bold;
+	color:#5e5e5e;
+}
+
+.navbar-default .navbar-brand:hover{
+	color:#252525;
+}
+
+#navbar-gestao, #navbar-prefeitura{
+	height:110%;
+	text-align:center;
+}
+
+#menu-secoes{
+	font-size:13px;
+}
+
+.menu-secoes-toggle{
+	width:100%;
+}
+
+header .navbar{
+	margin-bottom: 15px;
+	/*padding-bottom:12px;*/
+	border-radius: 0;
+}
+
+header .navbar a{
+	color:#777;
+}
+
+header .nav-pills>li>a{
+	border-radius:12px;
+}
+
+header .navbar a:hover, .navbar a:focus{
+	color:#252525;
+}
+
+@media(max-width:767px){
+	.brand-title{
+		line-height:30px;
+		text-align:center;
+		height:auto;
+	}
+}
+@media(min-width: 768px) {
+	header nav .container, .navbar-collapse{
+		padding-left:0px;
+		padding-right:0px;
+	}
+	#menu-secoes li a{
+		padding:12px;
+	}
+}
+
+@media (max-width: 992px) and (min-width:768px)  {
+	#navbar-gestao{
+		height:55%;
+	}
+	
+	#navbar-prefeitura{
+		height:75%;
+	}
+}
+@media (min-width: 1200px) {
+	.container{
+			/*max-width: 960px;*/
+	}
+}
+
+/* template  */
+/* carrosel */
+
+.carousel{
+	background-color:#f8f8f8;
+	border-color:#e7e7e7;
+	border-width:1px;
+	border-style:solid;
+}
+
+/* texto */
+.carousel-caption h4{
+	font-size:21px;
+	color: #5e5e5e;
+	text-shadow:0 0px 0px rgba(100,100,100,0.6);
+}
+
+.carousel-caption{
+	right:9%;
+	left:9%;
+	color:#777;
+	text-shadow:0 0px 0px rgba(130,130,130,0.6);
+	padding-bottom: 5px;
+	bottom:auto;
+	top:0px;
+	padding-top:20px;
+	padding-bottom:20px;
+}
+
+.slide-carrosel{
+	min-height:160px;
+	height:auto;
+	display:inline-block;
+}
+
+/* setas */
+.carousel-control{
+	width:8%;
+	border-radius:8px;
+}
+
+.carousel-control span{
+	color:#5e5e5e;
+}
+
+.carousel-control.left{
+	background-image:none;
+	/*background-image: linear-gradient(to right,rgba(180,180,180,1) 0,rgba(248,248,248,0.3) 100%);*/
+}
+
+.carousel-control.right{
+	background-image:none;
+	/*background-image: linear-gradient(to right,rgba(248,248,248,0.3) 0,rgba(180,180,180,1) 100%);*/
+}
+
+/* botoes de paginacao */
+
+.carousel-indicators{
+	text-align:right;
+	bottom:5px;
+	margin-bottom:0px;
+	right:0;
+	left:auto;
+	margin-right:9%;
+}
+.carousel-indicators .active{
+	background-color:#252525;
+}
+
+.carousel-indicators li{
+	background-color:#777;
+}
+
+/* tabs */
+.uib-tab.nav-item a{
+	color:#777;
+}
+
+.uib-tab.nav-item a:hover{
+	color:#252525;
+}
+
+.uib-tab.nav-item.active a{
+	color:#ddd;
+	background-color:#5e5e5e;
+}
+
+.uib-tab.nav-item.active a:hover, .uib-tab.nav-item.active a:focus{
+	color:#fff;
+	background-color:#5e5e5e;
+}
+
+.uib-tab.nav-item{
+	margin-right:8px;
+}
+
+/* links */
+
+@media (min-width: 768px) {
+	.list-group-item{
+			border:0;
+	}
+}
+
+.list-group-item a{
+	color:#555;
+}
+
+.list-group-item a:hover{
+	color:#000;
+}
+
+/* Descricao forma de visualizacao */
+
+.titulo-forma-visu{
+	color:black;
+	font-weight:bold;
+}
+
+#saiba-mais, .link-saiba-mais{
+	font-weight:bold;
+}
+
+.link-saiba-mais{
+	color: #000;
+	padding-left:5px;
+	padding-right:5px;
+}
+
+.link-saiba-mais:hover{
+	color: #000;
+}
+
+/* painel de indicadores */
+
+.panel-heading{
+	color:black !important;
+	background-color:#E5E5E5 !important;
+	/*border-color:#ff6666 !important;*/
+	border-width:1px;
+	border-style:dotted;
+}
+
+.panel-heading small{
+	color:#black;
+}
+
+/* saiba mais */
+
+.icones-indicador{
+	height:30px;
+	padding-left:8px;
+}
+
+.icones-saiba-mais, .icones-visualizacao{
+	height:30px;
+	display:inline-block;
+	padding:0;
+}
+
+.icones-visualizacao{
+	height:auto;
+	max-height:60px;
+	width:auto;
+}
+
+.list-visualizacao a span{
+	padding-left:0px;
+	padding-right:0;
+}
+
+.list-visualizacao{
+	padding-bottom:0;
+	padding-top:0;
+	padding-left:10px;
+	margin-bottom:7px;
+	padding-right:10px;
+}
+
+.link-saiba-mais-indicador{
+	padding-top:5px;
+	padding-bottom:5px;
+	display:block;
+}
+
+.link-saiba-mais-indicador span{
+	font-size:120%;
+}
+
+.icones-redes-sociais{
+	color:white;
+	font-size:120%;
+	border-radius:50%;
+	width:30px;
+	height:30px;
+	text-align:center;
+	padding:7px;
+	background-color:#db2c30;
+	margin-right:4px;
+	margin-left:4px;
+}
+
+.img-rodape{
+	margin:0 auto;
+	max-width:250px;
+}
+
+.link-rodape{
+	padding-bottom:8px;
+	display:block;
+	color:#db2c30;
+}
+
+.link-rodape:hover{
+	color:#db2c30;
+}
+
+footer{
+	border-color:#e7e7e7;
+	border-width:1px;
+	border-style:solid;
+}
+
+#conteudo{
+	margin-bottom:15px;
+}
+
+.list-pontilhada{
+	/*border-bottom-color:#211D1F;
+	border-bottom-width:2px;
+	border-bottom-style:dotted;*/
+	border-top-color:#211D1F;
+	border-top-width:2px;
+	border-top-style:dotted;
+	font-size:85%;
+	border-bottom-left-radius:0px !important;
+	border-bottom-right-radius:0px !important;
+	border-top-left-radius:0px !important;
+	border-top-right-radius:0px !important;
+}
+
+.list-pontilhada:last-child{
+	border-bottom-color:#211D1F;
+	border-bottom-width:2px;
+	border-bottom-style:dotted;
+}
+
+.acao-prioritaria:first-letter, .acao-prioritaria-cbo select{
+	text-transform:capitalize;
+}
+
+.acao-prioritaria{
+	text-align:left;
+}
+
+.ol-scale-line{
+	right:0;
+	left:auto;
+	background-color:#FBD1CD;
+}
+
+.ol-scale-line-inner{
+	color:#777;
+}
+
+.oculto{
+	visibility:hidden;
+}
+
+.page-header{
+	margin-top:0px !important;
+}
+
+.content-page{
+	line-height:2;
+}
+
+.content-page p:last-child{
+	margin-bottom:20px;
+}
+
+.link-pagina{
+	color:#db2c30;
+}
+
+.link-pagina:hover{
+	color:#db2c30;
+}
+
+.subtitulo-instrumento p{
+	font-size:12px;
+}
+
+.quebra-linha{
+	white-space: pre-line;
+}
+
+.primeira-maiuscula {
+    text-transform: capitalize;
+}
+.descricao-cadastro{
+	margin-top:-0.8em;
+	margin-bottom:0.3;
+	line-height:1.5;
+}
+
+.elemento-cadastro{
+	margin-top:1em;
+	margin-bottom:1em;
+}
+
+.controle-cadastro{
+	height:2em;
+}
+
+
+/* Text Replaces */
+
+h1.entry-title{
+	visibility: hidden;
+}
+h1.entry-title:after{
+	content:"Fórum";
+	display: block;
+	visibility: visible;
+}
+
+.bbp-author-avatar{
+	display: none;
+}
+
+.forum-titles .bbp-forum-freshness, .forum-titles .bbp-topic-freshness{
+	visibility: hidden;
+}
+
+.forum-titles .bbp-forum-freshness:after, .forum-titles .bbp-topic-freshness:after{
+	content:"Última Postagem";
+	visibility: visible;
+	margin-left: -20%;
+}
+
+.forum-titles .bbp-topic-title{
+	visibility: hidden;
+}
+
+.forum-titles .bbp-topic-title:after{
+	content:"Tópico";
+	visibility: visible;
+	margin-left: -5%;
+}
+#subscription-toggle{
+	display: none;
+}
+.tml-last-name-wrap th label{
+	visibility: hidden;
+}
+.tml-last-name-wrap th label:after{
+	content:"Instituição";
+	visibility: visible;
+	margin-left: -15.5%;
+}
+.bbp-reply-ip, .bbp-author-ip{
+	display: none;
+}
+
+fieldset.bbp-form:nth-child(2) div:nth-child(3) label {
+    visibility: hidden;
+}
+
+fieldset.bbp-form:nth-child(2) div:nth-child(3) label:after {
+    content: "Instituição";
+    visibility: visible;
+}
+
+.caixa-data, .caixa-data p{
+	margin-top:0px;
+	margin-bottom:0px;
+}
+
+.indicador-item-composicao{
+	border-color:#a9a9a9;
+	border-width:2px;
+	border-style:solid;
+}
+
+.header-painel-indicadores-homolog{
+	background-color: #c3c3c3 !important;
+}

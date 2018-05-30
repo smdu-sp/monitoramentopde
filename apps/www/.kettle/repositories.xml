@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<repositories>
+  <repository>    <id>KettleFileRepository</id>
+    <name>MonitoramentoPDE</name>
+    <description>Processos de carga do aplicativo MonitoramentoPDE</description>
+    <base_directory>&#x2f;var&#x2f;www&#x2f;pentaho&#x2f;Pentaho&#x2f;Repositorios&#x2f;MonitoramentoPDE</base_directory>
+    <read_only>N</read_only>
+    <hides_hidden_files>N</hides_hidden_files>
+  </repository>  </repositories>

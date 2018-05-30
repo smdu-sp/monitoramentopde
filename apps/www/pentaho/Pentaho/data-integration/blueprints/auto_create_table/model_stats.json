@@ -1,0 +1,26 @@
+{
+   "targettable" : "model_stats",
+   "targetschema" : "",
+   "targetdatabase" : "demo",
+
+   "fields":[
+      {
+         "name":"modelname",
+         "type":"String",
+         "flength":"50",
+         "precision":"-1"
+      },
+      {
+         "name":"rowcount",
+         "type":"Integer",
+         "flength":"15",
+         "precision":"0"
+      },
+      {
+         "name":"logdate",
+         "type":"Date",
+         "flength":"-1",
+         "precision":"-1"
+      }
+   ]
+}

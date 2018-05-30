@@ -1,0 +1,43 @@
+<features xmlns="http://karaf.apache.org/xmlns/features/v1.0.0">
+  <feature name="pentaho-big-data-plugin-osgi" version="1.0">
+  	<feature>pentaho-big-data-plugin-testless-osgi</feature>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-clusterTests/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-shimTests/6.1.0.1-196</bundle>
+  </feature>
+  <feature name="pentaho-big-data-plugin-testless-osgi" version="1.0">
+    <feature>pentaho-client-minimal</feature>
+    <bundle>mvn:pentaho/pentaho-osgi-utils-impl/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pdi-osgi-bridge-activator/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-cluster/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-cluster-service-locator/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-initializer/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-hdfs/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-hbase/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-mapreduce/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-pig/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-oozie/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-sqoop/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-api-runtimeTest/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-cluster/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-common/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-initializer/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-hdfs/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-hbase/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-mapreduce/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-pig/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-oozie/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-shim-sqoop/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-impl-vfs-hdfs/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-common-ui/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-common-job/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-common-named-cluster-bridge/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-guiTestActionHandlers/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-hdfs/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-hbase/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-mapreduce/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-pig/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-oozie/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-big-data-kettle-plugins-sqoop/6.1.0.1-196</bundle>
+    <bundle>mvn:pentaho/pentaho-hadoop-shims-mapr-osgi-jaas/6.1.0.1-196</bundle>
+  </feature>
+</features>
