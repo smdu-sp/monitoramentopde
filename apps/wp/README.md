@@ -1,4 +1,5 @@
 # Configuração do ambiente do centos 7 - 64 bits para instalação do *Wordpress + Bedrock*.
+[Voltar] (/MonitoramentoPDE)
 
 ## Pré requisitos
 ### Ter instalado e *configurado* os seguintes pacotes:
@@ -20,7 +21,7 @@
 		```
 	* Download via git no projeto Git **MonitoramentoPDE**
 		```
-		git clone http://git.cgtic.pmsp/Projetos-SMUL/MonitoramentoPDE.git
+		git clone http://gitlab.ctic.sms/smul/MonitoramentoPDE.git
 		```
 
 ### Modo 1: Instalação do Wordpress com Bedrock (via unzip do arquivo *bedrock.zip*):
@@ -172,3 +173,4 @@ listen.acl_users = nginx
 ## Referências 
 >Referência: https://roots.io/bedrock/docs/installing-bedrock/
 
+[Voltar] (/MonitoramentoPDE)

@@ -16,7 +16,7 @@ Configuração do ambiente do centos 7 - 64 bits para instalação do sistema *M
 	1. geoserver
 	1. Wordpress bedrooks 
 
-### Arquivos presentes no [projeto Git *MonitoramentoPDE*](http://git.cgtic.pmsp/Projetos-SMUL/MonitoramentoPDE)
+### Arquivos presentes no [projeto Git *MonitoramentoPDE*](/MonitoramentoPDE)
 
 ### Boas práticas para download dos pacotes e projetos necessários para esse sistema
 1. Utilizar usuário **diferente** de _root_ no CentOS
