@@ -1663,7 +1663,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 					
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Memória de cálculo do indicador </a>
+					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Tabela de valores do indicador </a>
 				</div>
 				<div class="col-sm-6">
 					<div class="row" style="width:100%;max-height:30px;">
