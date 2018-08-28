@@ -265,6 +265,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.$parent.estado = "listar";
 	};	
 
+	// TODO: [ISSUE X] Erro ao cadastrar novo Banco de Dados
 	$scope.inserir = function(){
 		$rootScope.indicadorComposicao = $scope.indicadorComposicao;
 		Indicador.save({indicador:$scope.indicadorAtivo}).$promise.then(
@@ -282,6 +283,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						},
 						function(erro){
 							$rootScope.modalProcessando.close();
+							console.log("indicadorcomp.save");
 							$scope.lancarErro(erro);
 						}
 				);

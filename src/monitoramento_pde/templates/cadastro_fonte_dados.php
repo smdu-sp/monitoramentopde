@@ -34,10 +34,10 @@ app.factory('FonteDadosCarregar',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar/:id',{id:'@id_fonte_dados'},{
 		update:{
 			method:'POST',
-			transformRequest: 
-				function(data) {
-					if (data === undefined)
+			transformRequest: function(data) {
+					if (data === undefined){
 						return data;
+						}
 
 					var fd = new FormData();
 					angular.forEach(data, function(value, key) {
@@ -50,19 +50,17 @@ app.factory('FonteDadosCarregar',function($resource){
 								});
 							}
 						} else {
-							
 							if(value instanceof File){
 								fd.append('arquivo', value);
-							}else if(value instanceof Array){
-											
-											fd.append('arquivo', value[0]);
-										}else
-											fd.append(key, value);
+							}
+							else if(value instanceof Array){
+								fd.append('arquivo', value[0]);
+							}else
+								fd.append(key, value);
 						}
 					});
 					
-					return fd;
-					
+					return fd;					
 				},
 			headers:{
 				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
@@ -195,7 +193,8 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	}
 	
 	$scope.lancarErro = function(erro){
-		alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
+		console.warn(erro);
+		// alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
 	}
 	
 	$scope.inserirForm = function(){
@@ -205,6 +204,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	};
 	
 	$scope.atualizar = function(){
+		console.log('scope.atualizar');
 		$rootScope.itemAtual = $scope.itemAtual;
 		FonteDadosColuna.update({colunas:$scope.colunas,id_fonte_dados:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
@@ -221,19 +221,26 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 					function(erro){
 						$rootScope.modalProcessando.close();
 						$rootScope.modalConfirmacao.close();
-						$scope.lancarErro(erro);
+						// $scope.lancarErro(erro);
+						console.log("Erro ao atualizar FonteDados");
+						console.warn(erro);
 					}
-				);
+				).catch(function(err){
+					console.log("Erro excepcional:");
+					console.warn(err);
+				});
 			},
 			function(erro){
 				$rootScope.modalProcessando.close();
 				$rootScope.modalConfirmacao.close();
-				$scope.lancarErro(erro);
+				// $scope.lancarErro(erro);
+				console.log("Erro ao atualizar FonteDadosCOLUNA");
 			}
 		);
 	};		
 	
 	$scope.remover = function(){
+		console.log('scope.remover');
 		FonteDadosColuna.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
 				FonteDados.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
@@ -264,27 +271,28 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	};	
 
 	$scope.carregarArquivo = function(){
+		console.log('carregarArquivo');
 		if(!$rootScope.carregandoArquivo){
 			$rootScope.carregandoArquivo = true;
 			$rootScope.mensagemArquivo = 'Aguarde... Realizando Carga';
-			
+			// TO DO confirmar carregamento
 			FonteDadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
 				function(mensagem){
-
 					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';
-					
+					$rootScope.mensagemArquivo = '';					
 					$rootScope.modalProcessando.close();		
 					$scope.criarModalSucesso();
 				},
 				function(erro){
-					$rootScope.modalConfirmacao.close();
-					$scope.lancarErro(erro);
-						
+					$rootScope.modalConfirmacao.close();						
 					$rootScope.carregandoArquivo = false;
 					$rootScope.mensagemArquivo = '';
+					$scope.lancarErro(erro);					
 				}
-			);
+			).catch(function(err){
+				console.log("HEL");
+				console.error(err);
+			});
 		}else{
 			alert('Uma carga de fonte de dados já está acontecendo, espere ela acabar para iniciar outra.');
 		};
@@ -350,7 +358,35 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				scope:$scope,
 				size: 'md',
 		});
-	
+
+		// REALIZA AÇÃO DE ACORDO COM O PARÂMETRO ATUAL
+		switch($scope.acao){
+			case 'Atualizar':
+				$scope.acaoExecutando = 'Atualizando';
+				$scope.acaoSucesso = 'Atualizada';
+				$scope.atualizar();
+				break;
+			case 'Remover':
+				$scope.acaoExecutando = 'Removendo';
+				$scope.acaoSucesso = 'Removida';
+				$scope.remover();
+				break;
+			case 'Inserir':
+				$scope.acaoExecutando = 'Inserindo';
+				$scope.acaoSucesso = 'Inserida';
+				$scope.inserir();
+				break;
+			case 'Carregar':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregada';
+				$scope.carregarArquivo();
+				break;
+			default:
+				console.warn($scope.acao);
+		}
+
+		
+	/*
 		if($scope.acao == 'Atualizar'){
 			$scope.acaoExecutando = 'Atualizando';
 			$scope.acaoSucesso = 'Atualizada';
@@ -377,8 +413,8 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				}
 			}
 		}
-
-	};	
+*/
+	}
 	
 	$scope.adicionarElementoColuna = function(){
 		if($scope.colunas == null){
