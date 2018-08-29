@@ -22,10 +22,12 @@ function componentToHex(c) {
 function rgbToHex(r, g, b) {
     return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
 }
-
 jQuery.noConflict();
 
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','ngRoute','ngSanitize']);
+
+// CORES PADRÃO DOS GRÁFICOS
+app.defaultColors = ['#edc70a', '#4b1241', '#a90537', '#009045', '#5f87c1', '#cb6037', '#6e5128', '#ba007c', '#a3bd31', '#062e45'];
 
 app.factory('Indicador',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/indicador/:id',{id:'@id_indicador'},{
@@ -116,7 +118,6 @@ app.config(function($routeProvider) {
 	 resolve: {
 				init: function() {
 					return function() {
-						
 						$scope.cargaCadastroIndicadores($route.current.params['idEstrategia']);
 					}
 				}
@@ -124,7 +125,21 @@ app.config(function($routeProvider) {
   })
 });
 
-app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, IndicadorValores, Noticia, Menu, AcaoPrioritaria, IndicadorHistorico, GrupoIndicador, FichaTecnicaInstrumento, IndicadorMemoria, VariavelHistorico) {
+app.controller("dashboard", function($scope, 
+									$rootScope, 
+									$http, 
+									$filter, 
+									$uibModal, 
+									Indicador, 
+									IndicadorValores, 
+									Noticia, 
+									Menu, 
+									AcaoPrioritaria, 
+									IndicadorHistorico, 
+									GrupoIndicador, 
+									FichaTecnicaInstrumento, 
+									IndicadorMemoria, 
+									VariavelHistorico) {
 	
 	$scope.tabAtivaForma = 1;
 	GrupoIndicador.query({tipo:'instrumento',tipo_retorno:'object',formato_retorno:'array'},function(instrumentos){
@@ -138,7 +153,6 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 	$scope.idPoligonoAnterior = 0;
 	/*$scope.estiloRealce = function(resolution){ 
 		var hexColor = this.get('color');
-		
 		var corRealce = ol.color.asArray(hexColor);
 		corRealce = corRealce.slice();
 		corRealce[3] = 0.4;
@@ -171,164 +185,139 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		return 'Q' + quarter.toString() + ' / ' + dataAjustada.getYear().toString()
 	};
 	
+	// BUSCA INFORMACOES DO INDICADOR SELECIONADO PARA CARREGAR DADOS
 	$scope.atualizarAccordion = function(indicador){
 		$scope.selecao.idIndicSel = indicador.id_indicador;
 		$scope.inicializarSelecao();
-		
 		$scope.cargaIndicadorValores(true,true);
 	};
 	
-		$scope.fixarMapa = function(idRegiao){
-				
-				$scope.clickMapa = true;
-				$scope.hoverMapa = true;
-				$scope.realcarMapa(idRegiao);
-			
-		};
+	$scope.fixarMapa = function(idRegiao){				
+		$scope.clickMapa = true;
+		$scope.hoverMapa = true;
+		$scope.realcarMapa(idRegiao);
+	};
 		
-		$scope.estiloMapa = function(feature,resolution, estiloFundo, corContorno, contador){
-			
-			//prefixoCor = '00';
-			//sufixoCor = '99';
-			
-			//corContorno = [255,255,255];
-			//corForte = [166,21,0];
-			//corFraca = [104,122,127];
-			cores = [];
-			//cores[0] = [218,235,239];
-			cores[4] = [79,21,27];
-			cores[3] = [155,23,49];
-			cores[2] = [186,33,36];
-			cores[1] = [220,171,174];
-			cores[0] = [240,219,226];
-						
-			
-			$scope.qtdClasses = 5;
-			//qtdCores = 15;
-			//qtdCores = 5;
-			//incrementoCor = qtdCores / qtdClasses;
-			
-			regiao = $scope.dadosMapa.filter((regiao) => regiao.codigo == feature.get('ID_REGIAO'))[0];
-			
-			regiaoMaiorValor = $scope.dadosMapa.filter((regiaoMaior) => regiaoMaior.posicao == 0)[0];
-			
-			//intervalo = Math.floor($scope.dadosMapa.filter((regiao) => regiao.valor > 0).length / ($scope.qtdClasses - 1));
-			intervalo = regiaoMaiorValor.valor / $scope.qtdClasses;
+	$scope.estiloMapa = function(feature,resolution, estiloFundo, corContorno, contador){
 		
-			/*if(intervalo == 0){
-				intervalo = 1;
-			}*/
-			//console.log(regiao);
-			//console.log(intervalo);
-			//indiceClasseRegiao = (regiao.posicao + 1) / intervalo;
-			indiceClasseRegiao = regiao.valor / intervalo;
-			/*
-			if(indiceClasseRegiao > $scope.qtdClasses - 1 && regiao.valor > 0){
-				indiceClasseRegiao = $scope.qtdClasses - 1;
-			}else{*/
-				indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
-			/*}*/
-			
-			if(indiceClasseRegiao > $scope.qtdClasses){
-				indiceClasseRegiao = $scope.qtdClasses;
-			}
-			
-			if(indiceClasseRegiao == 0){
-				indiceClasseRegiao = 1;
-			}
-			
-			
-			//classeRegiao = Math.round(qtdCores - (incrementoCor * indiceClasseRegiao ) );
-			//corClasse = indiceCorHexadecimal(classeRegiao);
-			
-			/*corRegiao = [];
-			angular.forEach(corFraca, function(value,key){
-				corRegiao[key] = Math.round(corFraca[key] - (((corFraca[key] - corForte[key]) / $scope.qtdClasses) * indiceClasseRegiao ));
-			});*/
-			
-			
-			//corRegiao = "#" + prefixoCor + corClasse + corClasse + sufixoCor;
-			//corBorda = "#" + '11' + corClasse + corClasse + '88';
-			
-
-			
-			for(i=1;i<= $scope.qtdClasses;i++){
-				legenda = $scope.legenda.filter((legenda) => legenda.indice == i)[0];
-				
-				if(angular.isUndefined(legenda)){
+		//prefixoCor = '00';
+		//sufixoCor = '99';
+		
+		//corContorno = [255,255,255];
+		//corForte = [166,21,0];
+		//corFraca = [104,122,127];
+		cores = [];
+		//cores[0] = [218,235,239];
+		cores[4] = [79,21,27];
+		cores[3] = [155,23,49];
+		cores[2] = [186,33,36];
+		cores[1] = [220,171,174];
+		cores[0] = [240,219,226];
 					
-					maximoLegenda = i * intervalo;
-					minimoLegenda = (i - 1) * intervalo;
-					
-					maximoLegenda = $scope.ajustarEscalaValor(regiaoMaiorValor.valor, maximoLegenda);
-					minimoLegenda = $scope.ajustarEscalaValor(regiaoMaiorValor.valor, minimoLegenda);
-					
-					
-					
-					if(minimoLegenda != 0){
-						minimoLegenda += 0.1;
-					}
-					
-					corRegiao = cores[i-1];
-					//corRegiao[3] = transparencia;
-					
-					$scope.legenda.push({
-						indice: i,
-						//maximo: regiao.valor, 
-						//minimo: regiao.valor,
-						maximo: maximoLegenda,
-						minimo: minimoLegenda,
-						regioes: [],
-						cor: rgbToHex(corRegiao[0],corRegiao[1],corRegiao[2])
-					});
-				}
-			}
-			
-			
-			
-			legenda = $scope.legenda.filter((legenda) => legenda.indice == indiceClasseRegiao)[0];
-			
-			if(!angular.isUndefined(legenda)){
-				regiaoLegenda = legenda.regioes.filter((regiaoLeg) => regiaoLeg == regiao.codigo)[0];
-				
-				if(angular.isUndefined(regiaoLegenda)){
-					legenda.regioes.push(regiao.codigo);
-				}
-				
-				corRegiao = cores[legenda.indice-1];
-				corRegiao[3] = 1;
-			}else{
-				//coloco a cor mais fraca
-				corRegiao = cores[0];
-				corRegiao[3] = 1;
-			}
-			
-			if(estiloFundo){
-				corRegiao = [224,224,225];
-			}
-			
-			/*
-			else{
-				legenda.maximo = regiao.valor > legenda.maximo ? regiao.valor : legenda.maximo;
-				legenda.minimo = regiao.valor < legenda.minimo ? regiao.valor : legenda.minimo;
-				legenda.regioes.push(regiao.codigo);
-			}*/
-			
-			//$scope.ajustarLimitesLegenda(indiceClasseRegiao);
-			$scope.$apply();
-			return new ol.style.Style({
-				fill: new ol.style.Fill({
-					color: corRegiao
-				}),
-				stroke: new ol.style.Stroke({
-					color: corContorno,
-					width: 0.5
-				})
-			});
-			
-			
-			
+		
+		$scope.qtdClasses = 5;
+		//qtdCores = 15;
+		//qtdCores = 5;
+		//incrementoCor = qtdCores / qtdClasses;
+		
+		regiao = $scope.dadosMapa.filter((regiao) => regiao.codigo == feature.get('ID_REGIAO'))[0];
+		
+		regiaoMaiorValor = $scope.dadosMapa.filter((regiaoMaior) => regiaoMaior.posicao == 0)[0];
+		
+		//intervalo = Math.floor($scope.dadosMapa.filter((regiao) => regiao.valor > 0).length / ($scope.qtdClasses - 1));
+		intervalo = regiaoMaiorValor.valor / $scope.qtdClasses;
+	
+		/*if(intervalo == 0){
+			intervalo = 1;
+		}*/
+		//console.log(regiao);
+		//console.log(intervalo);
+		//indiceClasseRegiao = (regiao.posicao + 1) / intervalo;
+		indiceClasseRegiao = regiao.valor / intervalo;
+		/*
+		if(indiceClasseRegiao > $scope.qtdClasses - 1 && regiao.valor > 0){
+			indiceClasseRegiao = $scope.qtdClasses - 1;
+		}else{*/
+			indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
+		/*}*/
+		
+		if(indiceClasseRegiao > $scope.qtdClasses){
+			indiceClasseRegiao = $scope.qtdClasses;
 		}
+		
+		if(indiceClasseRegiao == 0){
+			indiceClasseRegiao = 1;
+		}
+		
+		for(i=1;i<= $scope.qtdClasses;i++){
+			legenda = $scope.legenda.filter((legenda) => legenda.indice == i)[0];
+			
+			if(angular.isUndefined(legenda)){
+				maximoLegenda = i * intervalo;
+				minimoLegenda = (i - 1) * intervalo;
+				maximoLegenda = $scope.ajustarEscalaValor(regiaoMaiorValor.valor, maximoLegenda);
+				minimoLegenda = $scope.ajustarEscalaValor(regiaoMaiorValor.valor, minimoLegenda);
+				
+				if(minimoLegenda != 0){
+					minimoLegenda += 0.1;
+				}
+				corRegiao = cores[i-1];
+				
+				$scope.legenda.push({
+					indice: i,
+					maximo: maximoLegenda,
+					minimo: minimoLegenda,
+					regioes: [],
+					cor: rgbToHex(corRegiao[0],corRegiao[1],corRegiao[2])
+				});
+			}
+		}
+		
+		
+		
+		legenda = $scope.legenda.filter((legenda) => legenda.indice == indiceClasseRegiao)[0];
+		
+		if(!angular.isUndefined(legenda)){
+			regiaoLegenda = legenda.regioes.filter((regiaoLeg) => regiaoLeg == regiao.codigo)[0];
+			
+			if(angular.isUndefined(regiaoLegenda)){
+				legenda.regioes.push(regiao.codigo);
+			}
+			
+			corRegiao = cores[legenda.indice-1];
+			corRegiao[3] = 1;
+		}else{
+			//coloco a cor mais fraca
+			corRegiao = cores[0];
+			corRegiao[3] = 1;
+		}
+		
+		if(estiloFundo){
+			corRegiao = [224,224,225];
+		}
+		
+		/*
+		else{
+			legenda.maximo = regiao.valor > legenda.maximo ? regiao.valor : legenda.maximo;
+			legenda.minimo = regiao.valor < legenda.minimo ? regiao.valor : legenda.minimo;
+			legenda.regioes.push(regiao.codigo);
+		}*/
+		
+		//$scope.ajustarLimitesLegenda(indiceClasseRegiao);
+		$scope.$apply();
+		return new ol.style.Style({
+			fill: new ol.style.Fill({
+				color: corRegiao
+			}),
+			stroke: new ol.style.Stroke({
+				color: corContorno,
+				width: 0.5
+			})
+		});
+		
+		
+		
+	};
 		
 		$scope.estiloRealce = function(resolution){
 			corContorno = [255,255,255];
@@ -342,25 +331,17 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		};
 	
 	$scope.realcarMapa = function(idPoligonoAtual){
-
-
-				
-				if(idPoligonoAtual==null){
-					
+				if(idPoligonoAtual==null){					
 					$scope.cargaIndicadorValores(false,true);
 					
-					return;
-					
-				}else{
-					
+					return;					
+				}
+				else{					
 					if(idPoligonoAtual != $scope.idPoligonoAnterior || !$scope.idPoligonoAnterior || $scope.hoverMapa == false){
-							
 							$scope.idPoligonoAnterior = idPoligonoAtual;
-							
 							if($scope.selecao.idTerrSel != 4){
 								//console.log($scope.dadosMapa);
-								$scope.regiaoRealcada = angular.copy($scope.dadosMapa.filter((regiao) => regiao.codigo == idPoligonoAtual)[0], $scope.regiaoRealcada) ;
-								
+								$scope.regiaoRealcada = angular.copy($scope.dadosMapa.filter((regiao) => regiao.codigo == idPoligonoAtual)[0], $scope.regiaoRealcada);								
 								$scope.layerVetor.setStyle($scope.estiloVetor);
 								$scope.layerVetor.getSource().changed();
 								
@@ -391,21 +372,20 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 				$scope.hoverMapa = true;
 			
 		};
-		
 		$scope.carregarGraficoHistorico = function(idRegiao){
-			
 			dataHistorica = [];
 			dataHistorica['original'] = [];
 			dataHistorica['formatada'] = [];
-			
 			angular.forEach($scope.indicador.datas.slice().reverse(), function(valor,chave){
-			if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
+				// ISSUE P1-1 (INDICADOR NÃO CARREGA O MAPA, OU CARREGA DADOS DO EIXO X ERRADO, PRECISANDO CLICAR 2X PARA ABRIR)
+				// OPERADOR IF SUPRIMIDO PARA CORRIGIR INCONSISTÊNCIA AO CARREGAR DADOS PELA PRIMEIRA VEZ
+				// if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
 					this['original'].push(valor);
 					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
-					console.log(valor);
 					trimestre = new Date(valor).getMonth()
-					this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
-				}
+					// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+					dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				// }
 			},dataHistorica);
 			
 			if(angular.isUndefined($scope.selecao.dataMin)){
@@ -418,7 +398,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 			
 			IndicadorHistorico.get({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel,regiao:idRegiao,dataMinima:$scope.selecao.dataMin,dataMaxima:$scope.selecao.dataMax},function(indicadorHistorico){
 				
-				indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name') 
+				indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name'); 
 				
 				$scope.carregarGraficoLinhas = indicadorHistorico.series.length > 0;
 					
@@ -427,27 +407,30 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 				}else{
 					$scope.carregandoHistorico = null;
 				}
-				
-				if(indicadorHistorico.series.length == 1){
-					indicadorHistorico.series[0].showInLegend = false;
-				}
+				// TODO: (P1.3)
+				// if(indicadorHistorico.series.length == 1){
+				// 	indicadorHistorico.series[0].showInLegend = false;
+				// }
 				
 				larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
+				let ultimoItemVarFiltro = "";
 				
 				subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
-				
 				$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 					chart: {
 						type: 'line',
 						marginTop: 25,
 						width:larguraGraficoLinha
-					},
-					xAxis: {
+				        },
+				    colors: app.defaultColors,
+			        xAxis: {
 						type: "category",
 						crosshair: true,
 						categories: dataHistorica['formatada']
-					},
+					}, 
 					series: indicadorHistorico.series,
+					// ISSUE P1.3 - Corrigir erro de quando o valor do indicador é ZERO não mostra nem o valor do numerador e nem do denominador*
+					// *O valor não é 0, na verdade o valor não existe no banco e é tratado como 0.
 					tooltip: {
 						formatter: function(){
 							if($scope.selecao.idTerrSel == 4)
@@ -457,17 +440,25 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 							
 							textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
 							
-							textoTooltip = textoTooltip + '<b>' + this.series.name + ' :</b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + $scope.indicador.simbolo_valor + '<br>';
+							textoTooltip = textoTooltip + '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + $scope.indicador.simbolo_valor + '<br>';
 							
 							if(this.series.chart.series.length > 1){
-								varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true) && (variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null)));
+								varFiltro =	$scope.variavelHistorico.filter(
+									(variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) &&
+									(variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true)&& 
+									(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
+									);
 							}else{
 								varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
 							}
-							varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter((variavel) => variavel.data == null && (variavel.id_regiao == $scope.regiaoRealcada.codigo || variavel.distribuicao == true) && variavel.dimensao == null);
+							varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
+								(variavel) => variavel.data == null && 
+								(variavel.id_regiao == $scope.regiaoRealcada.codigo || variavel.distribuicao == true) && 
+								variavel.dimensao == null
+								);
 							varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
-							
-							if(varFiltro.length > 1){
+							// Reduzido numero de itens no array varFiltro para que o indicador mostre o numerador
+							if(varFiltro.length >= 0){
 								angular.forEach(varFiltro, function(val,chave){
 									textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : this.y < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
 								});
@@ -645,7 +636,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		};
 		
 		
-
+// TODO: P1.3
 	$scope.cargaIndicadorValores = function(inserirMapa, inserirTerritorioMapa){
 		
 		if(inserirTerritorioMapa)
@@ -700,7 +691,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 						fontFamily: 'museo_slab500'
 					}
 				},
-				colors: ['#edc70a', '#4b1241', '#a90537', '#009045', '#5f87c1', '#cb6037', '#6e5128', '#ba007c', '#a3bd31', '#062e45'],
+				colors: app.defaultColors
 			});
 			
 			VariavelHistorico.query({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel},function(variavelHistorico){
@@ -721,6 +712,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 						type: 'column'
 						,marginTop: 35
 					},
+					colors: app.defaultColors,
 					title: {
 						text: null
 					},
@@ -779,6 +771,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 								spacingBottom: 10,
 								spacingTop: 30
 							},
+							colors: app.defaultColors,
 							title:{
 								text:$scope.indicador.nome
 								
@@ -938,18 +931,17 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 							
 						} 
 				
-				console.log( $scope.textoTitulo);
+				// IDENTIFICAÇÃO DO TEXTO DO TÍTULO
+				// console.log( $scope.textoTitulo);
 				
 				margemTitulo = $scope.textoTitulo.length * -6;
 				$scope.graficoBarras.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
 				
-				
+				// CARREGA MAPA DO INDICADOR
 				if(inserirTerritorioMapa){
 					$scope.layerVetor = new ol.layer.Vector({
 						source: new ol.source.Vector({
 							loader: function (extent) {
-								
-								
 								$http.jsonp('http://monitoramentopde.smul.pmsp/geoserver/Monitoramento_PDE/ows', {
 									params: {
 										service: 'WFS',
@@ -973,10 +965,9 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 					$scope.mapa.addLayer($scope.layerContorno);
 					$scope.mapa.addLayer($scope.layerVetor);
 				}
-	
 		});
 		
-		if(inserirMapa == true){
+		if(inserirMapa){
 			$scope.mapa = new ol.Map({
 				target: 'map',
 				view: new ol.View({
@@ -1111,25 +1102,25 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		$scope.ajustarEscalaValor = function(valorMaximoLegenda,valor){
 			
 			if (valorMaximoLegenda >= 1000000000) {
-									if(valorMaximoLegenda/ 1000000000.0 <= 8)
-										valor = Math.round((valor / 1000000000.0) * 10.0)/10.0;
-									else
-										valor = Math.round(valor / 1000000000.0);
-								}
-								else 
-										if (valorMaximoLegenda >= 1000000) { 
-											if(valorMaximoLegenda / 1000000.0 <= 8)
-												valor = Math.round((valor / 1000000.0) * 10.0)/10.0;
-											else
-												valor = Math.round(valor / 1000000.0);
-										}else 
-											if (valorMaximoLegenda >= 1000) {
-												if(valorMaximoLegenda / 1000.0 <= 8)
-													valor = Math.round((valor / 1000.0) * 10.0)/10.0;
-												else
-													valor = Math.round(valor / 1000.0);
-											}
-											
+				if(valorMaximoLegenda/ 1000000000.0 <= 8)
+					valor = Math.round((valor / 1000000000.0) * 10.0)/10.0;
+				else
+					valor = Math.round(valor / 1000000000.0);
+			}
+			else 
+				if (valorMaximoLegenda >= 1000000) { 
+					if(valorMaximoLegenda / 1000000.0 <= 8)
+						valor = Math.round((valor / 1000000.0) * 10.0)/10.0;
+					else
+						valor = Math.round(valor / 1000000.0);
+				}
+				else 
+					if (valorMaximoLegenda >= 1000) {
+						if(valorMaximoLegenda / 1000.0 <= 8)
+							valor = Math.round((valor / 1000.0) * 10.0)/10.0;
+						else
+							valor = Math.round(valor / 1000.0);
+					}
 			return valor;
 		}
 		/*
@@ -1186,7 +1177,6 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		};
 		
 		$scope.carregarVetor = function(resposta){
-			
 			format = new ol.format.GeoJSON(),
 			$scope.layerVetor.getSource().addFeatures(format.readFeatures(resposta.data));
 			
@@ -1273,7 +1263,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		if(tipo=='instrumento')
 		{
 			$rootScope.modalFichaInstrumento = $uibModal.open({
-				animation: true,
+				// animation: false,
 				ariaLabelledBy: 'modal-titulo-ficha-instrumento',
 				ariaDescribedBy: 'modal-corpo-ficha-instrumento',
 				templateUrl: 'ModalFichaInstrumento.html',
@@ -1299,7 +1289,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 			if(tipo=='indicador')
 			{
 				$rootScope.modalFichaIndicador = $uibModal.open({
-					animation: true,
+					// animation: false,
 					ariaLabelledBy: 'modal-titulo-ficha-indicador',
 					ariaDescribedBy: 'modal-corpo-ficha-indicador',
 					templateUrl: 'ModalFichaIndicador.html',
@@ -1307,19 +1297,19 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 					scope:$scope,
 					//controllerAs: '$ctrl',
 					size: 'lg',
-					//appendTo: parentElem,
-					//resolve: {
-					//	items: function () {
-					//		return $ctrl.items;
-					//	}
-					//}
+					appendTo: parentElem,
+					resolve: {
+						items: function () {
+							return $ctrl.items;
+						}
+					}
 				});
 			}else
 			{
 				if(tipo=='estrategia')
 				{
 					$rootScope.modalFichaEstrategia = $uibModal.open({
-						animation: true,
+						// animation: false,
 						ariaLabelledBy: 'modal-titulo-ficha-estrategia',
 						ariaDescribedBy: 'modal-corpo-ficha-estrategia',
 						templateUrl: 'ModalFichaEstrategia.html',
@@ -1850,12 +1840,12 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 
 			<div uib-accordion-group is-open="indicador.aberto" class="panel-default" close-others="true" ng-repeat="indicador in indicadores">
 				<uib-accordion-heading>
-					<span ng-class="indicador.homologacao? 'header-painel-indicadores-homolog' : 'header-painel-indicadores'" > {{indicador.nome}} <br> <small>Instrumento: {{indicador.instrumento}} </small>
+					<span ng-class="indicador.homologacao ? 'header-painel-indicadores-homolog' : 'header-painel-indicadores'" > {{indicador.nome}} <br> <small>Instrumento: {{indicador.instrumento}} </small>
 						<i class="pull-right glyphicon" ng-class="{'glyphicon-chevron-up': indicador.aberto, 'glyphicon-chevron-down': !indicador.aberto}"></i>
 					
 					</span>
 				</uib-accordion-heading>
-					<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao()" src="indicador.aberto ? 'indicador.html' : ''"></div>
+					<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
 			<!--<div uib-accordion-group class="panel-default"  heading=" {{indicador.nome}} &nbsp; | &nbsp; Instrumento: {{indicador.nome_fonte_dados}}"  ng-repeat="indicador in indicadores">-->
 			
 			</div>
