@@ -118,15 +118,17 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	}
 	
 	$scope.filtrarInstrumento = function(){
-		if($scope.idInstrumentoAtivo != null)
-			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento == $scope.idInstrumentoAtivo);
+		if($scope.idInstrumentoAtivo != null){			
+			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento == $scope.idInstrumentoAtivo);			
+		}
 		else
 			$rootScope.indicadores = $rootScope.listaIndicadores;
 	}
 	
 	$scope.carregarIndicador = function(){
+		if($scope.indicadorComposicao)
+			$scope.indicadorComposicao.id_fonte_dados = null;
 		$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
-		
 		if($scope.indicadorAtivo){
 			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);
 		}
@@ -141,15 +143,14 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		
 		if($scope.indicadorAtivo != null){
 			IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
-				
 				$scope.indicadorComposicao = indicadorComposicao;
 				angular.forEach($scope.indicadorComposicao,function(comp,chave){
-					comp.variaveis = $scope.variaveis;
+					comp.variaveis = $scope.variaveis;					
 				});
 				$scope.estado = "selecionar";
 			});
 		}else
-			$scope.indicadorComposicao = null;
+			$scope.indicadorComposicao = null;		
 	};
 	
 	$scope.adicionarElemento = function(){
@@ -187,21 +188,18 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.indicadorComposicao = [];
 		$scope.estado = "inserir";
 	};
-	
+
 	$scope.atualizar = function(){
 		IndicadorComposicao.update({composicao:$scope.indicadorComposicao,id_indicador:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
 				Indicador.update({indicador:$scope.indicadorAtivo}).$promise.then(
 					function(mensagem){
-						
 						Indicador.query(function(indicadores) {
 							$rootScope.indicadores = indicadores;
 							$scope.filtrarInstrumento();
-							
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
 						});
-
 					},
 					function(erro){
 						$rootScope.modalProcessando.close();
@@ -214,8 +212,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				$scope.lancarErro(erro);
 			}
 		);
-
-		
 	};		
 	
 	/*$scope.calcular = function(){
@@ -265,7 +261,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.$parent.estado = "listar";
 	};	
 
-	// TODO: [ISSUE X] Erro ao cadastrar novo Banco de Dados
 	$scope.inserir = function(){
 		$rootScope.indicadorComposicao = $scope.indicadorComposicao;
 		Indicador.save({indicador:$scope.indicadorAtivo}).$promise.then(
@@ -544,7 +539,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		else
 			composicao.variaveis = $scope.variaveis;
 	}
-	
+	$scope.atualizaFiltroPorFonte = function(composicao){
+		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel == composicao.id_variavel)[0].id_fonte_dados;
+	}
 });
 
 </script>
@@ -825,15 +822,15 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 					</div>
 
 				</div>
-				
+				<!-- TODO: [P1.4] No cadastro de indicador não está salvando a informação do filtro de 'fonte de dados', em fórmula de cálculo -->
 				<div class="row">
 					<div class="col-sm-12">
 						<select class="controle-cadastro" ng-attr-id="{{'fonte_dados-' + $index}}" style="max-width:100%;" data-ng-model="composicao.id_fonte_dados" data-ng-options="fonte.id_fonte_dados as fonte.nome for fonte in fontesDados | orderBy: 'nome'" data-ng-change="filtrarFonte(composicao)">
-							<option value=""> Sem filtro </option>
+							<option value=""> Sem filtro </option>							
 						</select>
 					</div>
 				</div>
-				
+				{{ atualizaFiltroPorFonte(composicao) }}
 				<div class="row">
 					<div class="col-sm-8">
 						<label ng-attr-for="{{'variavel-'+$index}}"><small>Nome da variável</small></label>
