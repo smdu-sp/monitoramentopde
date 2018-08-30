@@ -397,11 +397,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
 		return buf;
 	}
-	
+	// P1.5 Ao exportar a relação de indicadores, é preciso criar uma coluna informando se o indicador está ativo / homologação / inativo
 	$scope.exportarIndicadores = function(){
-		
 			var wb = new Workbook();
-			
 			var wsindicador = {};
 			
 			//criando cabeçalho
@@ -418,7 +416,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			wsindicador[XLSX.utils.encode_cell({c:10,r:0})] = criarCelula(10,0,'Fonte');
 			wsindicador[XLSX.utils.encode_cell({c:11,r:0})] = criarCelula(11,0,'Periodicidade de atualização');
 			wsindicador[XLSX.utils.encode_cell({c:12,r:0})] = criarCelula(12,0,'Série histórica');
-			
 			wsindicador[XLSX.utils.encode_cell({c:13,r:0})] = criarCelula(13,0,'Município');
 			wsindicador[XLSX.utils.encode_cell({c:14,r:0})] = criarCelula(14,0,'Macrorregião');
 			wsindicador[XLSX.utils.encode_cell({c:15,r:0})] = criarCelula(15,0,'Macroárea');
@@ -429,12 +426,12 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			wsindicador[XLSX.utils.encode_cell({c:20,r:0})] = criarCelula(20,0,'Operação Urbana Consorciada');
 			wsindicador[XLSX.utils.encode_cell({c:21,r:0})] = criarCelula(21,0,'ZEIS');
 			wsindicador[XLSX.utils.encode_cell({c:22,r:0})] = criarCelula(22,0,'ZEPEC');
+			wsindicador[XLSX.utils.encode_cell({c:23,r:0})] = criarCelula(23,0,'Status'); // ATIVO / HOMOLOGAÇÃO / INATIVO [ativo (boolean), homologacao (boolean)]
 			                                                              
 			linha = 1;
 			
 			angular.forEach($scope.indicadores,function(indicador,chave){
-				
-				coluna = 0, //linha = 0;
+				coluna = 0;
 				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,indicador.id_indicador);
 				coluna++;
 				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,indicador.nome);
@@ -474,7 +471,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				}
 				coluna++;
 				angular.forEach(indicador.territorios,function(territorio,chave){
-					
 					if(territorio){
 						var colunaTerritorio = coluna;
 						switch(territorio.nome){
@@ -499,7 +495,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						case 'ZDE e ZPI':
 							colunaTerritorio = coluna + 6;
 							break;
-						case 'Operação Urbana consorciada':
+						case 'Operação Urbana Consorciada':
 							colunaTerritorio = coluna + 7;
 							break;
 						case 'ZEIS':
@@ -508,18 +504,19 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						case 'ZEPEC':
 							colunaTerritorio = coluna + 9;
 							break;
-						}	
-						
-						wsindicador[XLSX.utils.encode_cell({c:colunaTerritorio,r:linha})] = criarCelula(colunaTerritorio,linha,'X');
+						}
+						wsindicador[XLSX.utils.encode_cell({c:colunaTerritorio,r:linha})] = criarCelula(colunaTerritorio,linha,'Sim');
 					}
-					
 				});
-				
-				linha++;
-				
+				// Status do indicador
+				coluna += 10;
+				let statusIndicador = indicador.homologacao ? "Homologação" : indicador.ativo ? "Ativo" : "Inativo";
+				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha, statusIndicador);
+				// Encerra preenchimento do indicador e pula para a próxima linha
+				linha++;				
 			});
 			
-			var range = {s: {c:0, r:0}, e: {c:22, r: linha}};
+			var range = {s: {c:0, r:0}, e: {c:23, r: linha}};
 			wsindicador['!ref'] = XLSX.utils.encode_range(range);
 			
 			/* add worksheet to workbook */
