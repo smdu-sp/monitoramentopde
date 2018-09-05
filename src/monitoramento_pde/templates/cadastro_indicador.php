@@ -827,6 +827,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						</select>
 					</div>
 				</div>
+				<!-- Ao carregar página com indicador salvo, realiza primeira filtragem para associar variáveis à fonte de dados -->
+				{{ filtrarFonte(composicao) }}
 				{{ atualizaFiltroPorFonte(composicao) }}
 				<div class="row">
 					<div class="col-sm-8">
