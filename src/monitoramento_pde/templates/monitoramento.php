@@ -545,6 +545,12 @@ app.controller("dashboard", function($scope,
 										$scope.exportarGrafico(this,'image/jpeg')
 									},
 									separator: false
+								},{
+									text: 'Exportar para SVG',
+									onclick: function(){
+										$scope.exportarGrafico(this,'image/svg+xml')
+									},
+									separator: false
 								}]
 							}
 						}
@@ -841,6 +847,12 @@ app.controller("dashboard", function($scope,
 									text: 'Exportar para JPEG',
 									onclick: function(){
 										$scope.exportarGrafico(this,'image/jpeg')
+									},
+									separator: false
+								},{
+									text: 'Exportar para SVG',
+									onclick: function(){
+										$scope.exportarGrafico(this,'image/svg+xml')
 									},
 									separator: false
 								}]
