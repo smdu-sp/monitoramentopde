@@ -336,9 +336,7 @@ app.controller("dashboard", function($scope,
 			if(angular.isUndefined($scope.selecao.dataMax)){
 				$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
 			}
-			// PUMBA
-			// Criar FOR para percorrer regioes ativas e armazenar os dados para gerar grafico
-			// regiao.codigo as regiao.nome for regiao in dadosMapa
+			// Criado FOR para percorrer regioes ativas e armazenar os dados para gerar grafico
 			let todasRegioes = [];
 			let respostasPendentes = $scope.dadosMapa.length;
 
@@ -350,12 +348,23 @@ app.controller("dashboard", function($scope,
 					dataMinima: $scope.selecao.dataMin,
 					dataMaxima: $scope.selecao.dataMax
 				}, function(indicadorHistorico){
-					for (var i = 0; i < indicadorHistorico.series.length; i++) {
+					populaTodasRegioes: for (var i = 0; i < indicadorHistorico.series.length; i++) {
 						indicadorHistorico.series[i].categoria = indicadorHistorico.series[i].name;
 						indicadorHistorico.series[i].name = valor.nome;
-						todasRegioes.push(indicadorHistorico.series[i]);
+						// Em caso de lentidao na resposta, indicador historico insere valor duplicado.
+						// Verifica valor para adicionar somente valores unicos
+						for (var i2 = 0; i2 < todasRegioes.length; i2++) {
+							if(angular.isUndefined(todasRegioes[i2])){
+								console.log("TodasRegioes["+i2+"] = "+ todasRegioes[i2]);
+								continue populaTodasRegioes;
+							}
+							else if(todasRegioes[i2].nome == valor.nome)
+								continue populaTodasRegioes;
+						}
+						// if(todasRegioes.length < $scope.dadosMapa.length)
+							todasRegioes.push(indicadorHistorico.series[i]);
 					}
-					respostasPendentes--;
+					respostasPendentes--;					
 					if(respostasPendentes == 0){
 						// RECEBIDAS TODAS AS RESPOSTAS DO SERVIDOR
 						
@@ -409,7 +418,7 @@ app.controller("dashboard", function($scope,
 											(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
 											);
 									}else{
-										varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
+										varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == 1|| variavel.distribuicao == true));
 									}
 									varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
 										(variavel) => variavel.data == null && 
@@ -602,8 +611,8 @@ app.controller("dashboard", function($scope,
 			});
 		};
 
-		$scope.carregarGraficoHistorico = function(idRegiao){
-			if($scope.regiaoRealcada.codigo == null) {
+		$scope.carregarGraficoHistorico = function(idRegiao, dataAlterada){
+			if(angular.isUndefined($scope.regiaoRealcada) || $scope.regiaoRealcada.codigo == null) {
 				$scope.carregarGraficoHistoricoTotal();
 				return;
 			}
@@ -614,6 +623,13 @@ app.controller("dashboard", function($scope,
 				// ISSUE P1-1 (INDICADOR NÃO CARREGA O MAPA, OU CARREGA DADOS DO EIXO X ERRADO, PRECISANDO CLICAR 2X PARA ABRIR)
 				// OPERADOR IF SUPRIMIDO PARA CORRIGIR INCONSISTÊNCIA AO CARREGAR DADOS PELA PRIMEIRA VEZ
 				if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
+					this['original'].push(valor);
+					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
+					trimestre = new Date(valor).getMonth()
+					// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+					dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				}
+				else if(!dataAlterada) {
 					this['original'].push(valor);
 					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 					trimestre = new Date(valor).getMonth()
@@ -639,7 +655,7 @@ app.controller("dashboard", function($scope,
 			},function(indicadorHistorico){
 
 				indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name');
-				// TODO: (P1.6)	
+				
 				$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
 
 				if(!$scope.carregarGraficoLinhas){
@@ -960,19 +976,16 @@ app.controller("dashboard", function($scope,
 			VariavelHistorico.query({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel},function(variavelHistorico){
 				$scope.variavelHistorico = variavelHistorico;
 				// TODO - Caso ocorram problemas com o carregamento do gráfico, chamar construtor dentro desta function
-				
-			});
+				if($scope.indicadorValores.series.length == 1){
+					$scope.indicadorValores.series[0].showInLegend = false;
+				}
 			
-			if($scope.indicadorValores.series.length == 1){
-				$scope.indicadorValores.series[0].showInLegend = false;
-			}
+				habilitarExportacao = $scope.labelTerrSel != 'Distrito';
+				trimestre = Math.floor((new Date($scope.selecao.dataSel).getMonth() + 3) / 3);
 			
-			habilitarExportacao = $scope.labelTerrSel != 'Distrito';
-			trimestre = Math.floor((new Date($scope.selecao.dataSel).getMonth() + 3) / 3);
+				$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
 			
-			$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
-			
-			$scope.graficoBarras = new Highcharts.chart('graficoBarras',{
+				$scope.graficoBarras = new Highcharts.chart('graficoBarras',{
 					chart: {
 						type: 'column'
 						,marginTop: 35
@@ -1234,6 +1247,10 @@ app.controller("dashboard", function($scope,
 					$scope.mapa.addLayer($scope.layerContorno);
 					$scope.mapa.addLayer($scope.layerVetor);
 				}
+				// FIM
+			});
+			
+			
 		});
 		
 		if(inserirMapa){
@@ -1361,22 +1378,27 @@ app.controller("dashboard", function($scope,
 
 		// Filtra categoria e gera gráfico em série histórica
 		$scope.filtraCategoria = function(){
+			$scope.regiaoRealcada = null;
 			if($scope.selecao.categoria == null) {
 				sairMapa();
 				return;
 			}
 			$scope.hoverMapa = true;
-			if(!$scope.regiaoRealcada || $scope.regiaoRealcada.codigo == null)
-				$scope.carregarGraficoHistoricoTotal();
+			$scope.carregarGraficoHistoricoTotal(); //PUMBA
+			// if(!$scope.regiaoRealcada || $scope.regiaoRealcada.codigo == null)
+				// $scope.carregarGraficoHistorico(null, false);
 		}
 		
-		
-		
-		angular.forEach($scope.mapa.getLayers(), function(layer,key){
-			if(layer.get('name') != 'OSM'){
-				$scope.mapa.removeLayer(layer);
-			}
-		});
+		/* For suprimido por nao apresentar alteracoes no funcionamento e apresentar erro
+		if($scope.mapa) {
+			$scope.mapa.getLayers().forEach(function(layer, key){
+				console.log(layer);
+				if(layer.get('name') != 'OSM'){
+					$scope.mapa.removeLayer(layer);
+				}
+			});
+		}
+		*/
 		
 		$scope.layerContorno = new ol.layer.Tile({
 			source: new ol.source.TileWMS({
@@ -1958,12 +1980,12 @@ app.controller("dashboard", function($scope,
 							
 								<label for="data"> Data inicial:</label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.dataMin" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo);" name="dataInicial"></select>
+								<select style="max-width:100%;" data-ng-model="selecao.dataMin" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo, true);" name="dataInicial"></select>
 							</p>
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
 								<label for="data"> Data final: </label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.dataMax" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' | dataFinal: selecao.dataMin " data-ng-change="carregarGraficoHistorico(regiaoRealcada.codigo)" name="dataFinal"></select>
+								<select style="max-width:100%;" data-ng-model="selecao.dataMax" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' | dataFinal: selecao.dataMin " data-ng-change="carregarGraficoHistorico(regiaoRealcada.codigo, true)" name="dataFinal"></select>
 							</p>
 							
 							<p ng-if="!hoverMapa && (indicador.datas.length > 0 && indicador.datas[0]) ">
@@ -1977,7 +1999,7 @@ app.controller("dashboard", function($scope,
 							<p ng-if="(regiaoRealcada.codigo == null) && mostrarCategoria()">
 								<label>Categoria:</label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.categoria" data-ng-options="categoria as categoria.name for categoria in selecao.categorias" data-ng-change="filtraCategoria();" name="categoria">
+								<select style="max-width:100%;" data-ng-model="selecao.categoria" data-ng-options="categoria as categoria.name for categoria in selecao.categorias" data-ng-change="filtraCategoria()" name="categoria">
 									<option value="">Escolha uma categoria</option>
 								</select>
 							</p>
