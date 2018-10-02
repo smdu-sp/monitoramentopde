@@ -149,22 +149,7 @@ app.controller("dashboard", function($scope,
 		$scope.objetivos = objetivos;
 	});	
 
-	
 	$scope.idPoligonoAnterior = 0;
-	/*$scope.estiloRealce = function(resolution){ 
-		var hexColor = this.get('color');
-		var corRealce = ol.color.asArray(hexColor);
-		corRealce = corRealce.slice();
-		corRealce[3] = 0.4;
-		
-	 return new ol.style.Style(
-		{
-			fill : new ol.style.Fill(
-			{
-				color : corRealce
-			})
-		});
-	};*/
 	
 	$scope.inicializarSelecao = function(){
 		$scope.selecao.idTerrSel = 4;
@@ -178,8 +163,8 @@ app.controller("dashboard", function($scope,
 	
 	$scope.formatarTrimestre = function(data){
 		dataAjustada = $scope.formatarData(data)
-		console.log(dataAjustada)
-		console.log(dataAjustada.getMonth())
+		// console.log(dataAjustada)
+		// console.log(dataAjustada.getMonth())
 		quarter = Math.floor((dataAjustada.getMonth() + 3) / 3);
 		
 		return 'Q' + quarter.toString() + ' / ' + dataAjustada.getYear().toString()
@@ -199,48 +184,19 @@ app.controller("dashboard", function($scope,
 	};
 		
 	$scope.estiloMapa = function(feature,resolution, estiloFundo, corContorno, contador){
-		
-		//prefixoCor = '00';
-		//sufixoCor = '99';
-		
-		//corContorno = [255,255,255];
-		//corForte = [166,21,0];
-		//corFraca = [104,122,127];
 		cores = [];
-		//cores[0] = [218,235,239];
 		cores[4] = [79,21,27];
 		cores[3] = [155,23,49];
 		cores[2] = [186,33,36];
 		cores[1] = [220,171,174];
 		cores[0] = [240,219,226];
-					
-		
 		$scope.qtdClasses = 5;
-		//qtdCores = 15;
-		//qtdCores = 5;
-		//incrementoCor = qtdCores / qtdClasses;
-		
 		regiao = $scope.dadosMapa.filter((regiao) => regiao.codigo == feature.get('ID_REGIAO'))[0];
-		
 		regiaoMaiorValor = $scope.dadosMapa.filter((regiaoMaior) => regiaoMaior.posicao == 0)[0];
-		
-		//intervalo = Math.floor($scope.dadosMapa.filter((regiao) => regiao.valor > 0).length / ($scope.qtdClasses - 1));
 		intervalo = regiaoMaiorValor.valor / $scope.qtdClasses;
-	
-		/*if(intervalo == 0){
-			intervalo = 1;
-		}*/
-		//console.log(regiao);
-		//console.log(intervalo);
-		//indiceClasseRegiao = (regiao.posicao + 1) / intervalo;
 		indiceClasseRegiao = regiao.valor / intervalo;
-		/*
-		if(indiceClasseRegiao > $scope.qtdClasses - 1 && regiao.valor > 0){
-			indiceClasseRegiao = $scope.qtdClasses - 1;
-		}else{*/
-			indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
-		/*}*/
-		
+		indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
+
 		if(indiceClasseRegiao > $scope.qtdClasses){
 			indiceClasseRegiao = $scope.qtdClasses;
 		}
@@ -273,8 +229,6 @@ app.controller("dashboard", function($scope,
 			}
 		}
 		
-		
-		
 		legenda = $scope.legenda.filter((legenda) => legenda.indice == indiceClasseRegiao)[0];
 		
 		if(!angular.isUndefined(legenda)){
@@ -296,14 +250,6 @@ app.controller("dashboard", function($scope,
 			corRegiao = [224,224,225];
 		}
 		
-		/*
-		else{
-			legenda.maximo = regiao.valor > legenda.maximo ? regiao.valor : legenda.maximo;
-			legenda.minimo = regiao.valor < legenda.minimo ? regiao.valor : legenda.minimo;
-			legenda.regioes.push(regiao.codigo);
-		}*/
-		
-		//$scope.ajustarLimitesLegenda(indiceClasseRegiao);
 		$scope.$apply();
 		return new ol.style.Style({
 			fill: new ol.style.Fill({
@@ -314,78 +260,366 @@ app.controller("dashboard", function($scope,
 				width: 0.5
 			})
 		});
-		
-		
-		
 	};
 		
-		$scope.estiloRealce = function(resolution){
-			corContorno = [255,255,255];
-			return $scope.estiloMapa(this,resolution,true,corContorno);
-		};
-		
-		$scope.estiloVetor = function(feature, resolution){
-			
-			corContorno = [255,255,255];
-			return $scope.estiloMapa(feature,resolution,false,corContorno);
-		};
+	$scope.estiloRealce = function(resolution){
+		corContorno = [255,255,255];
+		return $scope.estiloMapa(this,resolution,true,corContorno);
+	};
+	
+	$scope.estiloVetor = function(feature, resolution){
+		corContorno = [255,255,255];
+		return $scope.estiloMapa(feature,resolution,false,corContorno);
+	};
 	
 	$scope.realcarMapa = function(idPoligonoAtual){
-				if(idPoligonoAtual==null){					
-					$scope.cargaIndicadorValores(false,true);
+		// console.log("Realcar Mapa");
+		if(idPoligonoAtual==null){
+			// console.log("idPoligonoAtual = null");
+			$scope.cargaIndicadorValores(false,true);
+			return;					
+		}
+		else {
+			// console.log("idPoligonoAtual = "+idPoligonoAtual);
+			if(idPoligonoAtual != $scope.idPoligonoAnterior 
+				|| !$scope.idPoligonoAnterior 
+				|| !$scope.hoverMapa){
+				$scope.idPoligonoAnterior = idPoligonoAtual;
+				if($scope.selecao.idTerrSel != 4){
+					$scope.regiaoRealcada = angular.copy($scope.dadosMapa.filter((regiao) => regiao.codigo == idPoligonoAtual)[0], $scope.regiaoRealcada);								
+					$scope.layerVetor.setStyle($scope.estiloVetor);
+					$scope.layerVetor.getSource().changed();
 					
-					return;					
+					$scope.layerVetor.getSource().forEachFeature(function(poligono){
+						if (poligono.get('ID_REGIAO') != idPoligonoAtual){
+							poligono.setStyle($scope.estiloRealce);
+							poligono.changed();
+						}else{
+							poligono.setStyle(null);
+						};
+					});
+					
+					$scope.carregarGraficoHistorico(idPoligonoAtual);
 				}
-				else{					
-					if(idPoligonoAtual != $scope.idPoligonoAnterior || !$scope.idPoligonoAnterior || $scope.hoverMapa == false){
-							$scope.idPoligonoAnterior = idPoligonoAtual;
-							if($scope.selecao.idTerrSel != 4){
-								//console.log($scope.dadosMapa);
-								$scope.regiaoRealcada = angular.copy($scope.dadosMapa.filter((regiao) => regiao.codigo == idPoligonoAtual)[0], $scope.regiaoRealcada);								
-								$scope.layerVetor.setStyle($scope.estiloVetor);
-								$scope.layerVetor.getSource().changed();
-								
-								$scope.layerVetor.getSource().forEachFeature(function(poligono){
-									if (poligono.get('ID_REGIAO') != idPoligonoAtual){
-										poligono.setStyle($scope.estiloRealce);
-										poligono.changed();
-									}else{
-										poligono.setStyle(null);
-									};
-								});
-								
-								$scope.carregarGraficoHistorico(idPoligonoAtual);
-								
-							}else{
-								
-								$scope.regiaoRealcada = {
-									codigo: 1
-									,nome: 'Município'
-								};
-								
-								$scope.carregarGraficoHistorico(1);
-								//return;
-							};
-							
+				else {
+					$scope.regiaoRealcada = {
+						codigo: 1
+						,nome: 'Município'
 					};
-				};
-				$scope.hoverMapa = true;
-			
+					
+					$scope.carregarGraficoHistorico(1);
+					//return;
+				}
+			}
+		}
+		$scope.hoverMapa = true;	
 		};
+
+		$scope.carregarGraficoHistoricoTotal = function(){
+			let isMunicipio = true; // Substituir por parametro da funcao ao modularizar
+			dataHistorica = [];
+			dataHistorica['original'] = [];
+			dataHistorica['formatada'] = [];
+			angular.forEach($scope.indicador.datas.slice().reverse(), function(valor,chave){
+				if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
+					this['original'].push(valor);
+					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
+					trimestre = new Date(valor).getMonth()
+					dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				}
+			},dataHistorica);
+			
+			if(angular.isUndefined($scope.selecao.dataMin)){
+				$scope.selecao.dataMin = $scope.indicador.datas[$scope.indicador.datas.length - 1];
+			}
+			
+			if(angular.isUndefined($scope.selecao.dataMax)){
+				$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
+			}
+			// PUMBA
+			// Criar FOR para percorrer regioes ativas e armazenar os dados para gerar grafico
+			// regiao.codigo as regiao.nome for regiao in dadosMapa
+			let todasRegioes = [];
+			let respostasPendentes = $scope.dadosMapa.length;
+
+			angular.forEach($scope.dadosMapa, function(valor, chave){
+				IndicadorHistorico.get({
+					id: $scope.selecao.idIndicSel,
+					territorio: $scope.selecao.idTerrSel,
+					regiao: valor.codigo,
+					dataMinima: $scope.selecao.dataMin,
+					dataMaxima: $scope.selecao.dataMax
+				}, function(indicadorHistorico){
+					for (var i = 0; i < indicadorHistorico.series.length; i++) {
+						indicadorHistorico.series[i].categoria = indicadorHistorico.series[i].name;
+						indicadorHistorico.series[i].name = valor.nome;
+						todasRegioes.push(indicadorHistorico.series[i]);
+					}
+					respostasPendentes--;
+					if(respostasPendentes == 0){
+						// RECEBIDAS TODAS AS RESPOSTAS DO SERVIDOR
+						
+						// TODO: MODULARIZAR FUNCAO SEGUINTE
+						let serieHistorica = $scope.selecao.categorias.length > 1 ? $filter('filter')(todasRegioes, $scope.selecao.categoria.name) : todasRegioes;
+						serieHistorica = $filter('orderBy')(serieHistorica, 'name');
+						
+						$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
+
+						if(!$scope.carregarGraficoLinhas){
+							$scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
+						} else {
+							$scope.carregandoHistorico = null;
+						}
+						//
+
+						larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
+						let ultimoItemVarFiltro = "";
+						
+						subtitulo = "Unidade territorial de análise: " +  "Município" + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
+						$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
+							chart: {
+								type: 'line',
+								marginTop: 25,
+								width:larguraGraficoLinha
+						        },
+						    colors: app.defaultColors,
+					        xAxis: {
+								type: "category",
+								crosshair: true,
+								categories: dataHistorica['formatada']
+							}, 
+							series: serieHistorica,
+							tooltip: {
+								formatter: function(){									
+									if($scope.selecao.idTerrSel == 4)
+										nomeRegiao = 'Município';
+									else if (isMunicipio)
+										nomeRegiao = serieHistorica[0].categoria;
+									else
+										nomeRegiao = $scope.regiaoRealcada.nome;
+									
+									textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
+									
+									textoTooltip = textoTooltip + '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + $scope.indicador.simbolo_valor + '<br>';
+									
+									if(this.series.chart.series.length > 1){
+										varFiltro =	$scope.variavelHistorico.filter(
+											(variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) &&
+											(variavel.id_regiao == (isMunicipio ? 1 : $scope.regiaoRealcada.codigo) || variavel.distribuicao == true)&& 
+											(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
+											);
+									}else{
+										varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
+									}
+									varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
+										(variavel) => variavel.data == null && 
+										(variavel.id_regiao == $scope.regiaoRealcada.codigo || variavel.distribuicao == true) && 
+										variavel.dimensao == null
+										);
+									varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
+									// Reduzido numero de itens no array varFiltro para que o indicador mostre o numerador
+									if(varFiltro.length >= 0){
+										angular.forEach(varFiltro, function(val,chave){
+											textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : this.y < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
+										});
+									}
+									return textoTooltip;
+								}
+							},
+							title: null,
+							credits:false,
+							
+							exporting: {
+								enabled:true
+								,chartOptions:{
+									chart: {
+										marginBottom: 160,
+										marginTop: 130,
+										height: 700,
+										spacingLeft: 30,
+										spacingRight: 30,
+										spacingBottom: 10,
+										spacingTop: 30
+									},
+									title:{
+										text:$scope.indicador.nome
+									},
+									credits:{
+										enabled: true,
+										
+										text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + "  <br> _____________________________________________________________________ <br> Atualizado em: "  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
+										style:{
+											fontSize: '8px'
+											,fontWeight: 'normal'
+											,color: '#000000'
+										},
+										position:{
+											y:-55
+											,x: 20
+											,align: 'left'
+										}
+									},
+									xAxis: {
+										labels:{
+											padding:10
+										}
+									},
+									subtitle:{
+										text:subtitulo
+										,align:'left'
+										,x: -5
+									},
+									legend: {
+										layout: 'vertical',
+										align: 'left',
+										floating: true,
+										x: 0,
+										verticalAlign: 'bottom',
+										y:-55,
+										itemStyle: {
+											//color: '#000000',
+											fontWeight: 'normal',
+											fontSize: '8px'
+										}
+									}
+									,style:{
+										fontFamily: 'museo_slab500'
+									}
+								}
+								,buttons: {
+									contextButton: {
+										menuItems: [{
+											text: 'Exportar para PDF',
+											onclick: function(){
+												$scope.exportarGrafico(this,'application/pdf');
+											}
+										}, {
+											text: 'Exportar para PNG',
+											onclick: function(){
+												$scope.exportarGrafico(this,'image/png')
+											},
+											separator: false
+										}, {
+											text: 'Exportar para JPEG',
+											onclick: function(){
+												$scope.exportarGrafico(this,'image/jpeg')
+											},
+											separator: false
+										},{
+											//#24 Exportar para SVG
+											text: 'Exportar para SVG',
+											onclick: function(){
+												$scope.exportarGrafico(this,'image/svg+xml')
+											},
+											separator: false
+										}]
+									}
+								}
+							},
+							yAxis: {
+								labels:{
+									formatter: function(){
+										result = this.value;
+										if (this.chart.yAxis[0].max >= 1000000000) {
+											if(this.chart.yAxis[0].max/ 1000000000.0 <= 8)
+												result = Math.round((this.value / 1000000000.0) * 10.0)/10.0;
+											else
+												result = Math.round(this.value / 1000000000.0);
+										}
+										else 
+												if (this.chart.yAxis[0].max >= 1000000) { 
+													if(this.chart.yAxis[0].max / 1000000.0 <= 8)
+														result = Math.round((this.value / 1000000.0) * 10.0)/10.0;
+													else
+														result = Math.round(this.value / 1000000.0);
+												}else 
+													if (this.chart.yAxis[0].max >= 1000) {
+														if(this.chart.yAxis[0].max / 1000.0 <= 8)
+															result = Math.round((this.value / 1000.0) * 10.0)/10.0;
+														else
+															result = Math.round(this.value / 1000.0);
+													}
+										return result;
+									}
+								},
+								title: {
+									align:'high',
+									rotation:0,
+									y:-15
+								}
+							},
+							plotOptions: {
+								series: {
+									point: {
+										events: {
+											click: function(e){
+												if($scope.selecao.idTerrSel != 4){
+													$scope.selecao.dataSel = dataHistorica['original'][this.index];
+													$scope.clickMapa = false;
+													$scope.idPoligonoAnterior = 0;
+													$scope.cargaIndicadorValores(false,true);
+												}
+											}
+										}
+									}
+									/*
+									, events: {
+										mouseOut: function () {
+											sairMapa();
+										}
+									}
+									*/
+								}
+							},
+							legend: {
+								align: 'left',
+								layout: 'horizontal',
+								itemStyle:{
+									fontWeight:'normal'
+								}
+							}
+						});
+
+						// console.log($scope.graficoLinhas);
+						
+						if ($scope.graficoLinhas.yAxis[0].max >= 1000000000){
+							$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em bilhões de ' + $scope.indicador.simbolo_valor + ')';
+							
+						}else 
+							if ($scope.graficoLinhas.yAxis[0].max >= 1000000){
+								$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em milhões de ' + $scope.indicador.simbolo_valor + ')';
+							}else 
+								if ($scope.graficoLinhas.yAxis[0].max >= 1000) {
+									$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em milhares de ' + $scope.indicador.simbolo_valor + ')';
+								}
+								else {
+									$scope.textoTitulo = $scope.indicador.tipo_valor + ' (' + $scope.indicador.simbolo_valor + ')';
+								}
+						margemTitulo = $scope.textoTitulo.length * -6;
+						$scope.graficoLinhas.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
+					}
+				});
+			});
+		};
+
 		$scope.carregarGraficoHistorico = function(idRegiao){
+			if($scope.regiaoRealcada.codigo == null) {
+				$scope.carregarGraficoHistoricoTotal();
+				return;
+			}
 			dataHistorica = [];
 			dataHistorica['original'] = [];
 			dataHistorica['formatada'] = [];
 			angular.forEach($scope.indicador.datas.slice().reverse(), function(valor,chave){
 				// ISSUE P1-1 (INDICADOR NÃO CARREGA O MAPA, OU CARREGA DADOS DO EIXO X ERRADO, PRECISANDO CLICAR 2X PARA ABRIR)
 				// OPERADOR IF SUPRIMIDO PARA CORRIGIR INCONSISTÊNCIA AO CARREGAR DADOS PELA PRIMEIRA VEZ
-				// if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
+				if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
 					this['original'].push(valor);
 					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 					trimestre = new Date(valor).getMonth()
 					// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 					dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
-				// }
+				}
 			},dataHistorica);
 			
 			if(angular.isUndefined($scope.selecao.dataMin)){
@@ -396,15 +630,21 @@ app.controller("dashboard", function($scope,
 				$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
 			}
 			
-			IndicadorHistorico.get({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel,regiao:idRegiao,dataMinima:$scope.selecao.dataMin,dataMaxima:$scope.selecao.dataMax},function(indicadorHistorico){
-				
-				indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name'); 
-				
-				$scope.carregarGraficoLinhas = indicadorHistorico.series.length > 0;
-					
+			IndicadorHistorico.get({
+				id:$scope.selecao.idIndicSel,
+				territorio:$scope.selecao.idTerrSel,
+				regiao:idRegiao,
+				dataMinima:$scope.selecao.dataMin,
+				dataMaxima:$scope.selecao.dataMax
+			},function(indicadorHistorico){
+
+				indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name');
+				// TODO: (P1.6)	
+				$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
+
 				if(!$scope.carregarGraficoLinhas){
 					$scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
-				}else{
+				} else {
 					$scope.carregandoHistorico = null;
 				}
 				// TODO: (P1.3)
@@ -433,9 +673,11 @@ app.controller("dashboard", function($scope,
 					// *O valor não é 0, na verdade o valor não existe no banco e é tratado como 0.
 					tooltip: {
 						formatter: function(){
+							/*
 							if($scope.selecao.idTerrSel == 4)
 								nomeRegiao = 'Município';
 							else
+								*/
 								nomeRegiao = $scope.regiaoRealcada.nome;
 							
 							textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
@@ -546,6 +788,7 @@ app.controller("dashboard", function($scope,
 									},
 									separator: false
 								},{
+									//#24 Exportar para SVG
 									text: 'Exportar para SVG',
 									onclick: function(){
 										$scope.exportarGrafico(this,'image/svg+xml')
@@ -557,8 +800,7 @@ app.controller("dashboard", function($scope,
 					},
 					yAxis: {
 						labels:{
-							formatter: function()
-							{
+							formatter: function(){
 								result = this.value;
 								if (this.chart.yAxis[0].max >= 1000000000) {
 									if(this.chart.yAxis[0].max/ 1000000000.0 <= 8)
@@ -585,31 +827,30 @@ app.controller("dashboard", function($scope,
 						title: {
 							align:'high',
 							rotation:0,
-							y:-15,
-							//margin:-80
+							y:-15
 						}
 					},
 					plotOptions: {
 						series: {
-								point: {
-									events: {
-										click: function(e){
-											if($scope.selecao.idTerrSel != 4){
-												$scope.selecao.dataSel = dataHistorica['original'][this.index];
-												sairMapa();
-												$scope.clickMapa = false;
-												$scope.idPoligonoAnterior = 0;
-												
-												$scope.cargaIndicadorValores(false,true);
-											}
+							point: {
+								events: {
+									click: function(e){
+										if($scope.selecao.idTerrSel != 4){
+											$scope.selecao.dataSel = dataHistorica['original'][this.index];
+											$scope.clickMapa = false;
+											$scope.idPoligonoAnterior = 0;
+											$scope.cargaIndicadorValores(false,true);
 										}
 									}
-								},
-								events: {
-									mouseOut: function () {
-										//sairMapa();
-									}
 								}
+							}
+							/*
+							, events: {
+								mouseOut: function () {
+									sairMapa();
+								}
+							}
+							*/
 						}
 					},
 					legend: {
@@ -620,8 +861,7 @@ app.controller("dashboard", function($scope,
 						}
 					}
 				});
-				
-				
+
 				if ($scope.graficoLinhas.yAxis[0].max >= 1000000000){
 					$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em bilhões de ' + $scope.indicador.simbolo_valor + ')';
 					
@@ -631,11 +871,10 @@ app.controller("dashboard", function($scope,
 					}else 
 						if ($scope.graficoLinhas.yAxis[0].max >= 1000) {
 							$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em milhares de ' + $scope.indicador.simbolo_valor + ')';
-							
-						}else{
+						}
+						else {
 							$scope.textoTitulo = $scope.indicador.tipo_valor + ' (' + $scope.indicador.simbolo_valor + ')';
 						}
-				
 				margemTitulo = $scope.textoTitulo.length * -6;
 				$scope.graficoLinhas.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
 			});
@@ -644,12 +883,14 @@ app.controller("dashboard", function($scope,
 		
 // TODO: P1.3
 	$scope.cargaIndicadorValores = function(inserirMapa, inserirTerritorioMapa){
-		
-		if(inserirTerritorioMapa)
-			$scope.carregandoMapa = 'Aguarde... carregando mapa';
-		else
-			$scope.carregandoMapa = null;
-		
+		// console.log("1 - Carga Indicador Valores");
+
+		// VERIFICA SE MAPA ESTA SENDO CARREGADO
+		$scope.carregandoMapa = inserirTerritorioMapa ? 'Aguarde... carregando mapa' : null;
+		// if(inserirTerritorioMapa)
+		// 	$scope.carregandoMapa = 'Aguarde... carregando mapa';
+		// else
+		// 	$scope.carregandoMapa = null;		
 		$scope.indicador = $scope.indicadores.filter((indicador) => indicador.id_indicador == $scope.selecao.idIndicSel)[0];
 		
 		if($scope.idIndicadorAnterior != $scope.selecao.idIndicSel){
@@ -663,15 +904,10 @@ app.controller("dashboard", function($scope,
 				  $scope.selecao.idTerrSel = $scope.indicador.id_territorio_padrao;
 			  }
 			});
-			if(padrao_encontrado == false){
+			if(!padrao_encontrado){
 				$scope.selecao.idTerrSel = $scope.indicador.territorios[0].id_territorio;
-			}
-			
-			//console.log($scope.selecao.idTerrSel);
-			//console.log($scope.indicador.id_territorio_padrao);
-			
+			}			
 			$scope.selecao.idTerrSel = $scope.indicador.id_territorio_padrao;
-
 		}
 		
 		$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
@@ -680,11 +916,30 @@ app.controller("dashboard", function($scope,
 		$scope.clickMapa = false;
 		$scope.carregarGraficoLinhas = false;
 		
-		
-		
 		IndicadorValores.get({id:$scope.selecao.idIndicSel,data:$scope.selecao.dataSel,territorio:$scope.selecao.idTerrSel},function(indicadorValores){
 			
 			$scope.indicadorValores = indicadorValores;
+			/*
+			console.log("2 - Indicador Valores.get");
+			console.log(indicadorValores);
+			console.log("2b - Seleção");
+			console.log($scope.selecao);
+			*/
+
+			// ATUALIZA LISTA DE FILTRO POR CATEGORIAS
+			$scope.selecao.categorias = [];
+			angular.forEach(indicadorValores.series, function(valor, chave){
+				$scope.selecao.categorias.push(valor);
+			});
+
+			// FILTRA CATEGORIAS
+			/*
+			if(($scope.selecao.categorias.length > 1) && (!$scope.regiaoRealcada || $scope.regiaoRealcada.codigo == null)){
+				$scope.filtraCategoria();
+				return;
+			}
+			*/
+
 			$scope.selecao.dataMin = $scope.indicador.datas[$scope.indicador.datas.length - 1];
 			$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
 			$scope.legenda = [];
@@ -699,9 +954,13 @@ app.controller("dashboard", function($scope,
 				},
 				colors: app.defaultColors
 			});
+
+
 			
 			VariavelHistorico.query({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel},function(variavelHistorico){
 				$scope.variavelHistorico = variavelHistorico;
+				// TODO - Caso ocorram problemas com o carregamento do gráfico, chamar construtor dentro desta function
+				
 			});
 			
 			if($scope.indicadorValores.series.length == 1){
@@ -711,7 +970,7 @@ app.controller("dashboard", function($scope,
 			habilitarExportacao = $scope.labelTerrSel != 'Distrito';
 			trimestre = Math.floor((new Date($scope.selecao.dataSel).getMonth() + 3) / 3);
 			
-			$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name') 
+			$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
 			
 			$scope.graficoBarras = new Highcharts.chart('graficoBarras',{
 					chart: {
@@ -761,8 +1020,7 @@ app.controller("dashboard", function($scope,
 						title: {
 							align:'high',
 							rotation:0,
-							y:-15,
-							//margin:-80
+							y:-15
 						}
 					},
 					exporting: {
@@ -894,19 +1152,18 @@ app.controller("dashboard", function($scope,
 							borderWidth: 0
 						},
 						series: {
-									point: {
-											events: {
-													click: function(e){
-														
-														$scope.fixarMapa($scope.dadosMapa[this.x].codigo);
-													}
-											}
-									},
-									events: {
-											mouseOut: function () {
-													//sairMapa();
-											}
+							point: {
+								events: {
+									click: function(e){
+										$scope.fixarMapa($scope.dadosMapa[this.x].codigo);
 									}
+								}
+							},
+							events: {
+									mouseOut: function () {
+											//sairMapa();
+									}
+							}
 						}
 					},
 					legend: {
@@ -954,7 +1211,7 @@ app.controller("dashboard", function($scope,
 					$scope.layerVetor = new ol.layer.Vector({
 						source: new ol.source.Vector({
 							loader: function (extent) {
-								$http.jsonp('http://monitoramentopde.smul.pmsp/geoserver/Monitoramento_PDE/ows', {
+								$http.jsonp('<?php echo bloginfo("url"); ?>/geoserver/Monitoramento_PDE/ows', {
 									params: {
 										service: 'WFS',
 										version: '1.1.0',
@@ -1052,20 +1309,21 @@ app.controller("dashboard", function($scope,
 		
 		
 		function sairMapa(){
-
-				if($scope.hoverMapa){
-					$scope.hoverMapa = false;
-					
+			if($scope.hoverMapa){
+				$scope.hoverMapa = false;
+				if($scope.regiaoRealcada)
 					$scope.regiaoRealcada.codigo = null;
-					$scope.layerVetor.getSource().forEachFeature(function(poligono){
-						poligono.setStyle(null);
-					});
-					
-					$scope.layerVetor.setStyle($scope.estiloVetor);
-					$scope.layerVetor.getSource().changed();
-					
-					//$scope.cargaIndicadorValores(false,false);
-				};
+				if($scope.selecao.categoria)
+					$scope.selecao.categoria = null;
+				$scope.layerVetor.getSource().forEachFeature(function(poligono){
+					poligono.setStyle(null);
+				});
+				
+				$scope.layerVetor.setStyle($scope.estiloVetor);
+				$scope.layerVetor.getSource().changed();
+				
+				//$scope.cargaIndicadorValores(false,false);
+			};
 			
 		};
 		
@@ -1092,6 +1350,25 @@ app.controller("dashboard", function($scope,
 				
 			};
 		};
+
+		$scope.mostrarCategoria = function() {
+			for (var i = 0; i < $scope.indicador.territorios.length; i++) {
+				if($scope.indicador.territorios[i].nome == "Município")
+					return false;
+			}
+			return true;
+		}
+
+		// Filtra categoria e gera gráfico em série histórica
+		$scope.filtraCategoria = function(){
+			if($scope.selecao.categoria == null) {
+				sairMapa();
+				return;
+			}
+			$scope.hoverMapa = true;
+			if(!$scope.regiaoRealcada || $scope.regiaoRealcada.codigo == null)
+				$scope.carregarGraficoHistoricoTotal();
+		}
 		
 		
 		
@@ -1103,7 +1380,7 @@ app.controller("dashboard", function($scope,
 		
 		$scope.layerContorno = new ol.layer.Tile({
 			source: new ol.source.TileWMS({
-				url: 'http://monitoramentopde.smul.pmsp/geoserver/Monitoramento_PDE/wms/reflect', 
+				url: '<?php echo bloginfo("url"); ?>/geoserver/Monitoramento_PDE/wms/reflect', 
 				params: {layers: 'Monitoramento_PDE:Município', tiled: true},
 				serverType: 'geoserver'
 			})
@@ -1159,7 +1436,7 @@ app.controller("dashboard", function($scope,
 		};
 		*/
 		$scope.exportarGrafico = function(grafico,formatoArquivo){
-			console.log($scope.dadosMapa);
+			// console.log($scope.dadosMapa);
 			if($scope.hoverMapa)
 			{
 				grafico.exportChart({
@@ -1694,6 +1971,15 @@ app.controller("dashboard", function($scope,
 								<br>
 								<select ng-if="indicador.periodicidade == 'anual' || indicador.periodicidade == 'mensal' || !indicador.periodicidade" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo"></select>
 								<select ng-if="indicador.periodicidade == 'trimestral'" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as formatarTrimestre(data) for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo"></select>
+							</p>
+						</div>
+						<div class="col-sm-3 caixa-categoria" style="position: absolute; left: 10em">
+							<p ng-if="(regiaoRealcada.codigo == null) && mostrarCategoria()">
+								<label>Categoria:</label>
+								<br>
+								<select style="max-width:100%;" data-ng-model="selecao.categoria" data-ng-options="categoria as categoria.name for categoria in selecao.categorias" data-ng-change="filtraCategoria();" name="categoria">
+									<option value="">Escolha uma categoria</option>
+								</select>
 							</p>
 						</div>
 						<div class="col-sm-6">
