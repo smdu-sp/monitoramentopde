@@ -2142,7 +2142,7 @@ app.controller("dashboard", function($scope,
 				</div><!--
 				--><div class="col-sm-6 col-xs-12" > 
 					
-					<div><a href="" ng-click="abrirModal('estrategia')"><img class="img-responsive" src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a></div>
+					<div><a href="" ng-click="abrirModal('estrategia')"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a></div>
 					<!--<div class="row">
 						<a class="col-md-3 link-saiba-mais text-center" href="{{estrategia.link_texto_lei}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/texto-lei.png"> Texto da lei ilustrado </a>
 						<a class="col-md-3 link-saiba-mais text-center" href="{{estrategia.link_perguntas_respostas}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/perguntas-respostas.png"> Perguntas e Respostas </a>
