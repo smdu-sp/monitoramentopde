@@ -401,8 +401,9 @@ app.controller("dashboard", function($scope,
 					dataMaxima: $scope.selecao.dataMax
 				}, function(indicadorHistorico){
 					populaTodasRegioes: for (var i = 0; i < indicadorHistorico.series.length; i++) {
-						if($scope.selecao.categorias.length > 1)
+						if($scope.selecao.categorias.length > 1){
 							indicadorHistorico.series[i].categoria = indicadorHistorico.series[i].name;
+						}
 
 						indicadorHistorico.series[i].name = valor.nome;
 						
@@ -433,7 +434,10 @@ app.controller("dashboard", function($scope,
 						$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
 
 						if(!$scope.carregarGraficoLinhas){
-							$scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
+							// $scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
+							$scope.carregandoHistorico = 'Procurando dados...';
+							$scope.carregarGraficoHistoricoTotal();
+							return;
 						} else {
 							$scope.carregandoHistorico = null;
 						}
@@ -471,16 +475,25 @@ app.controller("dashboard", function($scope,
 										textoTooltip = '';
 									
 									textoTooltip = textoTooltip + '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + $scope.indicador.simbolo_valor + '<br>';
-									
+									// Funcao auxiliar para a construcao da label
+									var procuraIdRegiao = function(idRegiao, thisSeriesName){
+										let idRegiaoEncontrado = false;
+										angular.forEach(Object.values($scope.dadosMapa), function(value, key){
+											if(value.codigo == idRegiao && value.nome == thisSeriesName)
+												idRegiaoEncontrado = true;
+										});
+										return idRegiaoEncontrado;
+									}
 									if(this.series.chart.series.length > 1){
-										varFiltro =	$scope.variavelHistorico.filter(
-											(variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) &&
-											(variavel.id_regiao == (isMunicipio ? 1 : $scope.regiaoRealcada.codigo) || variavel.distribuicao == true)&& 
-											(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
+										varFiltro =	$scope.variavelHistorico.filter((variavel) => 
+											(variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) 
+											&& (procuraIdRegiao(variavel.id_regiao, this.series.name) || variavel.distribuicao == true)
+											&& (variavel.dimensao === this.series.options.categoria || (variavel.distribuicao == true && variavel.dimensao == null))
 											);
 									}else{
 										varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == 1|| variavel.distribuicao == true));
 									}
+									
 									varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
 										(variavel) => variavel.data == null && 
 										(variavel.id_regiao == $scope.regiaoRealcada.codigo || variavel.distribuicao == true) && 
