@@ -231,7 +231,6 @@ app.controller("dashboard", function($scope,
 		$scope.cargaIndicadorValores(true,true);
 		window.setTimeout(function(){
 			if($scope.semDados && $scope.selecao.categorias && $scope.selecao.categorias.length == 1){
-				// console.log("atualizarAccordion > filtraCategoria");
 				$scope.filtraCategoria();
 			}
 		}, 1500);
@@ -457,7 +456,7 @@ app.controller("dashboard", function($scope,
 						if(!$scope.carregarGraficoLinhas){
 							// $scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
 							$scope.carregandoHistorico = 'Procurando dados...';
-							// $scope.carregarGraficoHistoricoTotal();
+							$scope.carregarGraficoHistoricoTotal();
 							return;
 						} else {
 							$scope.carregandoHistorico = null;
@@ -714,7 +713,7 @@ app.controller("dashboard", function($scope,
 
 		$scope.carregarGraficoHistorico = function(idRegiao, dataAlterada){
 			if(angular.isUndefined($scope.regiaoRealcada) || $scope.regiaoRealcada.codigo == null) {
-				// $scope.carregarGraficoHistoricoTotal();
+				$scope.carregarGraficoHistoricoTotal();
 				console.log("ERRO");
 				return;
 			}
@@ -727,8 +726,10 @@ app.controller("dashboard", function($scope,
 				// OPERADOR IF SUPRIMIDO PARA CORRIGIR INCONSISTÊNCIA AO CARREGAR DADOS PELA PRIMEIRA VEZ
 				if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
 					this['original'].push(valor);
-					trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
-					trimestre = new Date(valor).getMonth()
+					// DUPLA DEFINICAO DA VARIAVEL trimestre. PRIMEIRA SUPRIMIDA ATE ENCONTRAR MOTIVO.
+					// TODO: REMOVER QUANDO DEFINIR SE PRIMEIRA ATRIBUICAO EH DESNECESSARIA
+					// trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
+					trimestre = new Date(valor).getMonth();
 					// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 					dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 				}
@@ -1525,9 +1526,7 @@ app.controller("dashboard", function($scope,
 			format = new ol.format.GeoJSON(),
 			$scope.layerVetor.getSource().addFeatures(format.readFeatures(resposta.data));
 			angular.forEach($scope.indicadorValores.series, function(serie, indiceSerie){
-				
-				// Evita duplicidade
-				if(!$scope.dadosMapa.length > 0)
+				// Acrescenta valores dos dados do indicador aos dados do mapa, para que as densidades sejam corretamente apresentadas
 					angular.forEach(serie.data, function(dado, indiceDado){
 					//Na primeira série, cria o objeto de dados
 					if(indiceSerie == 0){
@@ -2201,12 +2200,12 @@ app.controller("dashboard", function($scope,
 					
 					</span>
 				</uib-accordion-heading>
-				<button style="color: black;
+				<!-- <button style="color: black;
 							border: 0px solid darkgray;
 							border-radius: 0.4em;
 							width: 300px;
 							margin: 0px calc(50% - 150px) 10px;" 
-						ng-click="geraLink()">Gerar link para este indicador</button>
+						ng-click="geraLink()">Gerar link para este indicador</button> -->
 					<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
 			<!--<div uib-accordion-group class="panel-default"  heading=" {{indicador.nome}} &nbsp; | &nbsp; Instrumento: {{indicador.nome_fonte_dados}}"  ng-repeat="indicador in indicadores">-->
 			

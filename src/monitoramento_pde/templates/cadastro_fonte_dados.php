@@ -774,7 +774,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		
 				Arquivo mais recente carregado: 
 				<br>
-				<a href="http://monitoramentopde.smul.pmsp/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.nome_arquivo}}"> {{itemAtual.nome}} </a>
+				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.nome_arquivo}}"> {{itemAtual.nome}} </a>
 				
 			</p>
 			<P>
