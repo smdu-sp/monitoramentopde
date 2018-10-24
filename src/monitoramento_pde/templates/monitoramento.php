@@ -218,6 +218,12 @@ app.controller("dashboard", function($scope,
 		
 		return 'Q' + quarter.toString() + ' / ' + dataAjustada.getYear().toString()
 	};
+
+	$scope.pontoParaVirgula = function(v){
+		if(v !== null && typeof(parseFloat(v)) != NaN)
+			v = v.replace('.',',');
+		return v;
+	}
 	
 	// BUSCA INFORMACOES DO INDICADOR SELECIONADO PARA CARREGAR DADOS
 	$scope.atualizarAccordion = function(indicador){
@@ -422,7 +428,6 @@ app.controller("dashboard", function($scope,
 
 					indicadorHistorico.series[i].name = valor.nome;
 					
-					// Em caso de lentidao na resposta, indicador historico insere valor duplicado.
 					// Verifica valor para adicionar somente valores unicos
 					/*
 					for (var i2 = 0; i2 < todasRegioes.length; i2++) {
@@ -1317,8 +1322,14 @@ app.controller("dashboard", function($scope,
 		if(inserirMapa){
 			// CORRIGE FALHA DE EXIBICAO 
 			let mapCanvasDivs = document.getElementsByClassName('fMap');
-			if(mapCanvasDivs.length > 1)
-				mapCanvasDivs[0].remove();
+			// let canvasDivs = document.getElementsByClassName('ol-viewport');
+			if(mapCanvasDivs.length > 1){
+				// IDENTIFICA SE O ELEMENTO ESTÁ NA DIV DE ACCORDION QUE ESTÁ SENDO FECHADA (COLLAPSING)
+				if(mapCanvasDivs[0].parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.classList.contains("in"))
+					mapCanvasDivs[0].remove();
+				else
+					mapCanvasDivs[1].remove();				
+			}
 			$scope.mapa = new ol.Map({
 				target: 'map',
 				view: new ol.View({
@@ -1734,8 +1745,8 @@ app.controller("dashboard", function($scope,
 		}
 		 
 		/* original data */
-		var wsNomeMemoria = "Memoria";
-		var wsNomeMetadado = "Metadado";	
+		var wsNomeMemoria = "Tabela_Valores";
+		var wsNomeMetadado = "Ficha_Tecnica";	
 		
 		function Workbook() {
 			if(!(this instanceof Workbook)) return new Workbook();
@@ -1762,7 +1773,7 @@ app.controller("dashboard", function($scope,
 				cell.v = datenum(cell.v);
 			}
 			else cell.t = 's';
-			
+
 			return cell;
 		}
 		
@@ -1777,63 +1788,135 @@ app.controller("dashboard", function($scope,
 		}
 		
 		IndicadorMemoria.get({id:$scope.indicador.id_indicador,
-														data_inicio:dataInicioMemoria,
-														data_fim:dataFimMemoria,
-														data:dataMemoria,
-														id_territorio:$scope.selecao.idTerrSel,
-														id_regiao:($scope.regiaoRealcada != null)?$scope.regiaoRealcada.codigo:null},function(memoriaIndicador){
+			data_inicio:dataInicioMemoria,
+			data_fim:dataFimMemoria,
+			data:dataMemoria,
+			id_territorio:$scope.selecao.idTerrSel,
+			id_regiao:($scope.regiaoRealcada != null)?$scope.regiaoRealcada.codigo:null},function(memoriaIndicador){
 			$scope.memoriaIndicador = memoriaIndicador;
+
+			// ATRIBUI NOME DAS VARIAVEIS
+			let variavel1 = $scope.variavelHistorico[0].nome;
+			let variavel2 = $scope.variavelHistorico[$scope.variavelHistorico.length-1].nome;
+			let tipoValor = $scope.variavelHistorico[0].tipo_valor.charAt(0).toUpperCase() + $scope.variavelHistorico[0].tipo_valor.slice(1);
+			// GRAVA UNIDADE DE MEDIDA DO INDICADOR PARA EXIBIR NA FICHA TECNICA
+			let unidadeMedida = $scope.memoriaIndicador.dados[0]["Unidade de medida"]+" ("+$scope.memoriaIndicador.dados[0]["Símbolo de medida"]+")";
+			console.log(unidadeMedida);
+
+			$scope.memoriaIndicador.dados.forEach(function(dado){
+				// FORMATA ORDEM E NOMENCLATURA DOS CABECALHOS NA TABELA EXPORTADA
+				dado["Data (ano-mês-dia)"] = dado.Data;
+				delete dado.Data;
+				dado["Valor do indicador"] = dado.Valor;
+				delete dado.Valor;
+				dado["Unidade de medida do indicador"] = dado["Unidade de medida"]+" ("+dado["Símbolo de medida"]+")";
+				delete dado["Unidade de medida"];
+				delete dado["Símbolo de medida"];
+				dado["Variável 1: "+variavel1] = dado.Variavel1;
+				delete dado.Variavel1;
+				dado["Variável 1: Unidade de medida"] = tipoValor;
+				dado["Variável 2: "+variavel2] = dado.Variavel2;
+				delete dado.Variavel2;
+				dado["Variável 2: Unidade de medida"] = tipoValor;
+
+				// CONVERTE PONTO EM VIRGULA (ISSUE P2.3)
+				for(valor in dado){
+					dado[valor] = $scope.pontoParaVirgula(dado[valor]);
+				}
+			});
+			console.log(unidadeMedida);
+
 			var wb = new Workbook();
 			var wsMemoria = sheet_from_array_of_arrays($scope.memoriaIndicador.dados,$scope.memoriaIndicador.qtd_variavel);
+			wsMemoria['!cols'] = [
+			    {wpx:280}, // LARGURA COLUNA 1 (PIXELS)
+			    {wpx:200}, // COLUNA 2
+			    {wpx:100}, // COLUNA 3...
+			    {wpx:100},
+			    {wpx:130},
+			    {wpx:100},
+			    {wpx:100},
+			    {wpx:100},
+			    {wpx:100},
+			    {wpx:100}
+			];
 			
 			var wsMetadado = {};
 			coluna = 0, linha = 0;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Ficha Técnica');
+			linha+=2;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Nome do indicador');
+			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.nome);
-			linha = linha + 2;
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Descrição completa');
+			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.apresentacao);
-			linha = linha + 2;
-			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Instrumento de política urbana e ambiental');
-			linha++;
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Instrumento de Política Urbana e Gestão Ambiental');
+			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.instrumento);
-			linha = linha + 2;
+			linha++;coluna--;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Estratégias');
-			linha++;
+			coluna++;
 			angular.forEach($scope.indicador.estrategias,function(estrategia,chave){
 				wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,estrategia.nome);
 				linha++;
 			});
-			linha++;
+			coluna--;			
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Fórmula de cálculo');
-			linha++;
+			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.formula_calculo);
-			linha = linha + 2;
+			linha++;coluna--;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Unidade de medida');
-			linha++;
-			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.tipo_valor);
-			linha = linha + 2;
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,unidadeMedida);
+			linha++;coluna--;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Fonte');
-			linha++;
+			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.fonte);
-			linha = linha + 2;
+			linha++;coluna--;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Periodicidade de atualização');
-			linha++;
-			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.periodicidade);
-			linha = linha + 2;
-			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Unidades de análise territorial');
-			linha++;
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.periodicidade.charAt(0).toUpperCase()+$scope.indicador.periodicidade.slice(1));
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Unidades Territoriais de Análise');
+			coluna++;
 			angular.forEach($scope.indicador.territorios,function(valor,chave){
 				wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,valor.nome);
 				linha++;
 			});
+			linha+=2;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,"Variáveis");
+			linha+=2;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,"Variável 1");
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,variavel1);
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,"Variável 1: Unidade de medida");
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,tipoValor);
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,"Variável 2");
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,variavel2);
+			linha++;coluna--;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,"Variável 2: Unidade de medida");
+			coluna++;
+			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,tipoValor);
 			
 			var range = {s: {c:0, r:0}, e: {c:1, r:30 }};
 			wsMetadado['!ref'] = XLSX.utils.encode_range(range);
+			wsMetadado['!cols'] = [
+				{wpx:300},	// LARGURA COLUNA 1
+				{wpx:900}	// LARGURA COLUNA 2
+			];
 			
-			/* add worksheet to workbook */
-			wb.SheetNames.push(wsNomeMetadado);
+			/* add worksheet to workbook */ // Pumba
 			wb.SheetNames.push(wsNomeMemoria);
-			wb.Sheets[wsNomeMetadado] = wsMetadado;
+			wb.SheetNames.push(wsNomeMetadado);
 			wb.Sheets[wsNomeMemoria] = wsMemoria;
+			wb.Sheets[wsNomeMetadado] = wsMetadado;
 			var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary'});
 			
 			saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), $scope.indicador.nome + ".xlsx");
@@ -1899,7 +1982,7 @@ app.controller("dashboard", function($scope,
 </script>
 
 <div id="conteudo" data-ng-app="monitoramentoPde" data-ng-controller="dashboard">
-	<!-- <div id="map" class="fMap" style="height:400px;position:fixed;left:0;width:300px;background-color:#ccc;z-index: 2;"> <span ng-if="carregandoMapa">{{carregandoMapa}}</span></div> -->
+	
 
 <script type="text/ng-template" id="ModalFichaInstrumento.html">
 

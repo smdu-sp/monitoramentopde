@@ -1,14 +1,14 @@
 /*
 Theme Name:         Monitoramento do Plano diretor estratégico
-Theme URI:          http://gestaourbana.prefeitura.sp.gov.br/marco-regulatorio/plano-diretor/
+Theme URI:          https://gestaourbana.prefeitura.sp.gov.br/marco-regulatorio/plano-diretor/
 Description:        Tema para o portal de indicadores do plano diretor. <a href="https://github.com/felipematheus/monitoramento_pde">GitHub</a>
 Version:            1.0
 Author:             Felipe Matheus Rosa
-Author URI:         http://fmr.io
+Author URI:         https://fmr.io
 Text Domain:        sage
 
 License:            MIT License
-License URI:        http://opensource.org/licenses/MIT
+License URI:        https://opensource.org/licenses/MIT
 */
 
 
@@ -317,6 +317,7 @@ header .navbar a:hover, .navbar a:focus{
 	padding-top:5px;
 	padding-bottom:5px;
 	display:block;
+	cursor: pointer;
 }
 
 .link-saiba-mais-indicador span{
