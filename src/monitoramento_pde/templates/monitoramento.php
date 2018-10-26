@@ -3,7 +3,7 @@
  * Template Name: Monitoramento
  */
 ?>
-
+<script src="./wp/wp-includes/js/html2canvas.min.js"></script>
 <script type="text/javascript">
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -772,7 +772,7 @@ app.controller("dashboard", function($scope,
 			
 			larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
 			let ultimoItemVarFiltro = "";
-			
+			//Aumentar o grafico para caber todos os distritos (96) VOLTAR AKI
 			subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
 			$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 				chart: {
@@ -818,9 +818,13 @@ app.controller("dashboard", function($scope,
 							);
 						varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
 						// Reduzido numero de itens no array varFiltro para que o indicador mostre o numerador
-						if(varFiltro.length >= 0){
+						if(varFiltro.length > 0){
+							let ultimoValor = ''; // REGISTRA O VALOR PARA COMPARAR E EVITAR DUPLICATAS
 							angular.forEach(varFiltro, function(val,chave){
-								textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : this.y < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
+								if(ultimoValor !== val.valor) {
+									textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : this.y < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
+									ultimoValor = val.valor;
+								}
 							});
 						}
 						return textoTooltip;
@@ -1091,9 +1095,9 @@ app.controller("dashboard", function($scope,
 				};
 				let grafBarLeg = {
 					layout: 'vertical',
-					align: 'right',
+					align: 'left',
 					x: 0,
-					verticalAlign: 'middle',
+					verticalAlign: 'bottom',
 					y: -55,
 					itemStyle: {
 						fontWeight: 'normal',
@@ -1157,13 +1161,13 @@ app.controller("dashboard", function($scope,
 							enabled:habilitarExportacao
 							,chartOptions:{
 								chart: {
-									//spacingTop: 150,
 									height:700,
 									marginBottom: 170,
 									spacingLeft: 30,
 									spacingRight: 30,
 									spacingBottom: 10,
-									spacingTop: 30
+									spacingTop: 30,
+									marginLeft: 60
 								},
 								colors: app.defaultColors,
 								title:{ text:$scope.indicador.nome },
@@ -1648,12 +1652,12 @@ app.controller("dashboard", function($scope,
 					scope:$scope,
 					//controllerAs: '$ctrl',
 					size: 'lg',
-					appendTo: parentElem,
-					resolve: {
-						items: function () {
-							return $ctrl.items;
-						}
-					}
+					// appendTo: parentElem,
+					// resolve: {
+					// 	items: function () {
+					// 		return $ctrl.items;
+					// 	}
+					// }
 				});
 			}else
 			{
@@ -1912,7 +1916,7 @@ app.controller("dashboard", function($scope,
 				{wpx:900}	// LARGURA COLUNA 2
 			];
 			
-			/* add worksheet to workbook */ // Pumba
+			/* add worksheet to workbook */ 
 			wb.SheetNames.push(wsNomeMemoria);
 			wb.SheetNames.push(wsNomeMetadado);
 			wb.Sheets[wsNomeMemoria] = wsMemoria;
@@ -1977,6 +1981,28 @@ app.controller("dashboard", function($scope,
           }
         });
 	 }
+
+	 $scope.salvarComo = function(uri, nome) {
+	    var link = document.createElement('a');
+	    if (typeof link.download === 'string') {
+			link.href = uri;
+			link.download = nome;
+			// INSERE LINK NO CORPO PARA FIREFOX SUPORTAR
+			document.body.appendChild(link);
+			// SIMULA O CLICK E REMOVE O ELEMENTO
+			link.click();
+			document.body.removeChild(link);
+    	} else {
+      		window.open(uri);
+    	}
+	}
+
+	$scope.printScreen = function() {
+		html2canvas(document.getElementsByClassName('panel-open')[0], {scale: 2}).then(function(canvas) {
+		    // document.body.appendChild(canvas);
+		    $scope.salvarComo(canvas.toDataURL('image/png'), $scope.indicador.nome+'.png'); //pumba
+		});
+	};
 });	
 
 </script>
@@ -2065,7 +2091,7 @@ app.controller("dashboard", function($scope,
 		<button class="btn btn-danger" type="button" ng-click="fecharModal('estrategia')">	Fechar</button>
 	</div>
 </div>
-</script>	
+</script>
 
 <script type="text/ng-template" id="indicador.html">
 	<div class="row">
@@ -2190,7 +2216,7 @@ app.controller("dashboard", function($scope,
 						<!--<button class="btn btn-default" type="button" ng-click="exportarMapa()">	<small>Exportar Mapa</small></button>-->
 					</div>
 				</div>
-			</div>
+			</div>		
 </script>
 	
 	
@@ -2275,14 +2301,26 @@ app.controller("dashboard", function($scope,
 					
 					</span>
 				</uib-accordion-heading>
-				<button style="color: black;
-							border: 0px solid darkgray;
-							border-radius: 0.4em;
-							width: 300px;
-							display: none;
-							margin: 0px calc(50% - 150px) 10px;" 
-						ng-click="geraLink()">Gerar link para este indicador</button>
+				
 				<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
+				<div style="text-align: right; width: 100%; margin-top: -40px;" data-html2canvas-ignore>
+				<button style="border: none;
+					background: url(./app/themes/monitoramento_pde/images/icon-link.jpg);
+    				background-repeat: no-repeat;
+					background-size: contain;
+					margin: 0 5px;
+				    width: 30px;
+				    height: 30px;" ng-click="geraLink()" type="button" title="Gerar link para este indicador">
+				</button>
+				<button style="border: none;
+					background: url(./app/themes/monitoramento_pde/images/icon-image-save.jpg);
+    				background-repeat: no-repeat;
+					background-size: contain;
+				    margin: 0 5px;
+				    width: 30px;
+				    height: 30px;" ng-click="printScreen()" type="button" title="Salvar indicador como imagem">	
+				</button>
+				</div>
 			<!--<div uib-accordion-group class="panel-default"  heading=" {{indicador.nome}} &nbsp; | &nbsp; Instrumento: {{indicador.nome_fonte_dados}}"  ng-repeat="indicador in indicadores">-->
 			
 			</div>

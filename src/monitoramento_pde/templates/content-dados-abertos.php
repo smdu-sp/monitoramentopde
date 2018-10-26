@@ -52,7 +52,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		}
 	];
 	
-	$scope.menuTipoDados[0].dados.push('Ficha Técnica dos Instrumentos');
+	//$scope.menuTipoDados[0].dados.push('Ficha Técnica dos Instrumentos');
 	
 	$scope.item = $scope.menuTipoDados[0];
 	
@@ -212,8 +212,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			<ul class="list-group">
 			
 			<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
-				<div class="col-sm-10"> {{!dado.nome? dado : dado.nome}} </div>
-				<div class="col-sm-2 text-center"> <a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a> </div>
+				<div class="col-sm-8"> {{!dado.nome? dado : dado.nome}} </div>
+				<div class="col-sm-4 text-right"> <a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
+					<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
+					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | Mapas</strong></a> 
+				</div>
 
 			</li>
 			

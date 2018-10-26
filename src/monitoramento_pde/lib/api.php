@@ -408,6 +408,23 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'carregar_fonte_dados'
 	) );
 } );
+
+// Registra rota carga mapas
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados/carregar_arquivo_mapas/(?P<id>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_arquivo_mapas'
+	) );
+} );
+// Registra rota carga metadados
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados/carregar_arquivo_metadados/(?P<id>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_arquivo_metadados'
+	) );
+} );
  
   add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
@@ -1547,6 +1564,153 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	return $response;
 } 
 
+// INSERIR ARQUIVOS ATRELADOS À FONTE DE DADOS
+function carregar_arquivo_mapas(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
+	
+	$comando_string = 
+	"select * 
+	from sistema.fonte_dados 
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+		
+	$diretorio = wp_upload_dir()['basedir'].'/'.$dados[0]['nome_tabela'];
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$arquivo_mapas = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$arquivo_mapas);
+	
+	$id_fonte_dados = $parametros['id_fonte_dados'];
+	
+	$comando_string = 
+	"update	sistema.fonte_dados
+	set arquivo_mapas = '".$arquivo_mapas."'
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	
+	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
+	
+	return $response;
+}
+
+function carregar_arquivo_metadados(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
+	
+	$comando_string = 
+	"select * 
+	from sistema.fonte_dados 
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$nome_fonte = $dados[0]['nome'];
+	
+	$diretorio = wp_upload_dir()['basedir'].'/'.$dados[0]['nome_tabela'];
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$nome_arquivo = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$nome_arquivo);
+	
+	$id_fonte_dados = $parametros['id_fonte_dados'];
+	
+	
+	$role = '';
+	$usuario = wp_get_current_user();
+	$roleMonitoramento = '';
+	foreach($usuario->roles as $role) {
+		if(strtolower($role) == 'mantenedor' && $roleMonitoramento != 'administrator'){
+			$roleMonitoramento = 'mantenedor';
+			
+		}else 
+			if(strtolower($role) == 'administrator'){
+				$roleMonitoramento = 'administrator';
+				
+			}
+	}
+	
+	
+	
+	$headers = 'From: Monitoramento PDE <apache@c4v3i.localdomain>'. "\r\n";
+	$headers .= "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=UTF-8";
+	
+	$administradores = get_users('role=administrator');
+	foreach($administradores as $usuario){
+		$msg = 'A fonte de dados '.$nome_fonte.' foi atualizada por um mantenedor. <br><br> É necessário realizar a validação e carga do arquivo.';
+		mail($usuario->data->user_email,"Monitoramento PDE - Aviso de carga de fonte de dados",$msg,$headers);
+	}
+	
+	$comando_string = 
+	"update	sistema.fonte_dados
+	set arquivo_metadados = '".$nome_arquivo."'
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	
+	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
+	
+	//var_dump(array_reverse($output));
+	//var_dump($response);
+	
+	return $response;
+}
+// FIM ADICIONA ARQUIVOS ATRELADOS À FONTE DE DADOS
  
 function inserir_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
@@ -1724,7 +1888,7 @@ function inserir_variavel(WP_REST_Request $request){
 } 
 
 
-
+// TODO: ISSUE 1.X - ERRO AO CADASTRAR NOVO BANCO DE DADOS
 function inserir_fonte_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	global $DbConfig;
