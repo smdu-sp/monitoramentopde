@@ -103,9 +103,6 @@ app.filter('dataFinal', function() {
 app.filter('setDecimal', function ($filter) {
     return function (input, places) {
         if (isNaN(input)) return input;
-        // If we want 1 decimal place, we want to mult/div by 10
-        // If we want 2 decimal places, we want to mult/div by 100, etc
-        // So use the following to create that factor
         var factor = "1" + Array(+(places > 0 && places + 1)).join("0");
         return Math.round(input * factor) / factor;
     };
@@ -218,13 +215,13 @@ app.controller("dashboard", function($scope,
 		
 		return 'Q' + quarter.toString() + ' / ' + dataAjustada.getYear().toString()
 	};
-
+	
 	$scope.pontoParaVirgula = function(v){
 		if(v !== null && typeof(parseFloat(v)) != NaN)
 			v = v.replace('.',',');
 		return v;
-	}
-	
+	};
+
 	// BUSCA INFORMACOES DO INDICADOR SELECIONADO PARA CARREGAR DADOS
 	$scope.atualizarAccordion = function(indicador){
 		$scope.selecao.idIndicSel = indicador.id_indicador;
@@ -263,7 +260,7 @@ app.controller("dashboard", function($scope,
 		$scope.qtdClasses = 5;
 		regiao = $scope.dadosMapa.filter((regiao) => regiao.codigo == feature.get('ID_REGIAO'))[0];
 		regiaoMaiorValor = $scope.dadosMapa.filter((regiaoMaior) => regiaoMaior.posicao == 0)[0];
-		if(!angular.isUndefined(regiaoMaiorValor)){
+		if(!angular.isUndefined(regiaoMaiorValor) && !angular.isUndefined(regiao)){
 			intervalo = regiaoMaiorValor.valor / $scope.qtdClasses;
 			indiceClasseRegiao = regiao.valor / intervalo;
 			indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
@@ -313,7 +310,7 @@ app.controller("dashboard", function($scope,
 			corRegiao = cores[legenda.indice-1];
 			corRegiao[3] = 1;
 		}else{
-			//coloco a cor mais fraca
+			// COLOCA A COR MAIS FRACA
 			corRegiao = cores[0];
 			corRegiao[3] = 1;
 		}
@@ -377,7 +374,6 @@ app.controller("dashboard", function($scope,
 					};
 					
 					$scope.carregarGraficoHistorico(1);
-					//return;
 				}
 			}
 		}
@@ -427,18 +423,7 @@ app.controller("dashboard", function($scope,
 					}
 
 					indicadorHistorico.series[i].name = valor.nome;
-					
-					// Verifica valor para adicionar somente valores unicos
-					/*
-					for (var i2 = 0; i2 < todasRegioes.length; i2++) {
-						if(angular.isUndefined(todasRegioes[i2])){
-							continue populaTodasRegioes;
-						}
-						else if(todasRegioes[i2].nome == valor.nome)
-							continue populaTodasRegioes;
-					}
-					*/
-					// Corrige bug de lentidao na resposta, para inserir somente a quantidade de itens relacionados aa serie
+					// Corrige bug de lentidao na resposta, para inserir somente a quantidade de itens relacionados à serie
 					if($scope.selecao.categorias.length > 1 || todasRegioes.length < $scope.dadosMapa.length)
 						todasRegioes.push(indicadorHistorico.series[i]);
 				}
@@ -587,7 +572,6 @@ app.controller("dashboard", function($scope,
 									verticalAlign: 'bottom',
 									y:-55,
 									itemStyle: {
-										//color: '#000000',
 										fontWeight: 'normal',
 										fontSize: '8px'
 									}
@@ -616,7 +600,6 @@ app.controller("dashboard", function($scope,
 										},
 										separator: false
 									},{
-										//#24 Exportar para SVG
 										text: 'Exportar para SVG',
 										onclick: function(){
 											$scope.exportarGrafico(this,'image/svg+xml')
@@ -672,13 +655,6 @@ app.controller("dashboard", function($scope,
 										}
 									}
 								}
-								/*
-								, events: {
-									mouseOut: function () {
-										sairMapa();
-									}
-								}
-								*/
 							}
 						},
 						legend: {
@@ -720,13 +696,8 @@ app.controller("dashboard", function($scope,
 		dataHistorica['original'] = [];
 		dataHistorica['formatada'] = [];
 		angular.forEach($scope.indicador.datas.slice().reverse(), function(valor,chave){
-			// ISSUE P1-1 (INDICADOR NÃO CARREGA O MAPA, OU CARREGA DADOS DO EIXO X ERRADO, PRECISANDO CLICAR 2X PARA ABRIR)
-			// OPERADOR IF SUPRIMIDO PARA CORRIGIR INCONSISTÊNCIA AO CARREGAR DADOS PELA PRIMEIRA VEZ
 			if(valor >= $scope.selecao.dataMin && valor <= $scope.selecao.dataMax){
 				this['original'].push(valor);
-				// DUPLA DEFINICAO DA VARIAVEL trimestre. PRIMEIRA SUPRIMIDA ATE ENCONTRAR MOTIVO.
-				// TODO: REMOVER QUANDO DEFINIR SE PRIMEIRA ATRIBUICAO EH DESNECESSARIA
-				// trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 				trimestre = new Date(valor).getMonth();
 				// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 				dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
@@ -765,14 +736,10 @@ app.controller("dashboard", function($scope,
 			} else {
 				$scope.carregandoHistorico = null;
 			}
-			// TODO: (P1.3)
-			// if(indicadorHistorico.series.length == 1){
-			// 	indicadorHistorico.series[0].showInLegend = false;
-			// }
 			
 			larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
 			let ultimoItemVarFiltro = "";
-			//Aumentar o grafico para caber todos os distritos (96) VOLTAR AKI
+			
 			subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
 			$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 				chart: {
@@ -787,16 +754,9 @@ app.controller("dashboard", function($scope,
 					categories: dataHistorica['formatada']
 				}, 
 				series: indicadorHistorico.series,
-				// ISSUE P1.3 - Corrigir erro de quando o valor do indicador é ZERO não mostra nem o valor do numerador e nem do denominador*
-				// *O valor não é 0, na verdade o valor não existe no banco e é tratado como 0.
 				tooltip: {
 					formatter: function(){
-						/*
-						if($scope.selecao.idTerrSel == 4)
-							nomeRegiao = 'Município';
-						else
-							*/
-							nomeRegiao = $scope.regiaoRealcada.nome;
+						nomeRegiao = $scope.regiaoRealcada.nome;
 						
 						textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
 						
@@ -818,7 +778,7 @@ app.controller("dashboard", function($scope,
 							);
 						varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
 						// Reduzido numero de itens no array varFiltro para que o indicador mostre o numerador
-						if(varFiltro.length > 0){
+						if(varFiltro.length >= 0){
 							let ultimoValor = ''; // REGISTRA O VALOR PARA COMPARAR E EVITAR DUPLICATAS
 							angular.forEach(varFiltro, function(val,chave){
 								if(ultimoValor !== val.valor) {
@@ -881,7 +841,6 @@ app.controller("dashboard", function($scope,
 							verticalAlign: 'bottom',
 							y:-55,
 							itemStyle: {
-								//color: '#000000',
 								fontWeight: 'normal',
 								fontSize: '8px'
 							}
@@ -966,13 +925,6 @@ app.controller("dashboard", function($scope,
 								}
 							}
 						}
-						/*
-						, events: {
-							mouseOut: function () {
-								sairMapa();
-							}
-						}
-						*/
 					}
 				},
 				legend: {
@@ -1080,17 +1032,21 @@ app.controller("dashboard", function($scope,
 					$scope.indicadorValores.series[0].showInLegend = false;
 				}
 			
-				habilitarExportacao = $scope.labelTerrSel != 'Distrito';
+				mostrarDistritos = $scope.labelTerrSel == 'Distrito';
 				trimestre = Math.floor((new Date($scope.selecao.dataSel).getMonth() + 3) / 3);
-			
 				$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
+				
+				let exportMargingBot = 140+($scope.indicadorValores.series.length*8);
+				if($scope.labelTerrSel == "Prefeitura Regional" || mostrarDistritos)
+					exportMargingBot += mostrarDistritos ? 40 : 60;
+
 				let grafBarSub = {
 					margin: 50,
 					text: 'Unidade territorial de análise: ' + $scope.labelTerrSel + " <br> Período: " + $filter('date')($scope.selecao.dataSel, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')),
 					align: 'left',
 					x: -5,
 					style: {
-						paddingBottom: 120
+						// paddingBottom: 120
 					}
 				};
 				let grafBarLeg = {
@@ -1103,6 +1059,32 @@ app.controller("dashboard", function($scope,
 						fontWeight: 'normal',
 						fontSize: '8px'
 					}
+				};
+				let labelProps = {};
+				// CONFIGURAÇÕES ESPECÍFICAS PARA QUE CAIBAM TODOS OS DISTRITOS (P3.2 / Issue#20)
+				if(mostrarDistritos){
+					labelProps = {
+						padding: 5,
+						rotation: -90,
+						step: 1,
+						style: { fontSize: '8px' }
+					};
+				}
+				else {
+					labelProps = {
+						padding: 8,
+						style: { fontSize: '10px' }
+					};
+				}
+				let exportChartOpts = {
+					height:700,
+					width: 1800,
+					marginBottom: exportMargingBot,
+					spacingLeft: 30,
+					spacingRight: 30,
+					spacingBottom: 10,
+					spacingTop: 30,
+					marginLeft: 60
 				};
 				
 				if(!$scope.semMunicipio() || $scope.selecao.categorias && $scope.selecao.categorias.length != 1){
@@ -1119,11 +1101,7 @@ app.controller("dashboard", function($scope,
 							type: "category",
 							crosshair: true,
 							categories: $scope.indicadorValores.categorias,
-							labels: {
-								style: {
-									fontSize:9
-								}
-							}
+							labels: labelProps
 						},
 						yAxis: {
 							labels:{
@@ -1158,26 +1136,12 @@ app.controller("dashboard", function($scope,
 							}
 						},
 						exporting: {
-							enabled:habilitarExportacao
-							,chartOptions:{
-								chart: {
-									height:700,
-									marginBottom: 170,
-									spacingLeft: 30,
-									spacingRight: 30,
-									spacingBottom: 10,
-									spacingTop: 30,
-									marginLeft: 60
-								},
+							chartOptions:{
+								chart: exportChartOpts,
 								colors: app.defaultColors,
 								title:{ text:$scope.indicador.nome },
 								xAxis: {
-									labels: {
-										padding:10,
-										style: {
-											fontSize: '7px'
-										}
-									}
+									labels: labelProps
 								},
 								credits:{
 									enabled: true,
@@ -1188,8 +1152,8 @@ app.controller("dashboard", function($scope,
 										,color: '#000000'
 									},
 									position:{
-										y:-55
-										,x: 20
+										x: 20
+										,y:-55
 										,align: 'left'
 									}
 								},
@@ -1218,11 +1182,7 @@ app.controller("dashboard", function($scope,
 									varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.selecao.dataSel || variavel.data == null) && (variavel.id_regiao == $scope.indicadorValores.codigos[this.point.x] || variavel.distribuicao == true));
 								}else{
 									varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.selecao.dataSel || variavel.data == null) && (variavel.id_regiao == $scope.indicadorValores.codigos[this.point.x] || variavel.distribuicao == true) && (variavel.dimensao == this.series.name || variavel.dimensao == null));
-								}
-								
-								//varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter((variavel) => variavel.data == null && (variavel.id_regiao == $scope.indicadorValores.codigos[this.point.x] || variavel.distribuicao == true) && variavel.dimensao == null);
-								//varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
-								
+								}																
 								if(varFiltro.length > 1){
 									angular.forEach(varFiltro, function(val,chave){
 										textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : val.valor < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
@@ -1230,7 +1190,6 @@ app.controller("dashboard", function($scope,
 								}
 								return textoTooltip;
 							}
-							//pointFormat: '<b>{series.name}</b>: {point.y} ' + $scope.indicador.simbolo_valor
 						},
 						plotOptions: {
 							column: {
@@ -1245,7 +1204,6 @@ app.controller("dashboard", function($scope,
 										}
 									}
 								}
-								// ,events: { mouseOut: function () { sairMapa(); } }
 							}
 						},
 						legend: {
@@ -1384,12 +1342,6 @@ app.controller("dashboard", function($scope,
 					};
 				};
 			});
-			/*
-			$scope.popup = new ol.Overlay({
-				element: document.getElementById('infomapa')
-			});
-			$scope.mapa.addOverlay($scope.popup);
-			*/
 			$scope.mapa.on('pointermove', function(evt) {
 				if (evt.dragging) {
 					return;
@@ -1399,7 +1351,6 @@ app.controller("dashboard", function($scope,
 				if($scope.selecao.idTerrSel != 4){
 					$scope.realcarPorMapa(pixel);
 				};
-				//$scope.popup.setPosition(evt.coordinate);
 			});
 		};
 		
@@ -1564,7 +1515,6 @@ app.controller("dashboard", function($scope,
 				$scope.dadosMapa = $filter('orderBy')($scope.dadosMapa, 'nome', false);
 			}
 			$scope.layerVetor.setStyle($scope.estiloVetor);
-			//$scope.ajustarLimitesLegenda();
 			$scope.carregandoMapa = null;
 			
 		};
@@ -1606,10 +1556,6 @@ app.controller("dashboard", function($scope,
 			$scope.fixarMapa(1);
 			return;
 		}
-		/*if($scope.selecao.categorias && $scope.selecao.categorias.length == 1) {
-			// $scope.selecao.categoria = $scope.selecao.categorias[0];
-			$scope.filtraCategoria();
-		}*/
 	};
 	
 	$scope.cargaEstrategia = function(id){
@@ -1622,6 +1568,19 @@ app.controller("dashboard", function($scope,
 		$scope.cargaCadastroIndicadores(id);
 	};
 	
+	$scope.atualizaFichaInstrumento = function(idInstrumento){
+		if(idInstrumento == null)
+			return;
+		GrupoIndicador.get({id:idInstrumento,tipo:'instrumento',tipo_retorno:'object'},function(fichaInstrumento){
+			$scope.fichaInstrumento = fichaInstrumento;
+			$scope.indicador = {id_instrumento: idInstrumento, instrumento: fichaInstrumento.nome};
+			if(fichaInstrumento.propriedades["Definição"])
+				$scope.descricaoIntrumento = fichaInstrumento.propriedades["Definição"].substr(0,300);
+			else
+				$scope.descricaoIntrumento = 'Não há definição para este instrumento';
+		});
+	};
+
 	$scope.abrirModal = function(tipo){
 		if(tipo=='instrumento')
 		{
@@ -1650,14 +1609,7 @@ app.controller("dashboard", function($scope,
 					templateUrl: 'ModalFichaIndicador.html',
 					controller: function($scope){},
 					scope:$scope,
-					//controllerAs: '$ctrl',
-					size: 'lg',
-					// appendTo: parentElem,
-					// resolve: {
-					// 	items: function () {
-					// 		return $ctrl.items;
-					// 	}
-					// }
+					size: 'lg'
 				});
 			}else
 			{
@@ -1670,14 +1622,7 @@ app.controller("dashboard", function($scope,
 						templateUrl: 'ModalFichaEstrategia.html',
 						controller: function($scope){},
 						scope:$scope,
-						//controllerAs: '$ctrl',
-						size: 'lg',
-						//appendTo: parentElem,
-						//resolve: {
-						//	items: function () {
-						//		return $ctrl.items;
-						//	}
-						//}
+						size: 'lg'
 					});
 				}
 			};
@@ -1750,7 +1695,7 @@ app.controller("dashboard", function($scope,
 		 
 		/* original data */
 		var wsNomeMemoria = "Tabela_Valores";
-		var wsNomeMetadado = "Ficha_Tecnica";	
+		var wsNomeMetadado = "Ficha_Tecnica";
 		
 		function Workbook() {
 			if(!(this instanceof Workbook)) return new Workbook();
@@ -1777,7 +1722,7 @@ app.controller("dashboard", function($scope,
 				cell.v = datenum(cell.v);
 			}
 			else cell.t = 's';
-
+			
 			return cell;
 		}
 		
@@ -1852,40 +1797,55 @@ app.controller("dashboard", function($scope,
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Nome do indicador');
 			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.nome);
+
 			linha++;coluna--;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Descrição completa');
 			coluna++;
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.apresentacao);
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Instrumento de Política Urbana e Gestão Ambiental');
 			coluna++;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.instrumento);
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Estratégias');
 			coluna++;
+
 			angular.forEach($scope.indicador.estrategias,function(estrategia,chave){
 				wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,estrategia.nome);
 				linha++;
 			});
 			coluna--;			
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Fórmula de cálculo');
 			coluna++;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.formula_calculo);
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Unidade de medida');
 			coluna++;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,unidadeMedida);
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Fonte');
 			coluna++;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.fonte);
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Periodicidade de atualização');
 			coluna++;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,$scope.indicador.periodicidade.charAt(0).toUpperCase()+$scope.indicador.periodicidade.slice(1));
 			linha++;coluna--;
+
 			wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,'Unidades Territoriais de Análise');
 			coluna++;
+
 			angular.forEach($scope.indicador.territorios,function(valor,chave){
 				wsMetadado[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,valor.nome);
 				linha++;
@@ -1917,8 +1877,10 @@ app.controller("dashboard", function($scope,
 			];
 			
 			/* add worksheet to workbook */ 
+
 			wb.SheetNames.push(wsNomeMemoria);
 			wb.SheetNames.push(wsNomeMetadado);
+
 			wb.Sheets[wsNomeMemoria] = wsMemoria;
 			wb.Sheets[wsNomeMetadado] = wsMetadado;
 			var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary'});
@@ -1980,7 +1942,7 @@ app.controller("dashboard", function($scope,
             });
           }
         });
-	 }
+	 };
 
 	 $scope.salvarComo = function(uri, nome) {
 	    var link = document.createElement('a');
@@ -1999,8 +1961,7 @@ app.controller("dashboard", function($scope,
 
 	$scope.printScreen = function() {
 		html2canvas(document.getElementsByClassName('panel-open')[0], {scale: 2}).then(function(canvas) {
-		    // document.body.appendChild(canvas);
-		    $scope.salvarComo(canvas.toDataURL('image/png'), $scope.indicador.nome+'.png'); //pumba
+		    $scope.salvarComo(canvas.toDataURL('image/png'), $scope.indicador.nome+'.png');
 		});
 	};
 });	
@@ -2008,90 +1969,79 @@ app.controller("dashboard", function($scope,
 </script>
 
 <div id="conteudo" data-ng-app="monitoramentoPde" data-ng-controller="dashboard">
-	
 
 <script type="text/ng-template" id="ModalFichaInstrumento.html">
-
-<div class="modal-instrumento">
-	<div class="modal-header">
-    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')">X</button></h3> 
+	<div class="modal-instrumento">
+		<div class="modal-header">
+	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')">X</button></h3> 
+		</div>
+		<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">			
+			<p ng-repeat="(chave, valor) in fichaInstrumento.propriedades" >
+				<span ng-click="this.aberto==true? this.aberto=false : this.aberto=true"><strong> {{chave}} </strong> <i class="glyphicon" ng-if="chave!='Definição'" ng-class="{'glyphicon-chevron-up': this.aberto, 'glyphicon-chevron-down': !this.aberto}"></i>
+				<br>
+				<span ng-bind-html="valor" ng-if="this.aberto==true || chave=='Definição'" class="quebra-linha"></span>
+			</span>		
+			</p>
+		</div>
+		<div class="modal-footer">	
+			<button class="btn btn-danger" type="button" ng-click="fecharModal('instrumento')">	Fechar</button>
+		</div>
 	</div>
-	<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">
-			
-		<p ng-repeat="(chave, valor) in fichaInstrumento.propriedades" >
-		<span ng-click="this.aberto==true? this.aberto=false : this.aberto=true"><strong> {{chave}} </strong> <i class="glyphicon" ng-if="chave!='Definição'" ng-class="{'glyphicon-chevron-up': this.aberto, 'glyphicon-chevron-down': !this.aberto}"></i>
-			
-		
-		<br>
-		<span ng-bind-html="valor" ng-if="this.aberto==true || chave=='Definição'" class="quebra-linha"></span>
-		</span>
-		
-	</p>
-			
-
-			
-	</div>
-	<div class="modal-footer">	
-		<button class="btn btn-danger" type="button" ng-click="fecharModal('instrumento')">	Fechar</button>
-	</div>
-</div>
 </script>	
 
 <script type="text/ng-template" id="ModalFichaIndicador.html">
-
-<div class="modal-instrumento">
-	<div class="modal-header">
-    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('indicador')">X</button> </h3> 
-	</div>
-	<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">
-			<p class="quebra-linha" ng-bind-html="indicador.nota_tecnica_resumida"> </p>
-			<p class="quebra-linha" ng-show="indicador.nota_tecnica != null"><strong> Nota técnica  </strong> <br> <span ng-bind-html="indicador.nota_tecnica"></span>  </p>
-			<p><strong> Instrumento de Política Urbana e Gestão Ambiental  </strong> <br> <a class="link-ficha-instrumento btn btn-default btn-sm" style="margin-left:-7px;padding-left:7px;padding-right:7px;background-color:#ccc" ng-click="abrirModal('instrumento')"> {{indicador.instrumento}} </a> <br>  </p>
-			<p><strong> Estratégias </strong> <br>
-			<span ng-repeat="estrategia in indicador.estrategias">
-			 <a class="link-ficha-instrumento btn btn-default btn-sm" style="margin-left:-7px;padding-left:7px;padding-right:7px;background-color:#ccc" ng-click="abrirModal('estrategia')"> {{estrategia.nome}} </a> <br> 
-			</span>
-			</p>
-			<p style="white-space:pre-wrap;"><strong> Fórmula de cálculo </strong> <br> <span ng-bind-html="indicador.formula_calculo"></span> </p>
-			<p><strong> Unidade de medida </strong> <br> <span ng-bind-html="indicador.tipo_valor"></span> </p>
-			<p><strong> Série histórica </strong> <br> De {{indicador.datas[indicador.datas.length-1] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy'}} a {{indicador.datas[0] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy' }}</p>
-			<p><strong> Fontes </strong> <br> <span ng-bind-html="indicador.fonte"></span> </p>
-			<p><strong> Periodicidade de atualização </strong> <br> <span class="primeira-maiuscula">{{indicador.periodicidade}}</span> </p>
-			<p><strong> Unidade territorial de análise </strong> <br>
-			<span ng-repeat="territorio in indicador.territorios | orderBy: 'ordem'">
-				{{territorio.nome}} <br>
-			</span>
-			</p>
+	<div class="modal-instrumento">
+		<div class="modal-header">
+	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('indicador')">X</button> </h3> 
 		</div>
-	<div class="modal-footer">	
-		<button class="btn btn-danger" type="button" ng-click="fecharModal('indicador')">	Fechar</button>
+		<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">
+				<p class="quebra-linha" ng-bind-html="indicador.nota_tecnica_resumida"> </p>
+				<p class="quebra-linha" ng-show="indicador.nota_tecnica != null"><strong> Nota técnica  </strong> <br> <span ng-bind-html="indicador.nota_tecnica"></span>  </p>
+				<p><strong> Instrumento de Política Urbana e Gestão Ambiental  </strong> <br> <a class="link-ficha-instrumento btn btn-default btn-sm" style="margin-left:-7px;padding-left:7px;padding-right:7px;background-color:#ccc" ng-click="abrirModal('instrumento')"> {{indicador.instrumento}} </a> <br>  </p>
+				<p><strong> Estratégias </strong> <br>
+				<span ng-repeat="estrategia in indicador.estrategias">
+				 <a class="link-ficha-instrumento btn btn-default btn-sm" style="margin-left:-7px;padding-left:7px;padding-right:7px;background-color:#ccc" ng-click="abrirModal('estrategia')"> {{estrategia.nome}} </a> <br> 
+				</span>
+				</p>
+				<p style="white-space:pre-wrap;"><strong> Fórmula de cálculo </strong> <br> <span ng-bind-html="indicador.formula_calculo"></span> </p>
+				<p><strong> Unidade de medida </strong> <br> <span ng-bind-html="indicador.tipo_valor"></span> </p>
+				<p><strong> Série histórica </strong> <br> De {{indicador.datas[indicador.datas.length-1] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy'}} a {{indicador.datas[0] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy' }}</p>
+				<p><strong> Fontes </strong> <br> <span ng-bind-html="indicador.fonte"></span> </p>
+				<p><strong> Periodicidade de atualização </strong> <br> <span class="primeira-maiuscula">{{indicador.periodicidade}}</span> </p>
+				<p><strong> Unidade territorial de análise </strong> <br>
+				<span ng-repeat="territorio in indicador.territorios | orderBy: 'ordem'">
+					{{territorio.nome}} <br>
+				</span>
+				</p>
+			</div>
+		<div class="modal-footer">	
+			<button class="btn btn-danger" type="button" ng-click="fecharModal('indicador')">	Fechar</button>
+		</div>
 	</div>
-</div>
 </script>	
 
 
 <script type="text/ng-template" id="ModalFichaEstrategia.html">
-
-<div class="modal-estrategia">
-	<div class="modal-header">
-    <h3 class="modal-title" id="modal-titulo-ficha-estrategia">{{estrategia.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('estrategia')">X</button> </h3> 
-	</div>
-	<div class="modal-body" id="modal-corpo-ficha-estrategia" style="text-align:justify">
-			<p class="quebra-linha"> <a href="{{estrategia.link_infografico}}" target="_blank"><img class="img-responsive" src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a> </p>
-			<p class="quebra-linha" ng-bind-html="estrategia.descricao"> </p>
-			<p class="quebra-linha" ng-if="estrategia.texto_complementar!=null" ng-bind-html="estrategia.texto_complementar">  </p>
-			<p class="quebra-linha text-center" ng-if="estrategia.link_video_embed!=null">
-			<object style="width:100%;height:100%;width: 820px; height: 461.25px; float: none; clear: both; margin: 2px auto;" data="{{estrategia.link_video_embed}}">
-			</object>
-			</p>
-			
-			<p class="quebra-linha" ng-if="estrategia.perguntas_respostas!=null"> <strong>Perguntas e respostas </strong> <br> <span ng-bind-html="estrategia.perguntas_respostas"></span></p>
+	<div class="modal-estrategia">
+		<div class="modal-header">
+	    <h3 class="modal-title" id="modal-titulo-ficha-estrategia">{{estrategia.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('estrategia')">X</button> </h3> 
 		</div>
-	<div class="modal-footer">	
-		<button class="btn btn-danger" type="button" ng-click="fecharModal('estrategia')">	Fechar</button>
+		<div class="modal-body" id="modal-corpo-ficha-estrategia" style="text-align:justify">
+				<p class="quebra-linha"> <a href="{{estrategia.link_infografico}}" target="_blank"><img class="img-responsive" src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a> </p>
+				<p class="quebra-linha" ng-bind-html="estrategia.descricao"> </p>
+				<p class="quebra-linha" ng-if="estrategia.texto_complementar!=null" ng-bind-html="estrategia.texto_complementar">  </p>
+				<p class="quebra-linha text-center" ng-if="estrategia.link_video_embed!=null">
+				<object style="width:100%;height:100%;width: 820px; height: 461.25px; float: none; clear: both; margin: 2px auto;" data="{{estrategia.link_video_embed}}">
+				</object>
+				</p>
+				
+				<p class="quebra-linha" ng-if="estrategia.perguntas_respostas!=null"> <strong>Perguntas e respostas </strong> <br> <span ng-bind-html="estrategia.perguntas_respostas"></span></p>
+			</div>
+		<div class="modal-footer">	
+			<button class="btn btn-danger" type="button" ng-click="fecharModal('estrategia')">	Fechar</button>
+		</div>
 	</div>
-</div>
-</script>
+</script>	
 
 <script type="text/ng-template" id="indicador.html">
 	<div class="row">
@@ -2144,7 +2094,7 @@ app.controller("dashboard", function($scope,
 							<p>
 								<label for="territorio"> Unidade territorial de análise</label>
 								<br>
-								<select style="max-width:100%;width:100%;" data-ng-model="selecao.idTerrSel" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao()" name="territorio"></select>
+								<select style="max-width:100%;width:100%;" data-ng-model="selecao.idTerrSel" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
 							</p>
 							<p ng-show="selecao.idTerrSel != 4">
 								
@@ -2216,7 +2166,7 @@ app.controller("dashboard", function($scope,
 						<!--<button class="btn btn-default" type="button" ng-click="exportarMapa()">	<small>Exportar Mapa</small></button>-->
 					</div>
 				</div>
-			</div>		
+			</div>
 </script>
 	
 	
@@ -2256,7 +2206,11 @@ app.controller("dashboard", function($scope,
 				
 				<p ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFichaInstrumento(optInstrumento)"><option value="">Todos</option></select>
+					<br />
+					<p ng-show="optInstrumento">
+						{{ descricaoIntrumento }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+					</p>
 				</p>
 				
 				<p ng-show="tabAtivaForma==3">	
@@ -2268,29 +2222,19 @@ app.controller("dashboard", function($scope,
 		
 		<span ng-show="tabAtivaForma==1">
 			<hr>
-
-				<h4 class="titulo-forma-visu">{{estrategia.nome}}</h3>
-
+			<h4 class="titulo-forma-visu">{{estrategia.nome}}</h4>
 			<div class="row" >
 				<div class="col-sm-6 col-xs-12" >  
 				<p >{{estrategia.descricao}} </p>
 				<h4 id="saiba-mais"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')"> Saiba mais sobre essa estratégia </a></h4>
-				</div><!--
-				--><div class="col-sm-6 col-xs-12" > 
-					
+				</div>
+				<div class="col-sm-6 col-xs-12" >
 					<div><a href="" ng-click="abrirModal('estrategia')"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a></div>
-					<!--<div class="row">
-						<a class="col-md-3 link-saiba-mais text-center" href="{{estrategia.link_texto_lei}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/texto-lei.png"> Texto da lei ilustrado </a>
-						<a class="col-md-3 link-saiba-mais text-center" href="{{estrategia.link_perguntas_respostas}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/perguntas-respostas.png"> Perguntas e Respostas </a>
-						<a class="col-md-3 link-saiba-mais text-center" href="{{estrategia.link_infografico}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/infografico.png"> Infográficos </a>
-						<a class="col-md-2 link-saiba-mais text-center" href="{{estrategia.link_video}}" target="_blank"><img class="img-responsive icones-saiba-mais" src="/app/themes/monitoramento_pde/images/icones/video.png"> Vídeo </a>
-					</div>-->
 				</div>
 			</div>
-		</span>
-		
+		</span>		
 		<hr>
-		<h4> <strong>Indicadores </strong></h4>
+		<h4><strong>Indicadores </strong></h4>
 		
 		<uib-accordion close-others="true">
 
@@ -2303,7 +2247,7 @@ app.controller("dashboard", function($scope,
 				</uib-accordion-heading>
 				
 				<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
-				<div style="text-align: right; width: 100%; margin-top: -40px;" data-html2canvas-ignore>
+				<div style="text-align: right; width: 100%; margin-top: -30px;" data-html2canvas-ignore>
 				<button style="border: none;
 					background: url(./app/themes/monitoramento_pde/images/icon-link.jpg);
     				background-repeat: no-repeat;
@@ -2320,38 +2264,8 @@ app.controller("dashboard", function($scope,
 				    width: 30px;
 				    height: 30px;" ng-click="printScreen()" type="button" title="Salvar indicador como imagem">	
 				</button>
-				</div>
-			<!--<div uib-accordion-group class="panel-default"  heading=" {{indicador.nome}} &nbsp; | &nbsp; Instrumento: {{indicador.nome_fonte_dados}}"  ng-repeat="indicador in indicadores">-->
-			
+				</div>			
 			</div>
 		</uib-accordion>
-		
-		
-		
-		<!--<div class="row" style="margin:0;">
-			
-			<hr>
-			<div class="row">
-				<div class="row">
-					<div class="col-sm-11" style="display:inline-block;float:none;">
-						<h4 style="padding-left:15px;"> <strong> Ações Prioritárias </strong> </h4>
-					</div>--><!--
-					--><!--<div class="col-sm-1 text-center" style="display:inline-block;float:none;vertical-align:middle;padding-right:30px;"> 
-						<strong> Situação </strong>
-					</div>
-				</div>
-				<ul class="list-group">
-					<li class="list-group-item row list-pontilhada" data-ng-repeat="acao in acoesPrioritarias | orderBy: 'artigo' | limitTo:5 ">
-						<div class="col-sm-10 acao-prioritaria"> {{acao.nome}} </div>
-						<div class="col-sm-1 acao-prioritaria text-center"> {{acao.artigo}} </div>
-						<div class="col-sm-1 acao-prioritaria text-center"> {{acao.andamento}}</div>
-					</li>
-				</ul>
-			</div>
-			<a class="link-saiba-mais link-saiba-mais-indicador" href="/acoes-prioritarias"><span class="glyphicon glyphicon-plus-sign"></span> Clique aqui para ver todas as ações prioritárias </a>
-			
-		</div>-->
-		
 	</div>
-
 </div>
