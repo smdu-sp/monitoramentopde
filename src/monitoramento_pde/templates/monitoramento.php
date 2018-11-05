@@ -5,6 +5,7 @@
 ?>
 <script src="./wp/wp-includes/js/html2canvas.min.js"></script>
 <script type="text/javascript">
+
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
     return result ? {
@@ -2207,10 +2208,13 @@ app.controller("dashboard", function($scope,
 				<p ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
 					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFichaInstrumento(optInstrumento)"><option value="">Todos</option></select>
-					<br />
-					<p ng-show="optInstrumento">
-						{{ descricaoIntrumento }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
-					</p>
+					<br />					
+					<div ng-show="optInstrumento">
+						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<p>
+							{{ descricaoIntrumento }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+						</p>
+					</div>
 				</p>
 				
 				<p ng-show="tabAtivaForma==3">	
