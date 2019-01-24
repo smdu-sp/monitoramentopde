@@ -90,6 +90,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	 
 	});
 	
+	$scope.pontoParaVirgula = function(v){
+		if(v !==null && !isNaN(parseFloat(v)))
+			v = v.toString().replace('.',',');
+		return v;
+	}
 	
 		function Workbook() {
 			if(!(this instanceof Workbook)) return new Workbook();
@@ -114,6 +119,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			else if(cell.v instanceof Date) {
 				cell.t = 'n'; cell.z = XLSX.SSF._table[14];
 				cell.v = datenum(cell.v);
+				
 			}
 			else cell.t = 's';
 			
@@ -123,9 +129,10 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			
 		function sheet_from_array_of_objects(data, offset) {
 			var ws = {};
+			data.unshift(data[0]); // Duplica primeiro item do array para evitar supressão dos valores
 			var range = {s: {c:10000000, r:10000000}, e: {c:0, r:0 }};
 			
-			for(var R = 0; R <= data.length + 1; ++R) {
+			for(var R = 0; R < data.length; R++) {
 				C = 0;
 				
 				for(var prop in data[R]) {
@@ -135,13 +142,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 						if(range.s.c > C) range.s.c = C;
 						if(range.e.r < R) range.e.r = R;
 						if(range.e.c < C) range.e.c = C;
-						
 						if(typeof data[R][prop] === 'function') continue;
-						
 						if(R == 0)
 							var cell = {v: prop };
 						else
-							var cell = {v: data[R-1][prop] };
+							var cell = {v: data[R][prop] };
 						
 						if(cell.v == null) cell.v = '';
 						var cell_ref = XLSX.utils.encode_cell({c:C,r:R});
@@ -166,9 +171,15 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	
 	$scope.exportarDadoAberto = function(id_fonte, formato){
 		DadoAberto.query({fonte_dados:id_fonte},function(dadoAberto) {
+			// ALTERA PONTO PARA VIRGULA
+			for(dado in dadoAberto){
+				for(valor in dadoAberto[dado]){
+		 			dadoAberto[dado][valor] = $scope.pontoParaVirgula(dadoAberto[dado][valor]);
+		 		}
+		 	}
+		 	// FIM ALTERA PONTO PARA VIRGULA
 			$scope.dadoAberto = dadoAberto;
-		 
-		 fonteDados = $scope.item.dados.filter((fonteDados) => fonteDados.id_fonte_dados == id_fonte)[0];
+		 	fonteDados = $scope.item.dados.filter((fonteDados) => fonteDados.id_fonte_dados == id_fonte)[0];
 			var wb = new Workbook();
 			
 			wsDadoAberto = sheet_from_array_of_objects(dadoAberto,0);

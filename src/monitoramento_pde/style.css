@@ -523,3 +523,7 @@ fieldset.bbp-form:nth-child(2) div:nth-child(3) label:after {
 .header-painel-indicadores-homolog{
 	background-color: #c3c3c3 !important;
 }
+
+ul#menu-secoes li:nth-child(10), ul#menu-secoes li:nth-child(11), ul#menu-secoes li:nth-child(12), ul#menu-secoes li:nth-child(13), ul#menu-secoes li:nth-child(14), ul#menu-secoes li:nth-child(15) {
+    font-weight: bold;
+}

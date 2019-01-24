@@ -587,7 +587,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> {{acao}} Fonte de dados <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('confirmacao')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte-dados">
-			Você irá {{acao.toLowerCase()}} a fonte de dados {{itemAtual.nome}}. <br><br> Confirme sua ação.
+			Você irá {{acao.toLowerCase()}} a fonte de dados <strong>{{itemAtual.nome}}</strong>. <br><br> Confirme sua ação.
 			</div>
 	<div class="modal-footer">	
 		<button class="btn btn-danger" type="button" ng-click="fecharModal()">	Abortar</button>
@@ -603,7 +603,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> {{acaoExecutando}} fonte de dados </h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte-dados">
-			{{acaoExecutando}} a fonte de dados {{itemAtual.nome}}, por favor aguarde a conclusão.
+			{{acaoExecutando}} a fonte de dados <strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
 			</div>
 </div>
 </script>

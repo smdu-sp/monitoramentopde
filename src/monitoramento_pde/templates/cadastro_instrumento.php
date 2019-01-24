@@ -420,7 +420,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
     <h3 class="modal-title" id="modal-titulo-instrumento"> {{acao}} {{tipoExibicao}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('confirmacao')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-instrumento">
-			Você irá {{acao.toLowerCase()}} a {{tipoExibicao}} {{itemAtual.nome}}. <br><br> Confirme sua ação.
+			Você irá {{acao.toLowerCase()}} a {{tipoExibicao}} <strong>{{itemAtual.nome}}</strong>. <br><br> Confirme sua ação.
 			</div>
 	<div class="modal-footer">	
 		<button class="btn btn-danger" type="button" ng-click="fecharModal()">	Abortar</button>
@@ -436,7 +436,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
     <h3 class="modal-title" id="modal-titulo-instrumento"> {{acaoExecutando}} {{tipoExibicao}} </h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-instrumento">
-			{{acaoExecutando}} a {{tipoExibicao}} {{itemAtual.nome}}, por favor aguarde a conclusão.
+			{{acaoExecutando}} a {{tipoExibicao}}<strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
 			</div>
 </div>
 </script>

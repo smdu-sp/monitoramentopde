@@ -3,6 +3,7 @@
  * Template Name: Monitoramento
  */
 ?>
+
 <script src="./wp/wp-includes/js/html2canvas.min.js"></script>
 <script type="text/javascript">
 
@@ -926,6 +927,7 @@ app.controller("dashboard", function($scope,
 								}
 							}
 						}
+						
 					}
 				},
 				legend: {
@@ -1038,7 +1040,7 @@ app.controller("dashboard", function($scope,
 				$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
 				
 				let exportMargingBot = 140+($scope.indicadorValores.series.length*8);
-				if($scope.labelTerrSel == "Prefeitura Regional" || mostrarDistritos)
+				if($scope.labelTerrSel == "Subprefeitura" || mostrarDistritos)
 					exportMargingBot += mostrarDistritos ? 40 : 60;
 
 				let grafBarSub = {
@@ -1921,6 +1923,16 @@ app.controller("dashboard", function($scope,
 		 $scope.menuForma = menu;
 	 });
 	 
+	 // TROCAR PREFEITURA REGIONAL POR SUBPREFEITURA
+	 $scope.subRegional = function(elemento){
+	 	var opts = elemento.target;
+	 	for(var i=0; i < opts.length; i++){
+	 		if(opts[i].label == "Prefeitura Regional")
+	 			opts[i].label = "Subprefeitura";
+	 	}
+	 };
+
+
 	 $scope.atribuirRegiaoSemSelecao = function(){
 		 nomeTerritorio = $scope.labelTerrSel.split(" ");
 		 nomeTerritorio = nomeTerritorio[0];
@@ -2095,7 +2107,7 @@ app.controller("dashboard", function($scope,
 							<p>
 								<label for="territorio"> Unidade territorial de análise</label>
 								<br>
-								<select style="max-width:100%;width:100%;" data-ng-model="selecao.idTerrSel" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
+								<select style="max-width:100%;width:100%;" id="seletor-territorio" data-ng-model="selecao.idTerrSel" data-ng-click="subRegional($event);" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
 							</p>
 							<p ng-show="selecao.idTerrSel != 4">
 								
@@ -2184,8 +2196,8 @@ app.controller("dashboard", function($scope,
 	<div class="container">
 	
 	<p> 
-			<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
-				</div>
+			<!--<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
+				</div>-->
 		 
 	</p>
 		

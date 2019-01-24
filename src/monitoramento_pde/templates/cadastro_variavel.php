@@ -4,6 +4,7 @@
  */
 ?>
 
+
 <script type="text/javascript">
 jQuery.noConflict();
 
@@ -398,7 +399,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
     <h3 class="modal-title" id="modal-titulo-variavel"> {{acao}} variável <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('confirmacao')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-variavel">
-			Você irá {{acao.toLowerCase()}} a variável {{itemAtual.nome}}. <br><br> Confirme sua ação.
+			Você irá {{acao.toLowerCase()}} a variável <strong>{{itemAtual.nome}}</strong>. <br><br> Confirme sua ação.
 			</div>
 	<div class="modal-footer">	
 		<button class="btn btn-danger" type="button" ng-click="fecharModal()">	Abortar</button>
@@ -414,7 +415,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
     <h3 class="modal-title" id="modal-titulo-variavel"> {{acaoExecutando}} variável </h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-variavel">
-			{{acaoExecutando}} a variável {{itemAtual.nome}}, por favor aguarde a conclusão.
+			{{acaoExecutando}} a variável <strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
 			</div>
 </div>
 </script>
