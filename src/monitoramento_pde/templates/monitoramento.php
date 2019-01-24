@@ -436,6 +436,11 @@ app.controller("dashboard", function($scope,
 					// TODO: MODULARIZAR FUNCAO SEGUINTE
 					let serieHistorica = $scope.selecao.categorias.length > 1 ? $filter('filter')(todasRegioes, $scope.selecao.categoria.name) : todasRegioes;
 					serieHistorica = $filter('orderBy')(serieHistorica, 'name');
+					// Issue #29
+					// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
+					for (item in serieHistorica) {
+						serieHistorica[item].marker = { symbol: "circle" }
+					}
 					
 					$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
 
@@ -457,7 +462,7 @@ app.controller("dashboard", function($scope,
 						chart: {
 							type: 'line',
 							marginTop: 25,
-							width:larguraGraficoLinha
+							width:larguraGraficoLinha							
 					        },
 					    colors: app.defaultColors,
 				        xAxis: {
@@ -738,11 +743,18 @@ app.controller("dashboard", function($scope,
 			} else {
 				$scope.carregandoHistorico = null;
 			}
+			// Issue #29
+			// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
+			for (item in indicadorHistorico.series) {
+				indicadorHistorico.series[item].marker = { symbol: "circle" }
+			}
 			
 			larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
 			let ultimoItemVarFiltro = "";
 			
 			subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
+			// console.log("indicadorHistorico.series: ");
+			// console.log(indicadorHistorico.series);
 			$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 				chart: {
 					type: 'line',
