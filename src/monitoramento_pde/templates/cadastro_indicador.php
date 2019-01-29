@@ -117,8 +117,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	}
 	
 	$scope.filtrarInstrumento = function(){
-		if($scope.idInstrumentoAtivo != null){			
-			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento == $scope.idInstrumentoAtivo);			
+		if($scope.idInstrumentoAtivo !== null){
+			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento === $scope.idInstrumentoAtivo);
 		}
 		else
 			$rootScope.indicadores = $rootScope.listaIndicadores;
@@ -188,14 +188,26 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.estado = "inserir";
 	};
 
+// ISSUE #27 - Ao atualizar um indicador, ou variável ou fonte de dados, é necessário dar F5
+	// $scope.delayedRefresh = function(){
+	// 	window.setTimeout(function(){
+	// 		$scope.filtrarInstrumento();
+	// 	}, 1500);
+	// }
+	$scope.delayedRefresh = function() {
+		window.setTimeout(function(){
+			document.getElementById('delayedRefreshBt').click();
+		}, 3000);
+	}
+
 	$scope.atualizar = function(){
 		IndicadorComposicao.update({composicao:$scope.indicadorComposicao,id_indicador:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
 				Indicador.update({indicador:$scope.indicadorAtivo}).$promise.then(
 					function(mensagem){
 						Indicador.query(function(indicadores) {
-							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
+							$rootScope.listaIndicadores = indicadores;
+							$scope.delayedRefresh();
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
 						});
@@ -237,7 +249,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 
 						Indicador.query(function(indicadores) {
 							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
+							$rootScope.filtrarInstrumento();
 							
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
@@ -530,13 +542,14 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	
 	
 	$scope.filtrarFonte = function(composicao){
+		// console.log(composicao.id_fonte_dados);
 		if(composicao.id_fonte_dados != null)
-			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados == composicao.id_fonte_dados);
+			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados === composicao.id_fonte_dados);
 		else
 			composicao.variaveis = $scope.variaveis;
 	}
 	$scope.atualizaFiltroPorFonte = function(composicao){
-		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel == composicao.id_variavel)[0].id_fonte_dados;
+		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel === composicao.id_variavel)[0].id_fonte_dados;
 	}
 });
 
@@ -610,7 +623,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 <form style="margin-bottom:2em;">
 
 			<button class="btn-primary" type="button" ng-click="exportarIndicadores()"> Exportar relação de indicadores </button>
-			
+			<button id="delayedRefreshBt" class="btn-primary" data-ng-click="filtrarInstrumento()">Atualizar filtro</button>
 			<input type="button" data-ng-show="estado!='inserir' && estado!='listar'" value="Novo indicador" class="btn-primary" style="float:left;margin-right:1em;"	data-ng-click="limparForm()"> 
 			
 			<span data-ng-show="estado!='inserir'">

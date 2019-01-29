@@ -352,7 +352,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 							$scope.lancarErro(erro);					
 						}
 					).catch(function(err){
-						console.log("HEL");
+						console.log("erro: ");
 						console.error(err);
 					});
 			}

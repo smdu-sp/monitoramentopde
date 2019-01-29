@@ -62,10 +62,16 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		}
 
 	};
+
+	$scope.delayedRefresh = function() {
+		window.setTimeout(function(){
+			document.getElementById('delayedRefreshBt').click();
+		}, 3000);
+	}
 	
 	$scope.filtrarFonte = function(){
 		if($scope.idFonteAtivo != null)
-			$rootScope.variaveis = $rootScope.listaVariaveis.filter((variavel) => variavel.id_fonte_dados == $scope.idFonteAtivo);
+			$rootScope.variaveis = $rootScope.listaVariaveis.filter((variavel) => variavel.id_fonte_dados === $scope.idFonteAtivo);
 		else
 			$rootScope.variaveis = $rootScope.listaVariaveis;
 	}
@@ -124,7 +130,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 
 						Variavel.query(function(variaveis) {
 							$rootScope.variaveis = variaveis;
-							$scope.filtrarFonte();
+							$scope.delayedRefresh();
 													
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
@@ -432,7 +438,6 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 </div>
 </script>
 
-
 <?php the_content(); ?>
 <?php 
 			$autorizado = false;
@@ -453,6 +458,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 				<div class="elemento-cadastro">
 				
 				<button class="btn-primary" type="button" ng-click="exportarVariaveis()"> Exportar relação de variáveis </button>
+				<button id="delayedRefreshBt" class="btn-primary" data-ng-click="filtrarFonte()">Atualizar filtro</button>
 				<br>
 				
 				<label for="fonte_filtro"> Filtrar por fonte de dados </label>
