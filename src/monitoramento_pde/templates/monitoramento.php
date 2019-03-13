@@ -115,12 +115,12 @@ app.config(function($routeProvider) {
   .when("/estrategias/:idEstrategia", {
 		controller:"dashboard",
 	 resolve: {
-				init: function() {
-					return function() {
-						$scope.cargaCadastroIndicadores($route.current.params['idEstrategia']);
-					}
-				}
+		init: function() {
+			return function() {
+				$scope.cargaCadastroIndicadores($route.current.params['idEstrategia']);
 			}
+		}
+	}
   })
 });
 
