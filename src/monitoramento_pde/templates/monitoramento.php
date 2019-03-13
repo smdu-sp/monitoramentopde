@@ -753,8 +753,6 @@ app.controller("dashboard", function($scope,
 			let ultimoItemVarFiltro = "";
 			
 			subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
-			// console.log("indicadorHistorico.series: ");
-			// console.log(indicadorHistorico.series);
 			$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 				chart: {
 					type: 'line',
@@ -1043,7 +1041,7 @@ app.controller("dashboard", function($scope,
 			VariavelHistorico.query({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel},function(variavelHistorico){
 				$scope.variavelHistorico = variavelHistorico;
 				
-				if($scope.indicadorValores.series.length == 1){
+				if(!angular.isUndefined($scope.indicadorValores.series) && $scope.indicadorValores.series.length == 1){
 					$scope.indicadorValores.series[0].showInLegend = false;
 				}
 			
@@ -1765,8 +1763,7 @@ app.controller("dashboard", function($scope,
 			let tipoValor = $scope.variavelHistorico[0].tipo_valor.charAt(0).toUpperCase() + $scope.variavelHistorico[0].tipo_valor.slice(1);
 			// GRAVA UNIDADE DE MEDIDA DO INDICADOR PARA EXIBIR NA FICHA TECNICA
 			let unidadeMedida = $scope.memoriaIndicador.dados[0]["Unidade de medida"]+" ("+$scope.memoriaIndicador.dados[0]["Símbolo de medida"]+")";
-			console.log(unidadeMedida);
-
+			
 			$scope.memoriaIndicador.dados.forEach(function(dado){
 				// FORMATA ORDEM E NOMENCLATURA DOS CABECALHOS NA TABELA EXPORTADA
 				dado["Data (ano-mês-dia)"] = dado.Data;
@@ -1788,8 +1785,7 @@ app.controller("dashboard", function($scope,
 					dado[valor] = $scope.pontoParaVirgula(dado[valor]);
 				}
 			});
-			console.log(unidadeMedida);
-
+			
 			var wb = new Workbook();
 			var wsMemoria = sheet_from_array_of_arrays($scope.memoriaIndicador.dados,$scope.memoriaIndicador.qtd_variavel);
 			wsMemoria['!cols'] = [
