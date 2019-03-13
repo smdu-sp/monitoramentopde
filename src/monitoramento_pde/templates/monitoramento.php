@@ -115,12 +115,12 @@ app.config(function($routeProvider) {
   .when("/estrategias/:idEstrategia", {
 		controller:"dashboard",
 	 resolve: {
-		init: function() {
-			return function() {
-				$scope.cargaCadastroIndicadores($route.current.params['idEstrategia']);
+				init: function() {
+					return function() {
+						$scope.cargaCadastroIndicadores($route.current.params['idEstrategia']);
+					}
+				}
 			}
-		}
-	}
   })
 });
 
@@ -713,7 +713,7 @@ app.controller("dashboard", function($scope,
 				this['original'].push(valor);
 				trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 				trimestre = new Date(valor).getMonth()
-				// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				
 				dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 			}
 		},dataHistorica);
