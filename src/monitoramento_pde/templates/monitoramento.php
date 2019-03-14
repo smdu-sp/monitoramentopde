@@ -1003,7 +1003,7 @@ app.controller("dashboard", function($scope,
 		$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
 		
 		$scope.hoverMapa = false;
-		$scope.clickMapa = false;
+		//$scope.clickMapa = false;
 		$scope.carregarGraficoLinhas = false;
 		IndicadorValores.get({id:$scope.selecao.idIndicSel,data:$scope.selecao.dataSel,territorio:$scope.selecao.idTerrSel},function(indicadorValores){
 
