@@ -656,7 +656,7 @@ app.controller("dashboard", function($scope,
 										click: function(e){
 											if($scope.selecao.idTerrSel != 4){
 												$scope.selecao.dataSel = dataHistorica['original'][this.index];
-												$scope.clickMapa = false;
+												// $scope.clickMapa = false;
 												$scope.idPoligonoAnterior = 0;
 												$scope.cargaIndicadorValores(false,true);
 											}
@@ -1349,7 +1349,7 @@ app.controller("dashboard", function($scope,
 					idPoligonoClick = poligonoRealcado.get('ID_REGIAO');
 				
 					if($scope.regiaoRealcada.codigo == idPoligonoClick && $scope.clickMapa == true){
-						$scope.clickMapa = false;
+						// $scope.clickMapa = false;
 					}else{
 						
 						$scope.fixarMapa(idPoligonoClick);
