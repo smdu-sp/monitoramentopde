@@ -196,11 +196,12 @@ app.controller("dashboard", function($scope,
 		$scope.instrumentos = instrumentos;
 	});
 	GrupoIndicador.query({tipo:'objetivo',tipo_retorno:'object',formato_retorno:'array'},function(objetivos){
-		$scope.objetivos = objetivos;
+		$scope.rawObjetivos = objetivos;
+		// $scope.objetivos = objetivos;
 	});	
 
 	$scope.idPoligonoAnterior = 0;
-	
+
 	$scope.inicializarSelecao = function(){
 		$scope.selecao.idTerrSel = 4;
 		$scope.idIndicadorAnterior = 0;
@@ -713,7 +714,7 @@ app.controller("dashboard", function($scope,
 				this['original'].push(valor);
 				trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 				trimestre = new Date(valor).getMonth()
-				// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				
 				dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 			}
 		},dataHistorica);
@@ -1003,7 +1004,7 @@ app.controller("dashboard", function($scope,
 		$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
 		
 		$scope.hoverMapa = false;
-		$scope.clickMapa = false;
+		//$scope.clickMapa = false;		
 		$scope.carregarGraficoLinhas = false;
 		IndicadorValores.get({id:$scope.selecao.idIndicSel,data:$scope.selecao.dataSel,territorio:$scope.selecao.idTerrSel},function(indicadorValores){
 
@@ -1042,7 +1043,7 @@ app.controller("dashboard", function($scope,
 				$scope.variavelHistorico = variavelHistorico;
 				
 				if(!angular.isUndefined($scope.indicadorValores.series) && $scope.indicadorValores.series.length == 1){
-					$scope.indicadorValores.series[0].showInLegend = false;
+					$scope.indicadorValores.series[0].showInLegend = true;
 				}
 			
 				mostrarDistritos = $scope.labelTerrSel == 'Distrito';
@@ -1907,6 +1908,64 @@ app.controller("dashboard", function($scope,
 	 });
 	}
 	
+	// Filtros para a visualização de objetivos
+	$scope.filtraObjetivos = function(filtro){
+		if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
+			$scope.objetivos = $scope.rawObjetivos;
+			$scope.cargaCadastroIndicadores(null);
+			return;
+		}
+		else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
+			$scope.objetivos = [];
+			var idPDE = $scope.rawObjetivos.filter(function(obj){return obj.nome === "Plano Diretor Estratégico"})[0].id_grupo_indicador;
+			$scope.cargaCadastroIndicadores(idPDE);
+			return;
+		}
+		let checkObjetivos = function(ob){			
+			for (i in filtro.objetivos) {
+				if (ob.nome === filtro.objetivos[i])
+					return true;
+			}
+			return false;
+		}
+		let objetivosFiltrados = $scope.rawObjetivos.filter(checkObjetivos);
+		$scope.objetivos = objetivosFiltrados;
+	}
+
+	$scope.filtrosObjetivos = {
+		plano_diretor: {
+			id: 1,
+			nome: "Plano Diretor Estratégico",
+			objetivos: []
+		},
+		macroareas: {
+			id: 2,
+			nome: "Macroáreas",
+			objetivos: [
+				"Macroárea de Estruturação Urbana",
+				"Macroárea de Urbanização Consolidada",
+				"Macroárea de Qualificação da Urbanização",
+				"Macroárea de Redução da Vulnerabilidade Urbana",
+				"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
+				"Macroárea de Controle e Qualificação Urbana e Ambiental",
+				"Macroárea de Contenção Urbana e Uso Sustentável",
+				"Macroárea de Preservação dos Ecossistemas Naturais"
+			]
+		},
+		zonas_especiais: {
+			id: 3,
+			nome: "Zonas Especiais",
+			objetivos: [
+				"Zonas Especiais de Interesse Social (ZEIS)",
+				"Zonas Especiais de Preservação (ZEP)",
+				"Zonas Especiais de Preservação Cultural (ZEPEC)",
+				"Zonas Especiais de Proteção Ambiental (ZEPAM)"
+			]
+		}
+		// "Macroáreas": ["A","B"],
+		// "Zonas Especiais": ["C","D"]
+	};
+	
 	$scope.ajustarDataFinal = function(){
 		if($scope.selecao.dataMin >= $scope.selecao.dataMax){
 			$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
@@ -2190,8 +2249,6 @@ app.controller("dashboard", function($scope,
 			</div>
 </script>
 	
-	
-	
 	<div uib-carousel active="0" interval="0" no-wrap="false">
 		<div uib-slide data-ng-repeat="noticia in noticias track by $index" index="$index" class="slide-carrosel container-fluid">
 			<div class="carousel-caption">
@@ -2202,7 +2259,7 @@ app.controller("dashboard", function($scope,
 	</div>
 	
 	<div class="container">
-	
+
 	<p> 
 			<!--<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
 				</div>-->
@@ -2239,7 +2296,8 @@ app.controller("dashboard", function($scope,
 				
 				<p ng-show="tabAtivaForma==3">	
 					Os objetivos mostram os objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos objetivos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optObjetivo)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optObjetivo)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">Escolha um objetivo...</option></select>
 				</p>
 			</uib-tab>
 		</uib-tabset>
