@@ -100,7 +100,7 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'deletar_indicador_fusao'
 	) );
 } );
- 
+
  add_action( 'rest_api_init', function () {
 	global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/indicador/historico/(?P<indicador>\d+)', array(
@@ -761,7 +761,8 @@ function atualizar_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['id_objetivo']) ){
+		// if(!is_null($indicador['id_objetivo']) ){
+		if(array_key_exists('id_objetivo', $indicador)){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -797,7 +798,7 @@ function atualizar_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
+		if(!is_null($indicador['estrategias']) && array_key_exists(1, $indicador['estrategias']) && !is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -1261,7 +1262,7 @@ function atualizar_variavel(WP_REST_Request $request){
 	}
 	else
 	{
-		
+		$resp_indicador = "Erro: não foi possível obter dados do indicador.";
 		$comando_string = "select distinct id_indicador From sistema.indicador_x_variavel where id_variavel = :id_variavel";
 		$comando = $pdo->prepare($comando_string);
 		
@@ -1276,6 +1277,7 @@ function atualizar_variavel(WP_REST_Request $request){
 			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 			
 			foreach($dados as $indicador){
+				$resp_indicador = $indicador;
 				$id_indicador = $indicador['id_indicador'];
 				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
 				
@@ -1292,7 +1294,7 @@ function atualizar_variavel(WP_REST_Request $request){
 			}
 			
 		}
-		$response = new WP_REST_Response( $indicador );
+		$response = new WP_REST_Response( $resp_indicador );
 	}
 	
 	return $response;
@@ -1396,7 +1398,8 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 		}
 		else
 		{
-			
+			if(!isset($colunas_exclusao))
+				$colunas_exclusao = [];
 			foreach($colunas_exclusao as $chave => $valor){
 				
 				if($valor != null){
@@ -1434,14 +1437,12 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	}
 	
-	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
-	
 	$comando_string = 
 	"select * 
 	from sistema.fonte_dados 
 	where id_fonte_dados = :id_fonte_dados";
 	
-	 $comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comando_string);
 
 	if(array_key_exists('id_fonte_dados',$parametros))
 		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
@@ -1484,12 +1485,19 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		$output = 0;
 		$response = 0;
 		
-		//putenv('KETTLE_HOME=/var/www/pentaho/Pentaho/Configuracao');
-		//$varia_amb = getenv('KETTLE_HOME');
+		putenv('KETTLE_HOME=/var/www/pentaho/Pentaho/Configuracao');
+		$varia_amb = getenv('KETTLE_HOME');
 		
 		$linha_comando = '/var/www/pentaho/Pentaho/data-integration/kitchen.sh -rep=MonitoramentoPDE -job=Carga -dir=/ -param:ID_FONTE_DADOS='.$id_fonte_dados.' -param:"FORMATO_ARQUIVO='.$nome_arquivo.'"  -param:"DIRETORIO_FONTE='.$diretorio.'" -param:TIPO_ARQUIVO=2';
 		
 		exec($linha_comando,$output,$response);
+		// var_dump($linha_comando);
+		// echo "------------------------ <br /> Output:";
+		// echo "<pre>";
+		// print_r($output);
+		// echo "</pre>";
+		// echo "**************************** <br /> Response: <br />";
+		// var_dump($response);
 		
 		$comando_string = 
 		"select distinct id_indicador 
@@ -1510,7 +1518,6 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		else
 		{
 			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
-			
 			foreach($dados as $indicador){
 				$id_indicador = $indicador['id_indicador'];
 				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
@@ -1535,12 +1542,14 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	$headers .= "MIME-Version: 1.0" . "\r\n";
 	$headers .= "Content-type:text/html;charset=UTF-8";
 	
+	/** NOTIFICAÇÃO DE ATUALIZAÇÃO DESATIVADA DURANTE TESTES **/
+	/**
 	$administradores = get_users('role=administrator');
 	foreach($administradores as $usuario){
 		$msg = 'A fonte de dados '.$nome_fonte.' foi atualizada por um mantenedor. <br><br> É necessário realizar a validação e carga do arquivo.';
 		mail($usuario->data->user_email,"Monitoramento PDE - Aviso de carga de fonte de dados",$msg,$headers);
 	}
-	
+	*/
 	$comando_string = 
 	"update	sistema.fonte_dados
 	set nome_arquivo = '".$nome_arquivo."'
@@ -1704,9 +1713,6 @@ function carregar_arquivo_metadados(WP_REST_Request $request){
 	}
 	
 	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
-	
-	//var_dump(array_reverse($output));
-	//var_dump($response);
 	
 	return $response;
 }

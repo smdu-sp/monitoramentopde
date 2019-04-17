@@ -4,7 +4,8 @@
  */
 ?>
 
-<script src="./wp/wp-includes/js/html2canvas.min.js"></script>
+<!-- <script src="./wp/wp-includes/js/html2canvas.min.js"></script> -->
+<script src="app/themes/monitoramento_pde/js/html2canvas.min.js"></script>
 <script type="text/javascript">
 
 function hexToRgb(hex) {
@@ -176,6 +177,8 @@ app.controller("dashboard", function($scope,
 				window.setTimeout(function(){
 					$scope.indicadores = indicador;
 					$scope.indicador = indicador[0];
+					console.log("Indicador:");
+					console.log($scope.indicador);
 					$scope.indicador.aberto = true;
 					$scope.atualizarAccordion(indicador[0]);
 					document.getElementsByClassName("panel-group")[0].scrollIntoView();
@@ -269,7 +272,7 @@ app.controller("dashboard", function($scope,
 			indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
 		}
 
-		if(indiceClasseRegiao > $scope.qtdClasses){
+		if(!angular.isUndefined(indiceClasseRegiao) && indiceClasseRegiao > $scope.qtdClasses){
 			indiceClasseRegiao = $scope.qtdClasses;
 		}
 		
@@ -781,7 +784,7 @@ app.controller("dashboard", function($scope,
 								(variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true)&& 
 								(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
 								);
-						}else{
+						}else if (!angular.isUndefined($scope.variavelHistorico)){
 							varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
 						}
 						varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(

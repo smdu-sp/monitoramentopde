@@ -86,9 +86,15 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		{id:25,nome:'Operação Urbana Consorciada [OUC]'},
 		{id:21,nome:'ZEPEC'},
 		{id:20,nome:'Tombamento'}
-	 ];
-	 
+	 ];	 
 	});
+
+ 	// ISSUE 53
+	$scope.formataData = function(rawDate) {
+		let dataFinal = $filter('date')(rawDate, 'MMMM yyyy');
+		dataFinal = dataFinal.charAt(0).toUpperCase() + dataFinal.slice(1); // Torna primeira letra maiúscula
+		return "Atualizado em: "+dataFinal;
+	}
 	
 	$scope.pontoParaVirgula = function(v){
 		if(v !==null && !isNaN(parseFloat(v)))
@@ -223,7 +229,12 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			<ul class="list-group">
 			
 			<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
-				<div class="col-sm-8"> {{!dado.nome? dado : dado.nome}} </div>
+				<div class="col-sm-8">
+					<span>{{!dado.nome? dado : dado.nome}}</span>
+					<!-- ISSUE 52 -->
+					<br>
+					<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					
+				</div>
 				<div class="col-sm-4 text-right"> <a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
 					<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
 					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | Mapas</strong></a> 

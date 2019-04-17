@@ -1,2 +1,7 @@
 src/pentaho/
 varlib/
+*.xlsx
+*.xls
+src/UTAs/
+*.bkp*
+*.localbkp*
