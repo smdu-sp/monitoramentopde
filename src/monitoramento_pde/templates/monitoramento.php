@@ -670,6 +670,8 @@ app.controller("dashboard", function($scope,
 						},
 						legend: {
 							align: 'left',
+							// ISSUE #43
+							enabled: indicadorHistorico.series.length > 1,
 							layout: 'horizontal',
 							itemStyle:{
 								fontWeight:'normal'
@@ -737,7 +739,6 @@ app.controller("dashboard", function($scope,
 			dataMinima:$scope.selecao.dataMin,
 			dataMaxima:$scope.selecao.dataMax
 		},function(indicadorHistorico){
-
 			indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name');
 			
 			$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
@@ -946,6 +947,8 @@ app.controller("dashboard", function($scope,
 				},
 				legend: {
 					align: 'left',
+					// ISSUE #43
+					enabled: indicadorHistorico.series.length > 1,
 					layout: 'horizontal',
 					itemStyle:{
 						fontWeight:'normal'
