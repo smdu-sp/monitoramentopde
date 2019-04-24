@@ -230,7 +230,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			
 			<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
 				<div class="col-sm-8">
-					<span>{{!dado.nome? dado : dado.nome}}</span>
+					<span><b>{{!dado.nome? dado : dado.nome}}</b></span>
 					<!-- ISSUE 52 -->
 					<br>
 					<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					

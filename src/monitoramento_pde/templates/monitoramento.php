@@ -187,6 +187,20 @@ app.controller("dashboard", function($scope,
 		}
 	}
 
+	// ISSUE #41
+	$scope.textoSelectObjetivo = function(idObjetivo) {
+		switch (idObjetivo) {
+			case 2:
+				return "Escolha uma macroárea...";
+				break;
+			case 3:
+				return "Escolha uma zona especial...";
+			default:
+				return "Escolha..."
+				break;
+		}
+	}
+
 	angular.element(document).ready(function(){
 		$scope.optInstrumento = "";
 		$scope.urlIndicador();
@@ -1227,12 +1241,13 @@ app.controller("dashboard", function($scope,
 							}
 						},
 						legend: {
-							align: 'left',
+							align: 'left',							
+							enabled: !($scope.indicadorValores.series.length === 1 && $scope.indicadorValores.series[0].name === "Não categorizado"), // Issue $43
 							layout: 'horizontal',
 							itemStyle:{
 								fontWeight:'normal'
 							}
-							//verticalAlign: 'bottom',
+							//verticalAlign: 'bottom',							
 						},
 						style:{ fontFamily: 'museo_slab500' },
 						credits:false,
@@ -2303,7 +2318,7 @@ app.controller("dashboard", function($scope,
 				<p ng-show="tabAtivaForma==3">	
 					Os objetivos mostram os objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos objetivos:<br><br>
 					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optObjetivo)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">Escolha um objetivo...</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
 				</p>
 			</uib-tab>
 		</uib-tabset>

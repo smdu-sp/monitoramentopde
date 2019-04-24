@@ -203,7 +203,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.atualizar = function(){
 		IndicadorComposicao.update({composicao:$scope.indicadorComposicao,id_indicador:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.update({indicador:$scope.indicadorAtivo}).$promise.then(
+				Indicador.update({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						Indicador.query(function(indicadores) {
 							$rootScope.listaIndicadores = indicadores;
@@ -244,7 +244,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.remover = function(){
 		IndicadorComposicao.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
+				Indicador.remove({id:$scope.indicadorAtivo.id_indicador,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Indicador.query(function(indicadores) {
@@ -334,8 +334,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				scope:$scope,
 				size: 'md',
 		});
-		
-		
+				
 		if($scope.acao == 'Atualizar'){
 			$scope.acaoExecutando = 'Atualizando';
 			$scope.acaoSucesso = 'Atualizado';
@@ -910,7 +909,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			<input type="button" class="btn-primary" data-ng-show="estado=='inserir'" value="Voltar" data-ng-click="voltar()"> 
 			
 </form>
-
 
 <?php }else{ ?>
 			<h4> Você não possui autorização para visualizar esse conteúdo.</h4>

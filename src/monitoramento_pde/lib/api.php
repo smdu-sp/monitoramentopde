@@ -434,7 +434,36 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
- 
+// init provocando loop infinito e causando falha no funcionamento do php-fpm
+// add_action('init', 'alterLog');
+
+// ISSUE #42
+function alterLog($acao, $tipoElemento, $idElemento, $usuarioRequest = NULL) {
+	$usuario = new stdClass();
+	if(isset($usuarioRequest)) {
+		$usuarioRequest = json_decode($usuarioRequest);
+		foreach ($usuarioRequest as $key => $value) {
+		    $usuario->$key = $value;
+		}
+	}
+	else {
+		$usuario = wp_get_current_user();
+	}
+	
+	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
+    $json_file = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/indicador?indicador=".$idElemento);
+	$json_str = json_decode($json_file, true);
+	$nomeElemento = $json_str[0]['nome'];
+	
+	$link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+	if($link === false){
+	    die("ERRO: Não foi possível conectar. " . mysqli_connect_error());
+	}
+
+	$logmsg = "Usuário ".$usuario->data->user_login." (".$usuario->ID.") ".$acao." ".$tipoElemento." ".$nomeElemento.".";
+	$sqlLog = "INSERT INTO wp_simple_history (`date`, `logger`, `level`, `message`) VALUES ('".date("Y-m-d H:i:s")."', 'SimpleLogger', 'info', '".$logmsg."');";
+	$retornoLog = $link->query($sqlLog);	
+}
  
 function deletar_variavel(WP_REST_Request $request){
 	$parametros = $request->get_params();
@@ -606,7 +635,9 @@ function deletar_indicador_fusao(WP_REST_Request $request){
 } 
  
 function deletar_indicador(WP_REST_Request $request){
-	$parametros = $request->get_params();
+	$parametros = $request->get_params();	
+	alterLog('deletou', 'indicador', $parametros['id'], $parametros['usuario']);
+	
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -629,12 +660,13 @@ function deletar_indicador(WP_REST_Request $request){
 	{
 		$response = new WP_REST_Response( true );
 	}
-	
+		
 	return $response;
 }
  
 function atualizar_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	alterLog('atualizou', 'indicador', $parametros['indicador']['id_indicador']);
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -762,7 +794,7 @@ function atualizar_indicador(WP_REST_Request $request){
 		}
 		
 		// if(!is_null($indicador['id_objetivo']) ){
-		if(array_key_exists('id_objetivo', $indicador)){
+		if(array_key_exists('id_objetivo', $indicador)){ // TODO: VOLTAR AQUI
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -971,7 +1003,10 @@ function atualizar_indicador_composicao(WP_REST_Request $request){
 		die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	}
 	
-	$composicao = $parametros['composicao'];
+	// Corrige erro 'undefined index: composicao'
+	$composicao = [];
+	if (isset($parametros['composicao']))
+		$composicao = $parametros['composicao'];
 	
 	$response = new WP_REST_Response( true );
 	
