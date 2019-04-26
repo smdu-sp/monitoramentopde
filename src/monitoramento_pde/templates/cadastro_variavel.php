@@ -125,7 +125,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		
 		VariavelFiltro.update({filtro:$scope.variavelFiltro,id_variavel:$scope.itemAtual.id_variavel}).$promise.then(
 			function(mensagem){
-				Variavel.update({variavel:$rootScope.itemAtual}).$promise.then(
+				Variavel.update({variavel:$rootScope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Variavel.query(function(variaveis) {
@@ -158,7 +158,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		$rootScope.itemAtual = $scope.itemAtual;
 		VariavelFiltro.remove({id:$scope.itemAtual.id_variavel}).$promise.then(
 			function(mensagem){
-				Variavel.remove({id:$rootScope.itemAtual.id_variavel}).$promise.then(
+				Variavel.remove({id:$rootScope.itemAtual.id_variavel,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Variavel.query(function(variaveis) {
@@ -188,7 +188,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 
 	$scope.inserir = function(){
 		$rootScope.variavelFiltro = $scope.variavelFiltro;
-		Variavel.save({variavel:$scope.itemAtual}).$promise.then(
+		Variavel.save({variavel:$scope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				VariavelFiltro.save({filtro:$rootScope.variavelFiltro,id_variavel:mensagem.id_variavel}).$promise.then(
 						function(mensagem){

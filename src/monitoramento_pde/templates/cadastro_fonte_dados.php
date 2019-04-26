@@ -217,11 +217,10 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	};
 	
 	$scope.atualizar = function(){
-		console.log('scope.atualizar');
 		$rootScope.itemAtual = $scope.itemAtual;
 		FonteDadosColuna.update({colunas:$scope.colunas,id_fonte_dados:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
-				FonteDados.update({fonte_dados:$rootScope.itemAtual}).$promise.then(
+				FonteDados.update({fonte_dados:$rootScope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						FonteDados.query(function(fontesDados) {
 							$rootScope.fontesDados = fontesDados;
@@ -256,7 +255,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		console.log('scope.remover');
 		FonteDadosColuna.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
-				FonteDados.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
+				FonteDados.remove({id:$scope.itemAtual.id_fonte_dados,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						FonteDados.query(function(fontesDados) {
 							$rootScope.fontesDados = fontesDados;
@@ -362,7 +361,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	}
 	
 	$scope.inserir = function(){
-		FonteDados.save({fonte_dados:$scope.itemAtual}).$promise.then(
+		FonteDados.save({fonte_dados:$scope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				FonteDados.query(function(fontesDados) {
 					$rootScope.fontesDados = fontesDados;

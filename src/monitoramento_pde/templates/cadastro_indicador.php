@@ -274,7 +274,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 
 	$scope.inserir = function(){
 		$rootScope.indicadorComposicao = $scope.indicadorComposicao;
-		Indicador.save({indicador:$scope.indicadorAtivo}).$promise.then(
+		Indicador.save({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				IndicadorComposicao.save({composicao:$rootScope.indicadorComposicao,id_indicador:mensagem.id_indicador}).$promise.then(
 						function(mensagem){

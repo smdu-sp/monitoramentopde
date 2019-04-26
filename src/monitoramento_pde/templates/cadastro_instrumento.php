@@ -105,7 +105,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	}
 	
 	$scope.atualizar = function(){
-		GrupoIndicador.update({grupo:$scope.itemAtual,id_grupo_indicador:$scope.itemAtual.id_grupo_indicador,tipo:$scope.tipo,indicadores:$scope.indicadores}).$promise.then(
+		GrupoIndicador.update({grupo:$scope.itemAtual,id_grupo_indicador:$scope.itemAtual.id_grupo_indicador,tipo:$scope.tipo,indicadores:$scope.indicadores,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				
 				GrupoIndicador.query({tipo:$scope.tipo,tipo_retorno:'array',formato_retorno:'array'},function(grupos) {
@@ -124,7 +124,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	};		
 	
 	$scope.remover = function(){
-		GrupoIndicador.remove({id:$scope.itemAtual.id_grupo_indicador}).$promise.then(
+		GrupoIndicador.remove({id:$scope.itemAtual.id_grupo_indicador,grupo:$scope.itemAtual,tipo:$scope.tipo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				
 				GrupoIndicador.query({tipo:$scope.tipo,tipo_retorno:'array',formato_retorno:'array'},function(grupos) {
@@ -145,7 +145,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	};	
 
 	$scope.inserir = function(){
-		GrupoIndicador.save({grupo:$scope.itemAtual,tipo:$scope.tipo}).$promise.then(
+		GrupoIndicador.save({grupo:$scope.itemAtual,tipo:$scope.tipo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				GrupoIndicador.query({tipo:$scope.tipo,tipo_retorno:'array',formato_retorno:'array'},function(grupos) {
 					$rootScope.grupos = grupos;
