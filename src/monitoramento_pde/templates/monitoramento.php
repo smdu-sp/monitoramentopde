@@ -191,10 +191,10 @@ app.controller("dashboard", function($scope,
 	$scope.textoSelectObjetivo = function(idObjetivo) {
 		switch (idObjetivo) {
 			case 2:
-				return "Escolha uma macroárea...";
+				return "Escolha uma Macroárea...";
 				break;
 			case 3:
-				return "Escolha uma zona especial...";
+				return "Escolha uma Zona Especial...";
 			default:
 				return "Escolha..."
 				break;
@@ -2316,7 +2316,7 @@ app.controller("dashboard", function($scope,
 				</p>
 				
 				<p ng-show="tabAtivaForma==3">	
-					Os objetivos mostram os objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos objetivos:<br><br>
+					Para garantir um desenvolvimento urbano sustentável e equilibrado, o Plano Diretor definiu em sua estratégia de ordenamento territorial um conjunto de objetivos a serem atingidos.<br><br>Veja abaixo os avanços realizados em relação aos objetivos do Plano Diretor Estratégico, das Macroáreas e das Zonas Especiais:<br><br>
 					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
 					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
 				</p>

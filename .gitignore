@@ -5,3 +5,4 @@ varlib/
 src/UTAs/
 *.bkp*
 *.localbkp*
+src/monitoramento_pde_servidor/
