@@ -62,6 +62,10 @@ app.factory('Objetivos',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/grupo_indicador');
 });
 
+app.factory('ObjetivoIndicador',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/objetivo_indicador');
+});
+
 app.factory('Territorios',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/territorios');
 });
@@ -71,7 +75,7 @@ app.factory('FontesDados',function($resource){
 });
 
 
-app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, FontesDados) {
+app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, ObjetivoIndicador, FontesDados) {
  
  	Indicador.query(function(indicadores) {
 		$rootScope.listaIndicadores = indicadores;
@@ -129,25 +133,32 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			$scope.indicadorComposicao.id_fonte_dados = null;
 		$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
 		if($scope.indicadorAtivo){
-			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);
-		}
-		
-		if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
-			$scope.indicadorAtivo.territorio_exclusao = [];
-		}else{
-			if(!$scope.indicadorAtivo.territorio_exclusao[0].id){
+			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);		
+			if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
 				$scope.indicadorAtivo.territorio_exclusao = [];
+			}else{
+				if(!$scope.indicadorAtivo.territorio_exclusao[0].id)
+					$scope.indicadorAtivo.territorio_exclusao = [];
 			}
 		}
-		
+
 		if($scope.indicadorAtivo != null){
 			IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
 				$scope.indicadorComposicao = indicadorComposicao;
 				angular.forEach($scope.indicadorComposicao,function(comp,chave){
-					comp.variaveis = $scope.variaveis;					
+					comp.variaveis = $scope.variaveis;
 				});
 				$scope.estado = "selecionar";
 			});
+			// Puxa Objetivos referentes ao indicador
+			// Indicador.query({grupo_indicador:$scope.indicadorAtivo.id_indicador,somente_ativos:true},function(indicadores) {
+			// 	$scope.indicadores = indicadores;
+			// });
+			ObjetivoIndicador.query({id:$scope.indicadorAtivo.id_indicador}, function(objetivoIndicador){
+				$scope.indicadorAtivo.id_objetivo = objetivoIndicador[0].id_grupo_indicador;				
+			});
+
+			console.log($scope);
 		}else
 			$scope.indicadorComposicao = null;		
 	};
@@ -550,6 +561,10 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.atualizaFiltroPorFonte = function(composicao){
 		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel === composicao.id_variavel)[0].id_fonte_dados;
 	}
+	// ISSUE CORRECOES MENORES
+	$scope.logcon = function(info) {
+		console.log(info);
+	}
 });
 
 </script>
@@ -675,6 +690,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				
 				<input class="controle-cadastro" type="text" style="max-width:50%;width:50%;" data-ng-model="indicadorAtivo.ordem_instrumento" id="ordem_instrumento"></input>
 			</div>-->
+			<!-- ISSUE MENOR - NOME DO OBJETIVO -->
+			<button ng-click='logcon(indicadorAtivo)'>VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
 				<label for="objetivo"> Nome do objetivo </label>
@@ -828,8 +845,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 					<div class="col-sm-12">
 						<label ng-attr-for="{{'fonte_dados-'+$index}}"><small>Filtrar por fonte de dados</small></label>
 					</div>
-
 				</div>
+				
 				<!-- TODO: [P1.4] No cadastro de indicador não está salvando a informação do filtro de 'fonte de dados', em fórmula de cálculo -->
 				<div class="row">
 					<div class="col-sm-12">

@@ -1603,17 +1603,27 @@ app.controller("dashboard", function($scope,
 		$scope.cargaCadastroIndicadores(id);
 	};
 	
-	$scope.atualizaFichaInstrumento = function(idInstrumento){
-		if(idInstrumento == null)
+	$scope.atualizaFicha = function(idGrupo, isObjetivo){
+		if(idGrupo == null)
 			return;
-		GrupoIndicador.get({id:idInstrumento,tipo:'instrumento',tipo_retorno:'object'},function(fichaInstrumento){
-			$scope.fichaInstrumento = fichaInstrumento;
-			$scope.indicador = {id_instrumento: idInstrumento, instrumento: fichaInstrumento.nome};
-			if(fichaInstrumento.propriedades["Definição"])
-				$scope.descricaoIntrumento = fichaInstrumento.propriedades["Definição"].substr(0,300);
-			else
-				$scope.descricaoIntrumento = 'Não há definição para este instrumento';
-		});
+		// if(isObjetivo) {
+			
+		// }
+		tipoGrupo = isObjetivo ? 'objetivo' : 'instrumento';
+		// else {
+			GrupoIndicador.get({id:idGrupo,tipo:tipoGrupo,tipo_retorno:'object'},function(fichaInstrumento){
+				$scope.fichaInstrumento = fichaInstrumento;
+				$scope.indicador = {id_instrumento: idGrupo, instrumento: fichaInstrumento.nome};
+				if(fichaInstrumento.propriedades["Definição"]){
+					$scope.descricaoGrupoIndicador = fichaInstrumento.propriedades["Definição"].substr(0,300);
+					$scope.verMais = true;
+				}
+				else{
+					$scope.descricaoGrupoIndicador = 'Não há definição para este '+tipoGrupo+'.';
+					$scope.verMais = false;
+				}
+			});
+		// }
 	};
 
 	$scope.abrirModal = function(tipo){
@@ -1631,6 +1641,20 @@ app.controller("dashboard", function($scope,
 				
 			 $scope.fichaInstrumento = fichaInstrumento;
 			 
+			});
+		}
+		else if(tipo=='objetivo')
+		{
+			$rootScope.modalFichaInstrumento = $uibModal.open({
+				ariaLabelledBy: 'modal-titulo-ficha-instrumento',
+				ariaDescribedBy: 'modal-corpo-ficha-instrumento',
+				templateUrl: 'ModalFichaInstrumento.html',
+				controller: function($scope){},
+				scope:$scope,
+				size: 'lg'
+			});
+			GrupoIndicador.get({id:$scope.indicador.id_instrumento,tipo:'objetivo',tipo_retorno:'object'},function(fichaInstrumento){
+				$scope.fichaInstrumento = fichaInstrumento;
 			});
 		}
 		else
@@ -1931,6 +1955,7 @@ app.controller("dashboard", function($scope,
 	
 	// Filtros para a visualização de objetivos
 	$scope.filtraObjetivos = function(filtro){
+		$scope.mostraPDE = false;
 		if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
 			$scope.objetivos = $scope.rawObjetivos;
 			$scope.cargaCadastroIndicadores(null);
@@ -1940,6 +1965,8 @@ app.controller("dashboard", function($scope,
 			$scope.objetivos = [];
 			var idPDE = $scope.rawObjetivos.filter(function(obj){return obj.nome === "Plano Diretor Estratégico"})[0].id_grupo_indicador;
 			$scope.cargaCadastroIndicadores(idPDE);
+			$scope.atualizaFicha(idPDE, true)
+			$scope.mostraPDE = true;
 			return;
 		}
 		let checkObjetivos = function(ob){			
@@ -2296,30 +2323,37 @@ app.controller("dashboard", function($scope,
 			<uib-tab index="$index + 1" ng-click="atualizaListaInstrumentos()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
 				<hr>
 				
-				<p ng-show="tabAtivaForma==1">
+				<div ng-show="tabAtivaForma==1">
 					<ul class="list-group row">
 						<li class="list-group-item col-sm-3 text-left list-visualizacao" ng-mouseover="this.hover=true" ng-mouseleave="this.hover=false" style="width:20%;" ng-repeat="itemFilho in item.children"><a href=""  ng-click="cargaEstrategia(itemFilho.url.slice(1,itemFilho.url.length))"> <img class="img-responsive icones-visualizacao col-sm-3"  ng-src="/app/themes/monitoramento_pde/images/icones/{{itemFilho.description + ((itemFilho.url.slice(1,itemFilho.url.length) == estrategia.id_grupo_indicador || this.hover)? '_cor' : '_pb')}}.png"><span class="col-sm-12" style="padding:0"><br><strong>{{itemFilho.title}}</strong></span></a> </li>
 							
 					</ul>
-				</p>
+				</div>
 				
-				<p ng-show="tabAtivaForma==2">	
+				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFichaInstrumento(optInstrumento)"><option value="">Todos</option></select>
-					<br />					
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento)"><option value="">Todos</option></select>
+					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
-							{{ descricaoIntrumento }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
 					</div>
-				</p>
+				</div>
 				
-				<p ng-show="tabAtivaForma==3">	
+				<div ng-show="tabAtivaForma==3">	
 					Para garantir um desenvolvimento urbano sustentável e equilibrado, o Plano Diretor definiu em sua estratégia de ordenamento territorial um conjunto de objetivos a serem atingidos.<br><br>Veja abaixo os avanços realizados em relação aos objetivos do Plano Diretor Estratégico, das Macroáreas e das Zonas Especiais:<br><br>
 					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
-				</p>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo); atualizaFicha(optObjetivo, true)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
+					<br />
+					<div ng-show="optObjetivo || mostraPDE">
+						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<p>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-show="verMais" ng-click='abrirModal("objetivo")'>ver mais</a>
+						</p>
+					</div>
+				</div>
 			</uib-tab>
 		</uib-tabset>
 		

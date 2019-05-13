@@ -425,7 +425,15 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'carregar_arquivo_metadados'
 	) );
 } );
- 
+// Registra rota para exibição do(s) objetivo(s) do indicador
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/objetivo_indicador', array(
+		'methods' => WP_REST_Server::READABLE,
+		'callback' => 'objetivo_indicador'
+	) );
+} );
+
   add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados', array(
@@ -2781,6 +2789,34 @@ select id_territorio,
 	return $response;
 }
 
+
+// Retorna objetivos do indicador
+function objetivo_indicador(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+		SELECT id_grupo_indicador FROM sistema.indicador_x_grupo WHERE id_indicador=:id AND id_grupo_indicador IN (SELECT id_grupo_indicador FROM sistema.grupo_indicador WHERE tipo='objetivo')";
+
+	$comando = $pdo->prepare($comando_string);
+	$comando->bindParam(':id',$parametros['id']);
+
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados );
+	return $response;
+}
+
 function grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	global $DbConfig;
@@ -2812,23 +2848,21 @@ function grupo_indicador(WP_REST_Request $request){
 				$comando_propriedades = "json_object_agg(coalesce(prop.chave,'null'),prop.valor)";
 		
 	$comando_string = "
-select grp.id_grupo_indicador, nome, ".$comando_propriedades."   as propriedades
-from sistema.grupo_indicador grp
+		select grp.id_grupo_indicador, nome, ".$comando_propriedades."   as propriedades
+		from sistema.grupo_indicador grp
 
-left join sistema.grupo_propriedade prop on grp.id_grupo_indicador = prop.id_grupo_indicador
-where 1=1 ".$comando_where.
-" group by grp.id_grupo_indicador,grp.nome
-order by grp.id_grupo_indicador";
+		left join sistema.grupo_propriedade prop on grp.id_grupo_indicador = prop.id_grupo_indicador
+		where 1=1 ".$comando_where.
+		" group by grp.id_grupo_indicador,grp.nome
+		order by grp.id_grupo_indicador";
 
-	
-
- $comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comando_string);
  
  	if(array_key_exists('grupo',$parametros))
 		if($parametros['grupo'] != '')
 			$comando->bindParam(':grupo',$parametros['grupo']);
  
-  if(array_key_exists('tipo',$parametros))
+	if(array_key_exists('tipo',$parametros))
 		if($parametros['tipo'] != '')
 			$comando->bindParam(':tipo',$parametros['tipo']);
  
@@ -2839,8 +2873,8 @@ order by grp.id_grupo_indicador";
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
 	foreach($dados as &$linha){
-			$linha['propriedades'] = json_decode($linha['propriedades']);
-		}
+		$linha['propriedades'] = json_decode($linha['propriedades']);
+	}
 		
 	if(array_key_exists('formato_retorno',$parametros)){
 		if($parametros['formato_retorno'] != '')
