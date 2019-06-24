@@ -2101,7 +2101,7 @@ app.controller("dashboard", function($scope,
 <script type="text/ng-template" id="ModalFichaInstrumento.html">
 	<div class="modal-instrumento">
 		<div class="modal-header">
-	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')">X</button></h3> 
+	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')" style="font-family: sans-serif, cursive; font-weight: bold;">X</button></h3> 
 		</div>
 		<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">			
 			<p ng-repeat="(chave, valor) in fichaInstrumento.propriedades" >
