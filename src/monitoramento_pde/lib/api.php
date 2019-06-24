@@ -100,7 +100,7 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'deletar_indicador_fusao'
 	) );
 } );
- 
+
  add_action( 'rest_api_init', function () {
 	global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/indicador/historico/(?P<indicador>\d+)', array(
@@ -408,7 +408,32 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'carregar_fonte_dados'
 	) );
 } );
- 
+
+// Registra rota carga mapas
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados/carregar_arquivo_mapas/(?P<id>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_arquivo_mapas'
+	) );
+} );
+// Registra rota carga metadados
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados/carregar_arquivo_metadados/(?P<id>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_arquivo_metadados'
+	) );
+} );
+// Registra rota para exibição do(s) objetivo(s) do indicador
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/objetivo_indicador', array(
+		'methods' => WP_REST_Server::READABLE,
+		'callback' => 'objetivo_indicador'
+	) );
+} );
+
   add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados', array(
@@ -417,10 +442,62 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
- 
+// ISSUE #42
+// function alterLog($acao, $tipoElemento, $idElemento, $usuarioRequest = NULL) {
+function alterLog(array $logParams) {
+	$usuario = new stdClass();
+	if(isset($logParams['usuario'])) {
+		if(is_array($logParams['usuario'])) {
+			$usuario->data = new stdClass();
+			$usuario->data->user_login = $logParams['usuario']['data']['user_login'];
+			$usuario->ID = $logParams['usuario']['ID'];
+		}
+		else {
+			$logParams['usuario'] = json_decode($logParams['usuario']);
+			foreach ($logParams['usuario'] as $key => $value) {
+			    $usuario->$key = $value;
+			}
+		}
+	}
+	else {
+		$usuario = wp_get_current_user();
+	}
+	// Oculta parênteses de ID se não houver definição
+	$idElemento = isset($logParams['idElemento']) ? " (".$logParams['idElemento'].")" : "";
+		
+	$link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
+	if($link === false){
+	    die("ERRO: Não foi possível conectar. " . mysqli_connect_error());
+	}
+
+	$logmsg = "Usuário ".$usuario->data->user_login." (".$usuario->ID.") ".$logParams['acao']." ".$logParams['tipoElemento']." ".$logParams['nomeElemento'].$idElemento.".";
+	$sqlLog = "INSERT INTO wp_simple_history (`date`, `logger`, `level`, `message`) VALUES ('".date("Y-m-d H:i:s")."', 'SimpleLogger', 'info', '".$logmsg."');";
+	$retornoLog = $link->query($sqlLog);	
+}
  
 function deletar_variavel(WP_REST_Request $request){
 	$parametros = $request->get_params();
+
+	//  nome do indicador não presente nos parâmetros - buscando manualmente:
+	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
+    $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/variavel/");
+	$jsonStr = json_decode($jsonFile, true);
+	
+	// API não retorna variável específica. Loop percorre valores para encontrar o correspondente ao ID da variável
+	foreach ($jsonStr as $key => $value) {
+		if ($value['id_variavel'] == $parametros['id']) {
+			$nomeElemento = $value['nome'];
+			break;
+		}
+	}
+	alterLog(array(
+		'acao'=>'deletou',
+		'tipoElemento'=> 'variável', 
+		'idElemento'=>$parametros['id'],
+		'nomeElemento'=>$nomeElemento,
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -478,6 +555,21 @@ function deletar_variavel_filtro(WP_REST_Request $request){
  
 function deletar_fonte_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	
+	// nome da fonte não presente nos parâmetros - buscando manualmente:
+	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
+    $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/fontes_dados?fonte_dados=".$parametros['id']);
+	$jsonStr = json_decode($jsonFile, true);
+	$nomeElemento = $jsonStr[0]['nome'];
+
+	alterLog(array(
+		'acao'=>'deletou',
+		'tipoElemento'=> 'fonte de dados', 
+		'idElemento'=>$parametros['id'],
+		'nomeElemento'=>$nomeElemento,
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -506,6 +598,17 @@ function deletar_fonte_dados(WP_REST_Request $request){
 
 function deletar_grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	
+	if(is_string($parametros['grupo']))
+		$parametros['grupo'] = json_decode($parametros['grupo']);
+	
+	alterLog(array(
+		'acao'=>'deletou',
+		'tipoElemento'=> $parametros['tipo'],
+		'nomeElemento'=>$parametros['grupo']->nome,
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -590,6 +693,20 @@ function deletar_indicador_fusao(WP_REST_Request $request){
  
 function deletar_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	//  nome do indicador não presente nos parâmetros - buscando manualmente:
+	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
+    $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/indicador?indicador=".$parametros['id']);
+	$jsonStr = json_decode($jsonFile, true);
+	$nomeElemento = $jsonStr[0]['nome'];
+	
+	alterLog(array(
+		'acao'=>'deletou',
+		'tipoElemento'=> 'indicador', 
+		'idElemento'=>$parametros['id'],
+		'nomeElemento'=>$nomeElemento,
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -612,12 +729,19 @@ function deletar_indicador(WP_REST_Request $request){
 	{
 		$response = new WP_REST_Response( true );
 	}
-	
+		
 	return $response;
 }
  
 function atualizar_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	alterLog(array(
+		'acao'=>'atualizou',
+		'tipoElemento'=> 'indicador', 
+		'idElemento'=>$parametros['indicador']['id_indicador'],
+		'nomeElemento'=>$parametros['indicador']['nome']
+	));
+	
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -744,7 +868,8 @@ function atualizar_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['id_objetivo']) ){
+		// if(!is_null($indicador['id_objetivo']) ){
+		if(array_key_exists('id_objetivo', $indicador)){ // TODO: VOLTAR AQUI
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -780,7 +905,7 @@ function atualizar_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
+		if(!is_null($indicador['estrategias']) && array_key_exists(1, $indicador['estrategias']) && !is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -805,6 +930,14 @@ function atualizar_indicador(WP_REST_Request $request){
  
 function atualizar_grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+
+	alterLog(array(
+		'acao'=>'atualizou',
+		'tipoElemento'=> $parametros['tipo'],
+		'nomeElemento'=>$parametros['grupo']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -890,6 +1023,14 @@ function atualizar_grupo_indicador(WP_REST_Request $request){
 
 function inserir_grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	
+	alterLog(array(
+		'acao'=>'inseriu',
+		'tipoElemento'=> $parametros['tipo'],
+		'nomeElemento'=>$parametros['grupo']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -953,7 +1094,10 @@ function atualizar_indicador_composicao(WP_REST_Request $request){
 		die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	}
 	
-	$composicao = $parametros['composicao'];
+	// Corrige erro 'undefined index: composicao'
+	$composicao = [];
+	if (isset($parametros['composicao']))
+		$composicao = $parametros['composicao'];
 	
 	$response = new WP_REST_Response( true );
 	
@@ -1184,6 +1328,15 @@ function atualizar_fonte_dados_coluna(WP_REST_Request $request){
  
 function atualizar_variavel(WP_REST_Request $request){
 	$parametros = $request->get_params();
+
+	alterLog(array(
+		'acao'=>'atualizou',
+		'tipoElemento'=> 'variável', 
+		'idElemento'=>$parametros['variavel']['id_variavel'],
+		'nomeElemento'=>$parametros['variavel']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -1244,7 +1397,7 @@ function atualizar_variavel(WP_REST_Request $request){
 	}
 	else
 	{
-		
+		$resp_indicador = "Erro: não foi possível obter dados do indicador.";
 		$comando_string = "select distinct id_indicador From sistema.indicador_x_variavel where id_variavel = :id_variavel";
 		$comando = $pdo->prepare($comando_string);
 		
@@ -1259,6 +1412,7 @@ function atualizar_variavel(WP_REST_Request $request){
 			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 			
 			foreach($dados as $indicador){
+				$resp_indicador = $indicador;
 				$id_indicador = $indicador['id_indicador'];
 				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
 				
@@ -1275,7 +1429,7 @@ function atualizar_variavel(WP_REST_Request $request){
 			}
 			
 		}
-		$response = new WP_REST_Response( $indicador );
+		$response = new WP_REST_Response( $resp_indicador );
 	}
 	
 	return $response;
@@ -1303,6 +1457,14 @@ function atualizar_view_dado_aberto($pdo, $id_fonte_dados){
 
 function atualizar_fonte_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	alterLog(array(
+		'acao'=>'atualizou',
+		'tipoElemento'=> 'fonte de dados', 
+		'idElemento'=>$parametros['fonte_dados']['id_fonte_dados'],
+		'nomeElemento'=>$parametros['fonte_dados']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -1379,7 +1541,8 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 		}
 		else
 		{
-			
+			if(!isset($colunas_exclusao))
+				$colunas_exclusao = [];
 			foreach($colunas_exclusao as $chave => $valor){
 				
 				if($valor != null){
@@ -1396,10 +1559,8 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 						$response = new  WP_REST_Response($erro[2], 500);
 					}
 				}
-			}
-			
-		}
-		
+			}			
+		}		
 		
 		$response = new WP_REST_Response( true );
 	}
@@ -1409,6 +1570,223 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 
 
 function carregar_fonte_dados(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	
+	//  nome da fonte não presente nos parâmetros - buscando manualmente:
+	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
+    $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/fontes_dados?fonte_dados=".$parametros['id']);
+	$jsonStr = json_decode($jsonFile, true);
+	$nomeElemento = $jsonStr[0]['nome'];
+
+	alterLog(array(
+		'acao'=>'carregou',
+		'tipoElemento'=> 'fonte de dados', 
+		'idElemento'=>$parametros['id'],
+		'nomeElemento'=>$nomeElemento
+	));
+	
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = 
+	"select * 
+	from sistema.fonte_dados 
+	where id_fonte_dados = :id_fonte_dados";
+	
+	$comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$nome_fonte = $dados[0]['nome'];
+	
+	$diretorio = wp_upload_dir()['basedir'].'/'.$dados[0]['nome_tabela'];
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$nome_arquivo = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$nome_arquivo);
+	
+	$id_fonte_dados = $parametros['id_fonte_dados'];
+	
+	
+	$role = '';
+	$usuario = wp_get_current_user();
+	$roleMonitoramento = '';
+	foreach($usuario->roles as $role) {
+		if(strtolower($role) == 'mantenedor' && $roleMonitoramento != 'administrator'){
+			$roleMonitoramento = 'mantenedor';
+			
+		}else 
+			if(strtolower($role) == 'administrator'){
+				$roleMonitoramento = 'administrator';
+				
+			}
+	}
+	
+	if($roleMonitoramento == 'administrator')
+	{
+		$output = 0;
+		$response = 0;
+		
+		putenv('KETTLE_HOME=/var/www/pentaho/Pentaho/Configuracao');
+		$varia_amb = getenv('KETTLE_HOME');
+		
+		$linha_comando = '/var/www/pentaho/Pentaho/data-integration/kitchen.sh -rep=MonitoramentoPDE -job=Carga -dir=/ -param:ID_FONTE_DADOS='.$id_fonte_dados.' -param:"FORMATO_ARQUIVO='.$nome_arquivo.'"  -param:"DIRETORIO_FONTE='.$diretorio.'" -param:TIPO_ARQUIVO=2';
+		
+		exec($linha_comando,$output,$response);
+		// var_dump($linha_comando);
+		// echo "------------------------ <br /> Output:";
+		// echo "<pre>";
+		// print_r($output);
+		// echo "</pre>";
+		// echo "**************************** <br /> Response: <br />";
+		// var_dump($response);
+		
+		$comando_string = 
+		"select distinct id_indicador 
+		from sistema.fonte_dados fonte
+		inner join sistema.variavel var
+			on var.id_fonte_dados = fonte.id_fonte_dados
+		inner join sistema.indicador_x_variavel indic_var
+			on indic_var.id_variavel = var.id_variavel
+			where fonte.id_fonte_dados = :id_fonte_dados";
+		$comando = $pdo->prepare($comando_string);
+		
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+		
+		if(!$comando->execute()){
+			$erro = $comando->errorInfo();
+			$response = new  WP_REST_Response($erro[2],500);
+		}
+		else
+		{
+			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+			foreach($dados as $indicador){
+				$id_indicador = $indicador['id_indicador'];
+				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
+				
+				$comando = $pdo->prepare($comando_string);
+				
+				$comando->bindParam(':id_indicador',$indicador['id_indicador']);
+				
+				if(!$comando->execute()){
+					$erro = $comando->errorInfo();
+					//$debug = var_export($indicador,true);
+					$response = new  WP_REST_Response($erro[2], 500);//new  WP_REST_Response($erro[2],500);
+					return $response;
+				}
+			}
+			
+		}
+		
+	}
+	
+	$headers = 'From: Monitoramento PDE <apache@c4v3i.localdomain>'. "\r\n";
+	$headers .= "MIME-Version: 1.0" . "\r\n";
+	$headers .= "Content-type:text/html;charset=UTF-8";
+	
+	/** NOTIFICAÇÃO DE ATUALIZAÇÃO DESATIVADA DURANTE TESTES **/
+	/**
+	$administradores = get_users('role=administrator');
+	foreach($administradores as $usuario){
+		$msg = 'A fonte de dados '.$nome_fonte.' foi atualizada por um mantenedor. <br><br> É necessário realizar a validação e carga do arquivo.';
+		mail($usuario->data->user_email,"Monitoramento PDE - Aviso de carga de fonte de dados",$msg,$headers);
+	}
+	*/
+	$comando_string = 
+	"update	sistema.fonte_dados
+	set nome_arquivo = '".$nome_arquivo."'
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	
+	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
+	
+	//var_dump(array_reverse($output));
+	//var_dump($response);
+	
+	return $response;
+} 
+
+// INSERIR ARQUIVOS ATRELADOS À FONTE DE DADOS
+function carregar_arquivo_mapas(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
+	
+	$comando_string = 
+	"select * 
+	from sistema.fonte_dados 
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+		
+	$diretorio = wp_upload_dir()['basedir'].'/'.$dados[0]['nome_tabela'];
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$arquivo_mapas = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$arquivo_mapas);
+	
+	$id_fonte_dados = $parametros['id_fonte_dados'];
+	
+	$comando_string = 
+	"update	sistema.fonte_dados
+	set arquivo_mapas = '".$arquivo_mapas."'
+	where id_fonte_dados = :id_fonte_dados";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_fonte_dados',$parametros))
+		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	
+	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
+	
+	return $response;
+}
+
+function carregar_arquivo_metadados(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	global $DbConfig;
 	try {
@@ -1462,57 +1840,7 @@ function carregar_fonte_dados(WP_REST_Request $request){
 			}
 	}
 	
-	if($roleMonitoramento == 'administrator')
-	{
-		$output = 0;
-		$response = 0;
-		
-		//putenv('KETTLE_HOME=/var/www/pentaho/Pentaho/Configuracao');
-		//$varia_amb = getenv('KETTLE_HOME');
-		
-		$linha_comando = '/var/www/pentaho/Pentaho/data-integration/kitchen.sh -rep=MonitoramentoPDE -job=Carga -dir=/ -param:ID_FONTE_DADOS='.$id_fonte_dados.' -param:"FORMATO_ARQUIVO='.$nome_arquivo.'"  -param:"DIRETORIO_FONTE='.$diretorio.'" -param:TIPO_ARQUIVO=2';
-		
-		exec($linha_comando,$output,$response);
-		
-		$comando_string = 
-		"select distinct id_indicador 
-		from sistema.fonte_dados fonte
-		inner join sistema.variavel var
-			on var.id_fonte_dados = fonte.id_fonte_dados
-		inner join sistema.indicador_x_variavel indic_var
-			on indic_var.id_variavel = var.id_variavel
-			where fonte.id_fonte_dados = :id_fonte_dados";
-		$comando = $pdo->prepare($comando_string);
-		
-		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
-		
-		if(!$comando->execute()){
-			$erro = $comando->errorInfo();
-			$response = new  WP_REST_Response($erro[2],500);
-		}
-		else
-		{
-			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
-			
-			foreach($dados as $indicador){
-				$id_indicador = $indicador['id_indicador'];
-				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
-				
-				$comando = $pdo->prepare($comando_string);
-				
-				$comando->bindParam(':id_indicador',$indicador['id_indicador']);
-				
-				if(!$comando->execute()){
-					$erro = $comando->errorInfo();
-					//$debug = var_export($indicador,true);
-					$response = new  WP_REST_Response($erro[2], 500);//new  WP_REST_Response($erro[2],500);
-					return $response;
-				}
-			}
-			
-		}
-		
-	}
+	
 	
 	$headers = 'From: Monitoramento PDE <apache@c4v3i.localdomain>'. "\r\n";
 	$headers .= "MIME-Version: 1.0" . "\r\n";
@@ -1526,7 +1854,7 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	
 	$comando_string = 
 	"update	sistema.fonte_dados
-	set nome_arquivo = '".$nome_arquivo."'
+	set arquivo_metadados = '".$nome_arquivo."'
 	where id_fonte_dados = :id_fonte_dados";
 	
 	 $comando = $pdo->prepare($comando_string);
@@ -1541,15 +1869,18 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	
 	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
 	
-	//var_dump(array_reverse($output));
-	//var_dump($response);
-	
 	return $response;
-} 
-
+}
+// FIM ADICIONA ARQUIVOS ATRELADOS À FONTE DE DADOS
  
 function inserir_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	alterLog(array(
+		'acao'=>'cadastrou',
+		'tipoElemento'=> 'indicador', 
+		'nomeElemento'=>$parametros['indicador']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -1573,9 +1904,9 @@ function inserir_indicador(WP_REST_Request $request){
 	$comando->bindParam(':nota_tecnica_resumida',$indicador['nota_tecnica_resumida']);
 	$comando->bindParam(':apresentacao',$indicador['apresentacao']);
 	$comando->bindParam(':simbolo_valor',$indicador['simbolo_valor']);
-	$indicador['ativo'] = ($indicador['ativo'])?'t':'f';
-	$indicador['homologacao'] = ($indicador['homologacao'])?'t':'f';
-	$indicador['preencher_zero'] = ($indicador['preencher_zero'])?'t':'f';
+	$indicador['ativo'] = (isset($indicador['ativo']) && $indicador['ativo'])?'t':'f';
+	$indicador['homologacao'] = (isset($indicador['homologacao']) && $indicador['homologacao'])?'t':'f';
+	$indicador['preencher_zero'] = (isset($indicador['preencher_zero']) && $indicador['preencher_zero'])?'t':'f';
 	$comando->bindParam(':ativo',$indicador['ativo']);
 	$comando->bindParam(':homologacao',$indicador['homologacao']);
 	$comando->bindParam(':fonte',$indicador['fonte']);
@@ -1592,7 +1923,7 @@ function inserir_indicador(WP_REST_Request $request){
 	{
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 		
-		if(!is_null($indicador['id_instrumento']) ){
+		if(isset($indicador['id_instrumento']) && !is_null($indicador['id_instrumento'])){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -1610,7 +1941,7 @@ function inserir_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['id_objetivo']) ){
+		if(isset($indicador['id_objetivo']) && !is_null($indicador['id_objetivo']) ){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -1628,7 +1959,7 @@ function inserir_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['estrategias'][0]['id_grupo_indicador']) ){
+		if(isset($indicador['estrategias']) && !is_null($indicador['estrategias'][0]['id_grupo_indicador']) ){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -1646,7 +1977,7 @@ function inserir_indicador(WP_REST_Request $request){
 			}
 		}
 		
-		if(!is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
+		if(isset($indicador['estrategias']) && !is_null($indicador['estrategias'][1]['id_grupo_indicador']) ){
 			$comando_string = 
 			"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
 																			values(:id_grupo_indicador,:id_indicador,:ordem)";
@@ -1671,6 +2002,14 @@ function inserir_indicador(WP_REST_Request $request){
  
 function inserir_variavel(WP_REST_Request $request){
 	$parametros = $request->get_params();
+
+	alterLog(array(
+		'acao'=>'inseriu',
+		'tipoElemento'=>'variável', 
+		'nomeElemento'=>$parametros['variavel']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+	
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -1687,12 +2026,12 @@ function inserir_variavel(WP_REST_Request $request){
 	
 	$comando = $pdo->prepare($comando_string);
 	
-	 $variavel['desabilitar_dim_raiz'] = ($variavel['desabilitar_dim_raiz'])?'t':'f';
-	 $variavel['distribuicao'] = ($variavel['distribuicao'])?'t':'f';
-	 $variavel['acumulativa'] = ($variavel['acumulativa'])?'t':'f';
-	 $variavel['crescimento'] = ($variavel['crescimento'])?'t':'f';
+	 $variavel['desabilitar_dim_raiz'] = (isset($variavel['desabilitar_dim_raiz']) && $variavel['desabilitar_dim_raiz'])?'t':'f';
+	 $variavel['distribuicao'] = (isset($variavel['distribuicao']) && $variavel['distribuicao'])?'t':'f';
+	 $variavel['acumulativa'] = (isset($variavel['acumulativa']) && $variavel['acumulativa'])?'t':'f';
+	 $variavel['crescimento'] = (isset($variavel['crescimento']) && $variavel['crescimento'])?'t':'f';
 	 
-	if(is_null($variavel['tipo_cruzamento']))
+	if(!isset($variavel['tipo_cruzamento']) || is_null($variavel['tipo_cruzamento']))
 		$variavel['tipo_cruzamento'] = 'inner';
  
 	$comando->bindParam(':nome',$variavel['nome']);
@@ -1724,9 +2063,16 @@ function inserir_variavel(WP_REST_Request $request){
 } 
 
 
-
+// TODO: ISSUE 1.X - ERRO AO CADASTRAR NOVO BANCO DE DADOS
 function inserir_fonte_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	alterLog(array(
+		'acao'=>'inseriu',
+		'tipoElemento'=> 'nova fonte de dados', 
+		'nomeElemento'=>$parametros['fonte_dados']['nome'],
+		'usuario'=>$parametros['usuario']
+	));
+
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
@@ -1735,7 +2081,10 @@ function inserir_fonte_dados(WP_REST_Request $request){
 	}
 	
 	$fonte_dados = $parametros['fonte_dados'];
-	
+	// corrige bug 'UNDEFINED INDEX: ativa'
+	if (!isset($fonte_dados['ativa']))
+		$fonte_dados['ativa'] = false;
+
 	$comando_string = 
 	"insert into sistema.fonte_dados ( nome, delimitador, diretorio, data_atualizacao, formato_arquivo, nome_tabela, linha_cabecalho, data_inicial, data_final, tipo, periodicidade, origem, link ,ativa)
 														 values(:nome,:delimitador,:diretorio,:data_atualizacao,:formato_arquivo,:nome_tabela,:linha_cabecalho,:data_inicial,:data_final,:tipo,:periodicidade,:origem,:link,:ativa)
@@ -1768,7 +2117,7 @@ function inserir_fonte_dados(WP_REST_Request $request){
 		
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 		
-		$colunas_exclusao = $fonte_dados['colunas_exclusao'];
+		$colunas_exclusao = isset($fonte_dados['colunas_exclusao']) ? $fonte_dados['colunas_exclusao'] : [];
 		
 		$response = new WP_REST_Response( true );
 		
@@ -2440,6 +2789,34 @@ select id_territorio,
 	return $response;
 }
 
+
+// Retorna objetivos do indicador
+function objetivo_indicador(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+		SELECT id_grupo_indicador FROM sistema.indicador_x_grupo WHERE id_indicador=:id AND id_grupo_indicador IN (SELECT id_grupo_indicador FROM sistema.grupo_indicador WHERE tipo='objetivo')";
+
+	$comando = $pdo->prepare($comando_string);
+	$comando->bindParam(':id',$parametros['id']);
+
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados );
+	return $response;
+}
+
 function grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	global $DbConfig;
@@ -2471,23 +2848,21 @@ function grupo_indicador(WP_REST_Request $request){
 				$comando_propriedades = "json_object_agg(coalesce(prop.chave,'null'),prop.valor)";
 		
 	$comando_string = "
-select grp.id_grupo_indicador, nome, ".$comando_propriedades."   as propriedades
-from sistema.grupo_indicador grp
+		select grp.id_grupo_indicador, nome, ".$comando_propriedades."   as propriedades
+		from sistema.grupo_indicador grp
 
-left join sistema.grupo_propriedade prop on grp.id_grupo_indicador = prop.id_grupo_indicador
-where 1=1 ".$comando_where.
-" group by grp.id_grupo_indicador,grp.nome
-order by grp.id_grupo_indicador";
+		left join sistema.grupo_propriedade prop on grp.id_grupo_indicador = prop.id_grupo_indicador
+		where 1=1 ".$comando_where.
+		" group by grp.id_grupo_indicador,grp.nome
+		order by grp.id_grupo_indicador";
 
-	
-
- $comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comando_string);
  
  	if(array_key_exists('grupo',$parametros))
 		if($parametros['grupo'] != '')
 			$comando->bindParam(':grupo',$parametros['grupo']);
  
-  if(array_key_exists('tipo',$parametros))
+	if(array_key_exists('tipo',$parametros))
 		if($parametros['tipo'] != '')
 			$comando->bindParam(':tipo',$parametros['tipo']);
  
@@ -2498,8 +2873,8 @@ order by grp.id_grupo_indicador";
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
 	foreach($dados as &$linha){
-			$linha['propriedades'] = json_decode($linha['propriedades']);
-		}
+		$linha['propriedades'] = json_decode($linha['propriedades']);
+	}
 		
 	if(array_key_exists('formato_retorno',$parametros)){
 		if($parametros['formato_retorno'] != '')

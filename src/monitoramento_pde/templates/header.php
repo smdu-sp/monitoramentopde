@@ -9,7 +9,7 @@
 				</button> 
 				<a class="navbar-brand text-uppercase brand-title" href="<?= esc_url(home_url('/')); ?>"><?php bloginfo('name'); ?></a>
 				<div class="menu-secoes-toggle collapse navbar-collapse">
-				  <a class="navbar-brand navbar-right" href="http://prefeitura.sp.gov.br"><img class="img-responsive" id="navbar-prefeitura" src="../app/uploads/2016/08/prefeitura.png" alt="link prefeitura de são paulo"></a>
+				  <a class="navbar-brand navbar-right" href="https://prefeitura.sp.gov.br"><img class="img-responsive" id="navbar-prefeitura" src="../app/uploads/2016/08/prefeitura.png" alt="link prefeitura de são paulo"></a>
 				  <!--<a class="navbar-brand navbar-right" href="http://gestaourbana.prefeitura.sp.gov.br"><img class="img-responsive" id="navbar-gestao" src="../app/uploads/2016/08/gestao_urbana.png" alt="link gestão urbana"></a>-->
 				</div>
 			</div>

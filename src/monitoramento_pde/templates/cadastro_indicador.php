@@ -5,7 +5,6 @@
 ?>
 
 
-
 <script type="text/javascript">
 jQuery.noConflict();
 
@@ -63,6 +62,10 @@ app.factory('Objetivos',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/grupo_indicador');
 });
 
+app.factory('ObjetivoIndicador',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/objetivo_indicador');
+});
+
 app.factory('Territorios',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/territorios');
 });
@@ -72,7 +75,7 @@ app.factory('FontesDados',function($resource){
 });
 
 
-app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, FontesDados) {
+app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, ObjetivoIndicador, FontesDados) {
  
  	Indicador.query(function(indicadores) {
 		$rootScope.listaIndicadores = indicadores;
@@ -118,38 +121,46 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	}
 	
 	$scope.filtrarInstrumento = function(){
-		if($scope.idInstrumentoAtivo != null)
-			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento == $scope.idInstrumentoAtivo);
+		if($scope.idInstrumentoAtivo !== null){
+			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento === $scope.idInstrumentoAtivo);
+		}
 		else
 			$rootScope.indicadores = $rootScope.listaIndicadores;
 	}
 	
 	$scope.carregarIndicador = function(){
+		if($scope.indicadorComposicao)
+			$scope.indicadorComposicao.id_fonte_dados = null;
 		$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
-		
 		if($scope.indicadorAtivo){
-			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);
-		}
-		
-		if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
-			$scope.indicadorAtivo.territorio_exclusao = [];
-		}else{
-			if(!$scope.indicadorAtivo.territorio_exclusao[0].id){
+			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);		
+			if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
 				$scope.indicadorAtivo.territorio_exclusao = [];
+			}else{
+				if(!$scope.indicadorAtivo.territorio_exclusao[0].id)
+					$scope.indicadorAtivo.territorio_exclusao = [];
 			}
 		}
-		
+
 		if($scope.indicadorAtivo != null){
 			IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
-				
 				$scope.indicadorComposicao = indicadorComposicao;
 				angular.forEach($scope.indicadorComposicao,function(comp,chave){
 					comp.variaveis = $scope.variaveis;
 				});
 				$scope.estado = "selecionar";
 			});
+			// Puxa Objetivos referentes ao indicador
+			// Indicador.query({grupo_indicador:$scope.indicadorAtivo.id_indicador,somente_ativos:true},function(indicadores) {
+			// 	$scope.indicadores = indicadores;
+			// });
+			ObjetivoIndicador.query({id:$scope.indicadorAtivo.id_indicador}, function(objetivoIndicador){
+				$scope.indicadorAtivo.id_objetivo = objetivoIndicador[0].id_grupo_indicador;				
+			});
+
+			console.log($scope);
 		}else
-			$scope.indicadorComposicao = null;
+			$scope.indicadorComposicao = null;		
 	};
 	
 	$scope.adicionarElemento = function(){
@@ -187,21 +198,30 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.indicadorComposicao = [];
 		$scope.estado = "inserir";
 	};
-	
+
+// ISSUE #27 - Ao atualizar um indicador, ou variável ou fonte de dados, é necessário dar F5
+	// $scope.delayedRefresh = function(){
+	// 	window.setTimeout(function(){
+	// 		$scope.filtrarInstrumento();
+	// 	}, 1500);
+	// }
+	$scope.delayedRefresh = function() {
+		window.setTimeout(function(){
+			document.getElementById('delayedRefreshBt').click();
+		}, 3000);
+	}
+
 	$scope.atualizar = function(){
 		IndicadorComposicao.update({composicao:$scope.indicadorComposicao,id_indicador:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.update({indicador:$scope.indicadorAtivo}).$promise.then(
+				Indicador.update({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
-						
 						Indicador.query(function(indicadores) {
-							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
-							
+							$rootScope.listaIndicadores = indicadores;
+							$scope.delayedRefresh();
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
 						});
-
 					},
 					function(erro){
 						$rootScope.modalProcessando.close();
@@ -214,8 +234,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				$scope.lancarErro(erro);
 			}
 		);
-
-		
 	};		
 	
 	/*$scope.calcular = function(){
@@ -237,12 +255,12 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.remover = function(){
 		IndicadorComposicao.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
+				Indicador.remove({id:$scope.indicadorAtivo.id_indicador,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Indicador.query(function(indicadores) {
 							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
+							$rootScope.filtrarInstrumento();
 							
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
@@ -267,7 +285,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 
 	$scope.inserir = function(){
 		$rootScope.indicadorComposicao = $scope.indicadorComposicao;
-		Indicador.save({indicador:$scope.indicadorAtivo}).$promise.then(
+		Indicador.save({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				IndicadorComposicao.save({composicao:$rootScope.indicadorComposicao,id_indicador:mensagem.id_indicador}).$promise.then(
 						function(mensagem){
@@ -282,6 +300,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						},
 						function(erro){
 							$rootScope.modalProcessando.close();
+							console.log("indicadorcomp.save");
 							$scope.lancarErro(erro);
 						}
 				);
@@ -326,8 +345,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				scope:$scope,
 				size: 'md',
 		});
-		
-		
+				
 		if($scope.acao == 'Atualizar'){
 			$scope.acaoExecutando = 'Atualizando';
 			$scope.acaoSucesso = 'Atualizado';
@@ -400,11 +418,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		for (var i=0; i!=s.length; ++i) view[i] = s.charCodeAt(i) & 0xFF;
 		return buf;
 	}
-	
+	// P1.5 Ao exportar a relação de indicadores, é preciso criar uma coluna informando se o indicador está ativo / homologação / inativo
 	$scope.exportarIndicadores = function(){
-		
 			var wb = new Workbook();
-			
 			var wsindicador = {};
 			
 			//criando cabeçalho
@@ -421,7 +437,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			wsindicador[XLSX.utils.encode_cell({c:10,r:0})] = criarCelula(10,0,'Fonte');
 			wsindicador[XLSX.utils.encode_cell({c:11,r:0})] = criarCelula(11,0,'Periodicidade de atualização');
 			wsindicador[XLSX.utils.encode_cell({c:12,r:0})] = criarCelula(12,0,'Série histórica');
-			
 			wsindicador[XLSX.utils.encode_cell({c:13,r:0})] = criarCelula(13,0,'Município');
 			wsindicador[XLSX.utils.encode_cell({c:14,r:0})] = criarCelula(14,0,'Macrorregião');
 			wsindicador[XLSX.utils.encode_cell({c:15,r:0})] = criarCelula(15,0,'Macroárea');
@@ -432,12 +447,12 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			wsindicador[XLSX.utils.encode_cell({c:20,r:0})] = criarCelula(20,0,'Operação Urbana Consorciada');
 			wsindicador[XLSX.utils.encode_cell({c:21,r:0})] = criarCelula(21,0,'ZEIS');
 			wsindicador[XLSX.utils.encode_cell({c:22,r:0})] = criarCelula(22,0,'ZEPEC');
+			wsindicador[XLSX.utils.encode_cell({c:23,r:0})] = criarCelula(23,0,'Status'); // ATIVO / HOMOLOGAÇÃO / INATIVO [ativo (boolean), homologacao (boolean)]
 			                                                              
 			linha = 1;
 			
 			angular.forEach($scope.indicadores,function(indicador,chave){
-				
-				coluna = 0, //linha = 0;
+				coluna = 0;
 				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,indicador.id_indicador);
 				coluna++;
 				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha,indicador.nome);
@@ -477,7 +492,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				}
 				coluna++;
 				angular.forEach(indicador.territorios,function(territorio,chave){
-					
 					if(territorio){
 						var colunaTerritorio = coluna;
 						switch(territorio.nome){
@@ -502,7 +516,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						case 'ZDE e ZPI':
 							colunaTerritorio = coluna + 6;
 							break;
-						case 'Operação Urbana consorciada':
+						case 'Operação Urbana Consorciada':
 							colunaTerritorio = coluna + 7;
 							break;
 						case 'ZEIS':
@@ -511,18 +525,19 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 						case 'ZEPEC':
 							colunaTerritorio = coluna + 9;
 							break;
-						}	
-						
-						wsindicador[XLSX.utils.encode_cell({c:colunaTerritorio,r:linha})] = criarCelula(colunaTerritorio,linha,'X');
+						}
+						wsindicador[XLSX.utils.encode_cell({c:colunaTerritorio,r:linha})] = criarCelula(colunaTerritorio,linha,'Sim');
 					}
-					
 				});
-				
-				linha++;
-				
+				// Status do indicador
+				coluna += 10;
+				let statusIndicador = indicador.homologacao ? "Homologação" : indicador.ativo ? "Ativo" : "Inativo";
+				wsindicador[XLSX.utils.encode_cell({c:coluna,r:linha})] = criarCelula(coluna,linha, statusIndicador);
+				// Encerra preenchimento do indicador e pula para a próxima linha
+				linha++;				
 			});
 			
-			var range = {s: {c:0, r:0}, e: {c:22, r: linha}};
+			var range = {s: {c:0, r:0}, e: {c:23, r: linha}};
 			wsindicador['!ref'] = XLSX.utils.encode_range(range);
 			
 			/* add worksheet to workbook */
@@ -537,12 +552,19 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	
 	
 	$scope.filtrarFonte = function(composicao){
+		// console.log(composicao.id_fonte_dados);
 		if(composicao.id_fonte_dados != null)
-			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados == composicao.id_fonte_dados);
+			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados === composicao.id_fonte_dados);
 		else
 			composicao.variaveis = $scope.variaveis;
 	}
-	
+	$scope.atualizaFiltroPorFonte = function(composicao){
+		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel === composicao.id_variavel)[0].id_fonte_dados;
+	}
+	// ISSUE CORRECOES MENORES
+	$scope.logcon = function(info) {
+		console.log(info);
+	}
 });
 
 </script>
@@ -615,7 +637,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 <form style="margin-bottom:2em;">
 
 			<button class="btn-primary" type="button" ng-click="exportarIndicadores()"> Exportar relação de indicadores </button>
-			
+			<button id="delayedRefreshBt" class="btn-primary" data-ng-click="filtrarInstrumento()">Atualizar filtro</button>
 			<input type="button" data-ng-show="estado!='inserir' && estado!='listar'" value="Novo indicador" class="btn-primary" style="float:left;margin-right:1em;"	data-ng-click="limparForm()"> 
 			
 			<span data-ng-show="estado!='inserir'">
@@ -668,6 +690,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				
 				<input class="controle-cadastro" type="text" style="max-width:50%;width:50%;" data-ng-model="indicadorAtivo.ordem_instrumento" id="ordem_instrumento"></input>
 			</div>-->
+			<!-- ISSUE MENOR - NOME DO OBJETIVO -->
+			<button ng-click='logcon(indicadorAtivo)'>VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
 				<label for="objetivo"> Nome do objetivo </label>
@@ -821,17 +845,19 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 					<div class="col-sm-12">
 						<label ng-attr-for="{{'fonte_dados-'+$index}}"><small>Filtrar por fonte de dados</small></label>
 					</div>
-
 				</div>
 				
+				<!-- TODO: [P1.4] No cadastro de indicador não está salvando a informação do filtro de 'fonte de dados', em fórmula de cálculo -->
 				<div class="row">
 					<div class="col-sm-12">
 						<select class="controle-cadastro" ng-attr-id="{{'fonte_dados-' + $index}}" style="max-width:100%;" data-ng-model="composicao.id_fonte_dados" data-ng-options="fonte.id_fonte_dados as fonte.nome for fonte in fontesDados | orderBy: 'nome'" data-ng-change="filtrarFonte(composicao)">
-							<option value=""> Sem filtro </option>
+							<option value=""> Sem filtro </option>							
 						</select>
 					</div>
 				</div>
-				
+				<!-- Ao carregar página com indicador salvo, realiza primeira filtragem para associar variáveis à fonte de dados -->
+				{{ filtrarFonte(composicao) }}
+				{{ atualizaFiltroPorFonte(composicao) }}
 				<div class="row">
 					<div class="col-sm-8">
 						<label ng-attr-for="{{'variavel-'+$index}}"><small>Nome da variável</small></label>
@@ -900,7 +926,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			<input type="button" class="btn-primary" data-ng-show="estado=='inserir'" value="Voltar" data-ng-click="voltar()"> 
 			
 </form>
-
 
 <?php }else{ ?>
 			<h4> Você não possui autorização para visualizar esse conteúdo.</h4>

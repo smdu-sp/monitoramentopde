@@ -30,45 +30,56 @@ app.factory('FonteDados',function($resource){
 	});
 });
 
+var cargaUpdateParams = {
+	method:'POST',
+	transformRequest: function(data) {
+			if (data === undefined){
+				return data;
+				}
+
+			var fd = new FormData();
+			angular.forEach(data, function(value, key) {
+				if (value instanceof FileList) {
+					if (value.length == 1) {
+						fd.append(key, value[0]);
+					} else {
+						angular.forEach(value, function(file, index) {
+							fd.append(key + '_' + index, file);
+						});
+					}
+				} else {
+					if(value instanceof File){
+						fd.append('arquivo', value);
+					}
+					else if(value instanceof Array){
+						fd.append('arquivo', value[0]);
+					}else
+						fd.append(key, value);
+				}
+			});
+			
+			return fd;					
+		},
+	headers:{
+		'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+		,'Content-type': undefined
+	}
+};
 app.factory('FonteDadosCarregar',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar/:id',{id:'@id_fonte_dados'},{
-		update:{
-			method:'POST',
-			transformRequest: 
-				function(data) {
-					if (data === undefined)
-						return data;
+		update: cargaUpdateParams
+	});
+});
 
-					var fd = new FormData();
-					angular.forEach(data, function(value, key) {
-						if (value instanceof FileList) {
-							if (value.length == 1) {
-								fd.append(key, value[0]);
-							} else {
-								angular.forEach(value, function(file, index) {
-									fd.append(key + '_' + index, file);
-								});
-							}
-						} else {
-							
-							if(value instanceof File){
-								fd.append('arquivo', value);
-							}else if(value instanceof Array){
-											
-											fd.append('arquivo', value[0]);
-										}else
-											fd.append(key, value);
-						}
-					});
-					
-					return fd;
-					
-				},
-			headers:{
-				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
-				,'Content-type': undefined
-			}
-		}
+app.factory('ArquivoMapasCarregar',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar_arquivo_mapas/:id',{id:'@id_fonte_dados'},{
+		update: cargaUpdateParams
+	});
+});
+
+app.factory('ArquivoMetadadosCarregar',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar_arquivo_metadados/:id',{id:'@id_fonte_dados'},{
+		update: cargaUpdateParams
 	});
 });
 
@@ -88,7 +99,7 @@ app.factory('FonteDadosColuna',function($resource){
 	});
 });
 
-app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, Territorios, FonteDadosColuna, uibDateParser) {
+app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, ArquivoMapasCarregar, ArquivoMetadadosCarregar, Territorios, FonteDadosColuna, uibDateParser) {
 
 	$scope.lerArquivos = function(element) {
 		
@@ -195,6 +206,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 	}
 	
 	$scope.lancarErro = function(erro){
+		console.warn(erro);
 		alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
 	}
 	
@@ -208,7 +220,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		$rootScope.itemAtual = $scope.itemAtual;
 		FonteDadosColuna.update({colunas:$scope.colunas,id_fonte_dados:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
-				FonteDados.update({fonte_dados:$rootScope.itemAtual}).$promise.then(
+				FonteDados.update({fonte_dados:$rootScope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						FonteDados.query(function(fontesDados) {
 							$rootScope.fontesDados = fontesDados;
@@ -221,22 +233,29 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 					function(erro){
 						$rootScope.modalProcessando.close();
 						$rootScope.modalConfirmacao.close();
-						$scope.lancarErro(erro);
+						// $scope.lancarErro(erro);
+						console.log("Erro ao atualizar FonteDados");
+						console.warn(erro);
 					}
-				);
+				).catch(function(err){
+					console.log("Erro excepcional:");
+					console.warn(err);
+				});
 			},
 			function(erro){
 				$rootScope.modalProcessando.close();
 				$rootScope.modalConfirmacao.close();
-				$scope.lancarErro(erro);
+				// $scope.lancarErro(erro);
+				console.log("Erro ao atualizar FonteDadosCOLUNA");
 			}
 		);
 	};		
 	
 	$scope.remover = function(){
+		console.log('scope.remover');
 		FonteDadosColuna.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
-				FonteDados.remove({id:$scope.itemAtual.id_fonte_dados}).$promise.then(
+				FonteDados.remove({id:$scope.itemAtual.id_fonte_dados,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						FonteDados.query(function(fontesDados) {
 							$rootScope.fontesDados = fontesDados;
@@ -263,35 +282,86 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		$scope.$parent.estado = "listar";
 	};	
 
-	$scope.carregarArquivo = function(){
+	$scope.carregarArquivo = function(tipoUpload){
+		console.log('carregarArquivo');
 		if(!$rootScope.carregandoArquivo){
 			$rootScope.carregandoArquivo = true;
 			$rootScope.mensagemArquivo = 'Aguarde... Realizando Carga';
-			
-			FonteDadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
-				function(mensagem){
-
-					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';
-					
-					$rootScope.modalProcessando.close();		
-					$scope.criarModalSucesso();
-				},
-				function(erro){
-					$rootScope.modalConfirmacao.close();
-					$scope.lancarErro(erro);
-						
-					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';
-				}
-			);
+			// TO DO confirmar carregamento
+			// CARGA DB FONTE DE DADOS
+			switch (tipoUpload) {
+				case "metadados":
+					console.log("METADADOS");
+					ArquivoMetadadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
+						function(mensagem){
+							console.log(mensagem);
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';					
+							$rootScope.modalProcessando.close();		
+							$scope.criarModalSucesso();
+						},
+						function(erro){
+							$rootScope.modalConfirmacao.close();						
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';
+							// $scope.lancarErro(erro);
+							console.log("PRE ERROR:");
+							console.log(erro);					
+						}
+					).catch(function(err){
+						console.log("HEL");
+						console.error(err);
+					});
+					break;
+				case "mapas":
+					console.log("MAPAS ArquivoMapasCarregar");
+					ArquivoMapasCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
+						function(mensagem){
+							console.log(mensagem);
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';					
+							$rootScope.modalProcessando.close();		
+							$scope.criarModalSucesso();
+						},
+						function(erro){
+							$rootScope.modalConfirmacao.close();						
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';
+							// $scope.lancarErro(erro);
+							console.log("PRE ERROR:");
+							console.log(erro);					
+						}
+					).catch(function(err){
+						console.log("HEL");
+						console.error(err);
+					});
+					break;
+				default:
+					FonteDadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
+						function(mensagem){
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';					
+							$rootScope.modalProcessando.close();		
+							$scope.criarModalSucesso();
+						},
+						function(erro){
+							$rootScope.modalConfirmacao.close();						
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';
+							$scope.lancarErro(erro);					
+						}
+					).catch(function(err){
+						console.log("erro: ");
+						console.error(err);
+					});
+			}
 		}else{
 			alert('Uma carga de fonte de dados já está acontecendo, espere ela acabar para iniciar outra.');
 		};
 	}
 	
 	$scope.inserir = function(){
-		FonteDados.save({fonte_dados:$scope.itemAtual}).$promise.then(
+		FonteDados.save({fonte_dados:$scope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				FonteDados.query(function(fontesDados) {
 					$rootScope.fontesDados = fontesDados;
@@ -350,35 +420,44 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				scope:$scope,
 				size: 'md',
 		});
-	
-		if($scope.acao == 'Atualizar'){
-			$scope.acaoExecutando = 'Atualizando';
-			$scope.acaoSucesso = 'Atualizada';
-			$scope.atualizar();
-			
-		}else{
-			if($scope.acao == 'Remover'){	
+
+		// REALIZA AÇÃO DE ACORDO COM O PARÂMETRO ATUAL
+		switch($scope.acao){
+			case 'Atualizar':
+				$scope.acaoExecutando = 'Atualizando';
+				$scope.acaoSucesso = 'Atualizada';
+				$scope.atualizar();
+				break;
+			case 'Remover':
 				$scope.acaoExecutando = 'Removendo';
 				$scope.acaoSucesso = 'Removida';
 				$scope.remover();
-				
-			}else{
-				if($scope.acao == 'Inserir'){	
-					$scope.acaoExecutando = 'Inserindo';
-					$scope.acaoSucesso = 'Inserida';
-					$scope.inserir();
-					
-				}else{
-					if($scope.acao == 'Carregar'){
-						$scope.acaoExecutando = 'Carregando';
-						$scope.acaoSucesso = 'Carregada';
-						$scope.carregarArquivo();
-					}
-				}
-			}
+				break;
+			case 'Inserir':
+				$scope.acaoExecutando = 'Inserindo';
+				$scope.acaoSucesso = 'Inserida';
+				$scope.inserir();
+				break;
+			case 'Carregar':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregada';
+				$scope.carregarArquivo();
+				break;
+			case 'Carregar Mapas':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregado';
+				$scope.carregarArquivo('mapas');
+				break;
+			case 'Carregar Metadados':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregado';
+				$scope.carregarArquivo('metadados');
+				break;
+			default:
+				console.warn($scope.acao);
 		}
 
-	};	
+	}
 	
 	$scope.adicionarElementoColuna = function(){
 		if($scope.colunas == null){
@@ -507,7 +586,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> {{acao}} Fonte de dados <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('confirmacao')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte-dados">
-			Você irá {{acao.toLowerCase()}} a fonte de dados {{itemAtual.nome}}. <br><br> Confirme sua ação.
+			Você irá {{acao.toLowerCase()}} a fonte de dados <strong>{{itemAtual.nome}}</strong>. <br><br> Confirme sua ação.
 			</div>
 	<div class="modal-footer">	
 		<button class="btn btn-danger" type="button" ng-click="fecharModal()">	Abortar</button>
@@ -523,7 +602,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> {{acaoExecutando}} fonte de dados </h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte-dados">
-			{{acaoExecutando}} a fonte de dados {{itemAtual.nome}}, por favor aguarde a conclusão.
+			{{acaoExecutando}} a fonte de dados <strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
 			</div>
 </div>
 </script>
@@ -736,12 +815,27 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			
 			<p ng-if="itemAtual.nome_arquivo">
 		
-				Arquivo mais recente carregado: 
+				Arquivo Fonte de Dados mais recente carregado: 
 				<br>
-				<a href="http://monitoramentopde.smul.pmsp/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.nome_arquivo}}"> {{itemAtual.nome}} </a>
+				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.nome_arquivo}}"> {{itemAtual.nome}} </a>
 				
 			</p>
-			<P>
+			<p ng-if="itemAtual.arquivo_mapas">
+		
+				Arquivo de mapas mais recente: 
+				<br>
+				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_mapas}}"> {{itemAtual.arquivo_mapas}} </a>
+				
+			</p>
+			<p ng-if="itemAtual.arquivo_metadados">
+		
+				Arquivo de metadados mais recente: 
+				<br>
+				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_metadados}}"> {{itemAtual.arquivo_metadados}} </a>
+				
+			</p>
+
+			<p>
 				Data da última carga de dados:
 				<br>
 				{{itemAtual.data_carga}}
@@ -753,7 +847,11 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				
 			</p>
 			
-			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo" data-ng-click="criarModalConfirmacao('Carregar')">
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo Fonte de Dados" data-ng-click="criarModalConfirmacao('Carregar')">
+			<!-- Carregar mapas (SHP / Shapefiles / KMZ) -->
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Mapas" data-ng-click="criarModalConfirmacao('Carregar Mapas')">
+			<!-- Carregar metadados -->
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Metadados" data-ng-click="criarModalConfirmacao('Carregar Metadados')">
 			</span>
 			<?php if($roleMonitoramento == 'administrator'){ ?>
 			<input data-ng-show="estado!='inserir'" type="submit" value="Nova Fonte de dados" data-ng-click="inserirForm()">

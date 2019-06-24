@@ -4,12 +4,12 @@
 			<div class="col-sm-3 text-center">
 				<div class="row" style="height:80px;margin-bottom:15px;">
 					<div class="col-sm-12" >
-						<a href="http://gestaourbana.prefeitura.sp.gov.br"><img class="img-responsive" src="<?php echo get_template_directory_uri(); ?>/images/gestao_urbana.png" alt="link gestão urbana"></a>
+						<a href="https://gestaourbana.prefeitura.sp.gov.br"><img class="img-responsive" src="<?php echo get_template_directory_uri(); ?>/images/gestao_urbana.png" alt="link gestão urbana"></a>
 					</div>
 				</div>
 				<div class="row">
 					<div class="col-sm-12">
-						<a href="http://prefeitura.sp.gov.br" ><img class="img-responsive" src="<?php echo get_template_directory_uri(); ?>/images/prefeitura.png" alt="link prefeitura de são paulo"></a>
+						<a href="https://prefeitura.sp.gov.br" ><img class="img-responsive" src="<?php echo get_template_directory_uri(); ?>/images/prefeitura.png" alt="link prefeitura de são paulo"></a>
 					</div>
 				</div>
 			</div>
@@ -38,7 +38,7 @@
 						<p>Redes Sociais: 
 						<a href="https://www.facebook.com/PrefSP.smul"><i class="fa fa-facebook img-circle icones-redes-sociais"></i></a>
 						<a href="https://twitter.com/PrefSP.smul"><i class="fa fa-twitter img-circle icones-redes-sociais"></i></a>
-						<a href="http://www.youtube.com/user/pmspsmdu"><i class="fa fa-play icones-redes-sociais"></i></a>
+						<a href="https://www.youtube.com/user/pmspsmdu"><i class="fa fa-play icones-redes-sociais"></i></a>
 						</p>
 					</div>
 				</div>
