@@ -3,7 +3,9 @@
  * Template Name: Monitoramento
  */
 ?>
-<script src="./wp/wp-includes/js/html2canvas.min.js"></script>
+
+<!-- <script src="./wp/wp-includes/js/html2canvas.min.js"></script> -->
+<script src="app/themes/monitoramento_pde/js/html2canvas.min.js"></script>
 <script type="text/javascript">
 
 function hexToRgb(hex) {
@@ -175,11 +177,27 @@ app.controller("dashboard", function($scope,
 				window.setTimeout(function(){
 					$scope.indicadores = indicador;
 					$scope.indicador = indicador[0];
+					console.log("Indicador:");
+					console.log($scope.indicador);
 					$scope.indicador.aberto = true;
 					$scope.atualizarAccordion(indicador[0]);
 					document.getElementsByClassName("panel-group")[0].scrollIntoView();
 			}, 1500);
 			});
+		}
+	}
+
+	// ISSUE #41
+	$scope.textoSelectObjetivo = function(idObjetivo) {
+		switch (idObjetivo) {
+			case 2:
+				return "Escolha uma Macroárea...";
+				break;
+			case 3:
+				return "Escolha uma Zona Especial...";
+			default:
+				return "Escolha..."
+				break;
 		}
 	}
 
@@ -195,11 +213,12 @@ app.controller("dashboard", function($scope,
 		$scope.instrumentos = instrumentos;
 	});
 	GrupoIndicador.query({tipo:'objetivo',tipo_retorno:'object',formato_retorno:'array'},function(objetivos){
-		$scope.objetivos = objetivos;
+		$scope.rawObjetivos = objetivos;
+		// $scope.objetivos = objetivos;
 	});	
 
 	$scope.idPoligonoAnterior = 0;
-	
+
 	$scope.inicializarSelecao = function(){
 		$scope.selecao.idTerrSel = 4;
 		$scope.idIndicadorAnterior = 0;
@@ -267,7 +286,7 @@ app.controller("dashboard", function($scope,
 			indiceClasseRegiao = Math.ceil(indiceClasseRegiao);
 		}
 
-		if(indiceClasseRegiao > $scope.qtdClasses){
+		if(!angular.isUndefined(indiceClasseRegiao) && indiceClasseRegiao > $scope.qtdClasses){
 			indiceClasseRegiao = $scope.qtdClasses;
 		}
 		
@@ -435,6 +454,11 @@ app.controller("dashboard", function($scope,
 					// TODO: MODULARIZAR FUNCAO SEGUINTE
 					let serieHistorica = $scope.selecao.categorias.length > 1 ? $filter('filter')(todasRegioes, $scope.selecao.categoria.name) : todasRegioes;
 					serieHistorica = $filter('orderBy')(serieHistorica, 'name');
+					// Issue #29
+					// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
+					for (item in serieHistorica) {
+						serieHistorica[item].marker = { symbol: "circle" }
+					}
 					
 					$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
 
@@ -456,7 +480,7 @@ app.controller("dashboard", function($scope,
 						chart: {
 							type: 'line',
 							marginTop: 25,
-							width:larguraGraficoLinha
+							width:larguraGraficoLinha							
 					        },
 					    colors: app.defaultColors,
 				        xAxis: {
@@ -649,7 +673,7 @@ app.controller("dashboard", function($scope,
 										click: function(e){
 											if($scope.selecao.idTerrSel != 4){
 												$scope.selecao.dataSel = dataHistorica['original'][this.index];
-												$scope.clickMapa = false;
+												// $scope.clickMapa = false;
 												$scope.idPoligonoAnterior = 0;
 												$scope.cargaIndicadorValores(false,true);
 											}
@@ -660,6 +684,8 @@ app.controller("dashboard", function($scope,
 						},
 						legend: {
 							align: 'left',
+							// ISSUE #43
+							enabled: indicadorHistorico.series.length > 1,
 							layout: 'horizontal',
 							itemStyle:{
 								fontWeight:'normal'
@@ -707,7 +733,7 @@ app.controller("dashboard", function($scope,
 				this['original'].push(valor);
 				trimestre = Math.floor((new Date(valor).getMonth() + 3) / 3);
 				trimestre = new Date(valor).getMonth()
-				// this['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
+				
 				dataHistorica['formatada'].push($filter('date')(valor, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')));
 			}
 		},dataHistorica);
@@ -727,7 +753,6 @@ app.controller("dashboard", function($scope,
 			dataMinima:$scope.selecao.dataMin,
 			dataMaxima:$scope.selecao.dataMax
 		},function(indicadorHistorico){
-
 			indicadorHistorico.series = $filter('orderBy')(indicadorHistorico.series, 'name');
 			
 			$scope.carregarGraficoLinhas = indicadorHistorico.series ? indicadorHistorico.series.length > 0 : false;
@@ -736,6 +761,11 @@ app.controller("dashboard", function($scope,
 				$scope.carregandoHistorico = 'Não há dados históricos disponíveis para essa seleção!';
 			} else {
 				$scope.carregandoHistorico = null;
+			}
+			// Issue #29
+			// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
+			for (item in indicadorHistorico.series) {
+				indicadorHistorico.series[item].marker = { symbol: "circle" }
 			}
 			
 			larguraGraficoLinha = document.getElementById("divGraficoLinha").clientWidth;
@@ -769,7 +799,7 @@ app.controller("dashboard", function($scope,
 								(variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true)&& 
 								(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
 								);
-						}else{
+						}else if (!angular.isUndefined($scope.variavelHistorico)){
 							varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
 						}
 						varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
@@ -926,10 +956,13 @@ app.controller("dashboard", function($scope,
 								}
 							}
 						}
+						
 					}
 				},
 				legend: {
 					align: 'left',
+					// ISSUE #43
+					enabled: indicadorHistorico.series.length > 1,
 					layout: 'horizontal',
 					itemStyle:{
 						fontWeight:'normal'
@@ -991,7 +1024,7 @@ app.controller("dashboard", function($scope,
 		$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
 		
 		$scope.hoverMapa = false;
-		$scope.clickMapa = false;
+		//$scope.clickMapa = false;		
 		$scope.carregarGraficoLinhas = false;
 		IndicadorValores.get({id:$scope.selecao.idIndicSel,data:$scope.selecao.dataSel,territorio:$scope.selecao.idTerrSel},function(indicadorValores){
 
@@ -1029,8 +1062,8 @@ app.controller("dashboard", function($scope,
 			VariavelHistorico.query({id:$scope.selecao.idIndicSel,territorio:$scope.selecao.idTerrSel},function(variavelHistorico){
 				$scope.variavelHistorico = variavelHistorico;
 				
-				if($scope.indicadorValores.series.length == 1){
-					$scope.indicadorValores.series[0].showInLegend = false;
+				if(!angular.isUndefined($scope.indicadorValores.series) && $scope.indicadorValores.series.length == 1){
+					$scope.indicadorValores.series[0].showInLegend = true;
 				}
 			
 				mostrarDistritos = $scope.labelTerrSel == 'Distrito';
@@ -1038,7 +1071,7 @@ app.controller("dashboard", function($scope,
 				$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
 				
 				let exportMargingBot = 140+($scope.indicadorValores.series.length*8);
-				if($scope.labelTerrSel == "Prefeitura Regional" || mostrarDistritos)
+				if($scope.labelTerrSel == "Subprefeitura" || mostrarDistritos)
 					exportMargingBot += mostrarDistritos ? 40 : 60;
 
 				let grafBarSub = {
@@ -1208,12 +1241,13 @@ app.controller("dashboard", function($scope,
 							}
 						},
 						legend: {
-							align: 'left',
+							align: 'left',							
+							enabled: !($scope.indicadorValores.series.length === 1 && $scope.indicadorValores.series[0].name === "Não categorizado"), // Issue $43
 							layout: 'horizontal',
 							itemStyle:{
 								fontWeight:'normal'
 							}
-							//verticalAlign: 'bottom',
+							//verticalAlign: 'bottom',							
 						},
 						style:{ fontFamily: 'museo_slab500' },
 						credits:false,
@@ -1336,7 +1370,7 @@ app.controller("dashboard", function($scope,
 					idPoligonoClick = poligonoRealcado.get('ID_REGIAO');
 				
 					if($scope.regiaoRealcada.codigo == idPoligonoClick && $scope.clickMapa == true){
-						$scope.clickMapa = false;
+						// $scope.clickMapa = false;
 					}else{
 						
 						$scope.fixarMapa(idPoligonoClick);
@@ -1569,17 +1603,27 @@ app.controller("dashboard", function($scope,
 		$scope.cargaCadastroIndicadores(id);
 	};
 	
-	$scope.atualizaFichaInstrumento = function(idInstrumento){
-		if(idInstrumento == null)
+	$scope.atualizaFicha = function(idGrupo, isObjetivo){
+		if(idGrupo == null)
 			return;
-		GrupoIndicador.get({id:idInstrumento,tipo:'instrumento',tipo_retorno:'object'},function(fichaInstrumento){
-			$scope.fichaInstrumento = fichaInstrumento;
-			$scope.indicador = {id_instrumento: idInstrumento, instrumento: fichaInstrumento.nome};
-			if(fichaInstrumento.propriedades["Definição"])
-				$scope.descricaoIntrumento = fichaInstrumento.propriedades["Definição"].substr(0,300);
-			else
-				$scope.descricaoIntrumento = 'Não há definição para este instrumento';
-		});
+		// if(isObjetivo) {
+			
+		// }
+		tipoGrupo = isObjetivo ? 'objetivo' : 'instrumento';
+		// else {
+			GrupoIndicador.get({id:idGrupo,tipo:tipoGrupo,tipo_retorno:'object'},function(fichaInstrumento){
+				$scope.fichaInstrumento = fichaInstrumento;
+				$scope.indicador = {id_instrumento: idGrupo, instrumento: fichaInstrumento.nome};
+				if(fichaInstrumento.propriedades["Definição"]){
+					$scope.descricaoGrupoIndicador = fichaInstrumento.propriedades["Definição"].substr(0,300);
+					$scope.verMais = true;
+				}
+				else{
+					$scope.descricaoGrupoIndicador = 'Não há definição para este '+tipoGrupo+'.';
+					$scope.verMais = false;
+				}
+			});
+		// }
 	};
 
 	$scope.abrirModal = function(tipo){
@@ -1597,6 +1641,20 @@ app.controller("dashboard", function($scope,
 				
 			 $scope.fichaInstrumento = fichaInstrumento;
 			 
+			});
+		}
+		else if(tipo=='objetivo')
+		{
+			$rootScope.modalFichaInstrumento = $uibModal.open({
+				ariaLabelledBy: 'modal-titulo-ficha-instrumento',
+				ariaDescribedBy: 'modal-corpo-ficha-instrumento',
+				templateUrl: 'ModalFichaInstrumento.html',
+				controller: function($scope){},
+				scope:$scope,
+				size: 'lg'
+			});
+			GrupoIndicador.get({id:$scope.indicador.id_instrumento,tipo:'objetivo',tipo_retorno:'object'},function(fichaInstrumento){
+				$scope.fichaInstrumento = fichaInstrumento;
 			});
 		}
 		else
@@ -1751,8 +1809,7 @@ app.controller("dashboard", function($scope,
 			let tipoValor = $scope.variavelHistorico[0].tipo_valor.charAt(0).toUpperCase() + $scope.variavelHistorico[0].tipo_valor.slice(1);
 			// GRAVA UNIDADE DE MEDIDA DO INDICADOR PARA EXIBIR NA FICHA TECNICA
 			let unidadeMedida = $scope.memoriaIndicador.dados[0]["Unidade de medida"]+" ("+$scope.memoriaIndicador.dados[0]["Símbolo de medida"]+")";
-			console.log(unidadeMedida);
-
+			
 			$scope.memoriaIndicador.dados.forEach(function(dado){
 				// FORMATA ORDEM E NOMENCLATURA DOS CABECALHOS NA TABELA EXPORTADA
 				dado["Data (ano-mês-dia)"] = dado.Data;
@@ -1774,8 +1831,7 @@ app.controller("dashboard", function($scope,
 					dado[valor] = $scope.pontoParaVirgula(dado[valor]);
 				}
 			});
-			console.log(unidadeMedida);
-
+			
 			var wb = new Workbook();
 			var wsMemoria = sheet_from_array_of_arrays($scope.memoriaIndicador.dados,$scope.memoriaIndicador.qtd_variavel);
 			wsMemoria['!cols'] = [
@@ -1897,6 +1953,67 @@ app.controller("dashboard", function($scope,
 	 });
 	}
 	
+	// Filtros para a visualização de objetivos
+	$scope.filtraObjetivos = function(filtro){
+		$scope.mostraPDE = false;
+		if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
+			$scope.objetivos = $scope.rawObjetivos;
+			$scope.cargaCadastroIndicadores(null);
+			return;
+		}
+		else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
+			$scope.objetivos = [];
+			var idPDE = $scope.rawObjetivos.filter(function(obj){return obj.nome === "Plano Diretor Estratégico"})[0].id_grupo_indicador;
+			$scope.cargaCadastroIndicadores(idPDE);
+			$scope.atualizaFicha(idPDE, true)
+			$scope.mostraPDE = true;
+			return;
+		}
+		let checkObjetivos = function(ob){			
+			for (i in filtro.objetivos) {
+				if (ob.nome === filtro.objetivos[i])
+					return true;
+			}
+			return false;
+		}
+		let objetivosFiltrados = $scope.rawObjetivos.filter(checkObjetivos);
+		$scope.objetivos = objetivosFiltrados;
+	}
+
+	$scope.filtrosObjetivos = {
+		plano_diretor: {
+			id: 1,
+			nome: "Plano Diretor Estratégico",
+			objetivos: []
+		},
+		macroareas: {
+			id: 2,
+			nome: "Macroáreas",
+			objetivos: [
+				"Macroárea de Estruturação Urbana",
+				"Macroárea de Urbanização Consolidada",
+				"Macroárea de Qualificação da Urbanização",
+				"Macroárea de Redução da Vulnerabilidade Urbana",
+				"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
+				"Macroárea de Controle e Qualificação Urbana e Ambiental",
+				"Macroárea de Contenção Urbana e Uso Sustentável",
+				"Macroárea de Preservação dos Ecossistemas Naturais"
+			]
+		},
+		zonas_especiais: {
+			id: 3,
+			nome: "Zonas Especiais",
+			objetivos: [
+				"Zonas Especiais de Interesse Social (ZEIS)",
+				"Zonas Especiais de Preservação (ZEP)",
+				"Zonas Especiais de Preservação Cultural (ZEPEC)",
+				"Zonas Especiais de Proteção Ambiental (ZEPAM)"
+			]
+		}
+		// "Macroáreas": ["A","B"],
+		// "Zonas Especiais": ["C","D"]
+	};
+	
 	$scope.ajustarDataFinal = function(){
 		if($scope.selecao.dataMin >= $scope.selecao.dataMax){
 			$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
@@ -1921,6 +2038,16 @@ app.controller("dashboard", function($scope,
 		 $scope.menuForma = menu;
 	 });
 	 
+	 // TROCAR PREFEITURA REGIONAL POR SUBPREFEITURA
+	 $scope.subRegional = function(elemento){
+	 	var opts = elemento.target;
+	 	for(var i=0; i < opts.length; i++){
+	 		if(opts[i].label == "Prefeitura Regional")
+	 			opts[i].label = "Subprefeitura";
+	 	}
+	 };
+
+
 	 $scope.atribuirRegiaoSemSelecao = function(){
 		 nomeTerritorio = $scope.labelTerrSel.split(" ");
 		 nomeTerritorio = nomeTerritorio[0];
@@ -2095,7 +2222,7 @@ app.controller("dashboard", function($scope,
 							<p>
 								<label for="territorio"> Unidade territorial de análise</label>
 								<br>
-								<select style="max-width:100%;width:100%;" data-ng-model="selecao.idTerrSel" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
+								<select style="max-width:100%;width:100%;" id="seletor-territorio" data-ng-model="selecao.idTerrSel" data-ng-click="subRegional($event);" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
 							</p>
 							<p ng-show="selecao.idTerrSel != 4">
 								
@@ -2170,8 +2297,6 @@ app.controller("dashboard", function($scope,
 			</div>
 </script>
 	
-	
-	
 	<div uib-carousel active="0" interval="0" no-wrap="false">
 		<div uib-slide data-ng-repeat="noticia in noticias track by $index" index="$index" class="slide-carrosel container-fluid">
 			<div class="carousel-caption">
@@ -2182,10 +2307,10 @@ app.controller("dashboard", function($scope,
 	</div>
 	
 	<div class="container">
-	
+
 	<p> 
-			<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
-				</div>
+			<!--<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
+				</div>-->
 		 
 	</p>
 		
@@ -2198,29 +2323,37 @@ app.controller("dashboard", function($scope,
 			<uib-tab index="$index + 1" ng-click="atualizaListaInstrumentos()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
 				<hr>
 				
-				<p ng-show="tabAtivaForma==1">
+				<div ng-show="tabAtivaForma==1">
 					<ul class="list-group row">
 						<li class="list-group-item col-sm-3 text-left list-visualizacao" ng-mouseover="this.hover=true" ng-mouseleave="this.hover=false" style="width:20%;" ng-repeat="itemFilho in item.children"><a href=""  ng-click="cargaEstrategia(itemFilho.url.slice(1,itemFilho.url.length))"> <img class="img-responsive icones-visualizacao col-sm-3"  ng-src="/app/themes/monitoramento_pde/images/icones/{{itemFilho.description + ((itemFilho.url.slice(1,itemFilho.url.length) == estrategia.id_grupo_indicador || this.hover)? '_cor' : '_pb')}}.png"><span class="col-sm-12" style="padding:0"><br><strong>{{itemFilho.title}}</strong></span></a> </li>
 							
 					</ul>
-				</p>
+				</div>
 				
-				<p ng-show="tabAtivaForma==2">	
+				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFichaInstrumento(optInstrumento)"><option value="">Todos</option></select>
-					<br />					
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento)"><option value="">Todos</option></select>
+					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
-							{{ descricaoIntrumento }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
 					</div>
-				</p>
+				</div>
 				
-				<p ng-show="tabAtivaForma==3">	
-					Os objetivos mostram os objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos objetivos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optObjetivo)"><option value="">Todos</option></select>
-				</p>
+				<div ng-show="tabAtivaForma==3">	
+					Para garantir um desenvolvimento urbano sustentável e equilibrado, o Plano Diretor definiu em sua estratégia de ordenamento territorial um conjunto de objetivos a serem atingidos.<br><br>Veja abaixo os avanços realizados em relação aos objetivos do Plano Diretor Estratégico, das Macroáreas e das Zonas Especiais:<br><br>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo); atualizaFicha(optObjetivo, true)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
+					<br />
+					<div ng-show="optObjetivo || mostraPDE">
+						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<p>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-show="verMais" ng-click='abrirModal("objetivo")'>ver mais</a>
+						</p>
+					</div>
+				</div>
 			</uib-tab>
 		</uib-tabset>
 		

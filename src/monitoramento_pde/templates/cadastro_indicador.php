@@ -62,6 +62,10 @@ app.factory('Objetivos',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/grupo_indicador');
 });
 
+app.factory('ObjetivoIndicador',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/objetivo_indicador');
+});
+
 app.factory('Territorios',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/territorios');
 });
@@ -71,7 +75,7 @@ app.factory('FontesDados',function($resource){
 });
 
 
-app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, FontesDados) {
+app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, ObjetivoIndicador, FontesDados) {
  
  	Indicador.query(function(indicadores) {
 		$rootScope.listaIndicadores = indicadores;
@@ -117,8 +121,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	}
 	
 	$scope.filtrarInstrumento = function(){
-		if($scope.idInstrumentoAtivo != null){			
-			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento == $scope.idInstrumentoAtivo);			
+		if($scope.idInstrumentoAtivo !== null){
+			$rootScope.indicadores = $rootScope.listaIndicadores.filter((indicador) => indicador.id_instrumento === $scope.idInstrumentoAtivo);
 		}
 		else
 			$rootScope.indicadores = $rootScope.listaIndicadores;
@@ -129,25 +133,32 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			$scope.indicadorComposicao.id_fonte_dados = null;
 		$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
 		if($scope.indicadorAtivo){
-			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);
-		}
-		
-		if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
-			$scope.indicadorAtivo.territorio_exclusao = [];
-		}else{
-			if(!$scope.indicadorAtivo.territorio_exclusao[0].id){
+			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);		
+			if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
 				$scope.indicadorAtivo.territorio_exclusao = [];
+			}else{
+				if(!$scope.indicadorAtivo.territorio_exclusao[0].id)
+					$scope.indicadorAtivo.territorio_exclusao = [];
 			}
 		}
-		
+
 		if($scope.indicadorAtivo != null){
 			IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
 				$scope.indicadorComposicao = indicadorComposicao;
 				angular.forEach($scope.indicadorComposicao,function(comp,chave){
-					comp.variaveis = $scope.variaveis;					
+					comp.variaveis = $scope.variaveis;
 				});
 				$scope.estado = "selecionar";
 			});
+			// Puxa Objetivos referentes ao indicador
+			// Indicador.query({grupo_indicador:$scope.indicadorAtivo.id_indicador,somente_ativos:true},function(indicadores) {
+			// 	$scope.indicadores = indicadores;
+			// });
+			ObjetivoIndicador.query({id:$scope.indicadorAtivo.id_indicador}, function(objetivoIndicador){
+				$scope.indicadorAtivo.id_objetivo = objetivoIndicador[0].id_grupo_indicador;				
+			});
+
+			console.log($scope);
 		}else
 			$scope.indicadorComposicao = null;		
 	};
@@ -188,14 +199,26 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		$scope.estado = "inserir";
 	};
 
+// ISSUE #27 - Ao atualizar um indicador, ou variável ou fonte de dados, é necessário dar F5
+	// $scope.delayedRefresh = function(){
+	// 	window.setTimeout(function(){
+	// 		$scope.filtrarInstrumento();
+	// 	}, 1500);
+	// }
+	$scope.delayedRefresh = function() {
+		window.setTimeout(function(){
+			document.getElementById('delayedRefreshBt').click();
+		}, 3000);
+	}
+
 	$scope.atualizar = function(){
 		IndicadorComposicao.update({composicao:$scope.indicadorComposicao,id_indicador:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.update({indicador:$scope.indicadorAtivo}).$promise.then(
+				Indicador.update({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 						Indicador.query(function(indicadores) {
-							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
+							$rootScope.listaIndicadores = indicadores;
+							$scope.delayedRefresh();
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
 						});
@@ -232,12 +255,12 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.remover = function(){
 		IndicadorComposicao.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
 			function(mensagem){
-				Indicador.remove({id:$scope.indicadorAtivo.id_indicador}).$promise.then(
+				Indicador.remove({id:$scope.indicadorAtivo.id_indicador,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Indicador.query(function(indicadores) {
 							$rootScope.indicadores = indicadores;
-							$scope.filtrarInstrumento();
+							$rootScope.filtrarInstrumento();
 							
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
@@ -262,7 +285,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 
 	$scope.inserir = function(){
 		$rootScope.indicadorComposicao = $scope.indicadorComposicao;
-		Indicador.save({indicador:$scope.indicadorAtivo}).$promise.then(
+		Indicador.save({indicador:$scope.indicadorAtivo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				IndicadorComposicao.save({composicao:$rootScope.indicadorComposicao,id_indicador:mensagem.id_indicador}).$promise.then(
 						function(mensagem){
@@ -322,8 +345,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				scope:$scope,
 				size: 'md',
 		});
-		
-		
+				
 		if($scope.acao == 'Atualizar'){
 			$scope.acaoExecutando = 'Atualizando';
 			$scope.acaoSucesso = 'Atualizado';
@@ -530,13 +552,18 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	
 	
 	$scope.filtrarFonte = function(composicao){
+		// console.log(composicao.id_fonte_dados);
 		if(composicao.id_fonte_dados != null)
-			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados == composicao.id_fonte_dados);
+			composicao.variaveis = $scope.variaveis.filter((variavel) => variavel.id_fonte_dados === composicao.id_fonte_dados);
 		else
 			composicao.variaveis = $scope.variaveis;
 	}
 	$scope.atualizaFiltroPorFonte = function(composicao){
-		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel == composicao.id_variavel)[0].id_fonte_dados;
+		composicao.id_fonte_dados = composicao.variaveis.filter((variavelIndicador) => variavelIndicador.id_variavel === composicao.id_variavel)[0].id_fonte_dados;
+	}
+	// ISSUE CORRECOES MENORES
+	$scope.logcon = function(info) {
+		console.log(info);
 	}
 });
 
@@ -610,7 +637,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 <form style="margin-bottom:2em;">
 
 			<button class="btn-primary" type="button" ng-click="exportarIndicadores()"> Exportar relação de indicadores </button>
-			
+			<button id="delayedRefreshBt" class="btn-primary" data-ng-click="filtrarInstrumento()">Atualizar filtro</button>
 			<input type="button" data-ng-show="estado!='inserir' && estado!='listar'" value="Novo indicador" class="btn-primary" style="float:left;margin-right:1em;"	data-ng-click="limparForm()"> 
 			
 			<span data-ng-show="estado!='inserir'">
@@ -663,6 +690,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				
 				<input class="controle-cadastro" type="text" style="max-width:50%;width:50%;" data-ng-model="indicadorAtivo.ordem_instrumento" id="ordem_instrumento"></input>
 			</div>-->
+			<!-- ISSUE MENOR - NOME DO OBJETIVO -->
+			<button ng-click='logcon(indicadorAtivo)'>VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
 				<label for="objetivo"> Nome do objetivo </label>
@@ -816,8 +845,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 					<div class="col-sm-12">
 						<label ng-attr-for="{{'fonte_dados-'+$index}}"><small>Filtrar por fonte de dados</small></label>
 					</div>
-
 				</div>
+				
 				<!-- TODO: [P1.4] No cadastro de indicador não está salvando a informação do filtro de 'fonte de dados', em fórmula de cálculo -->
 				<div class="row">
 					<div class="col-sm-12">
@@ -897,7 +926,6 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			<input type="button" class="btn-primary" data-ng-show="estado=='inserir'" value="Voltar" data-ng-click="voltar()"> 
 			
 </form>
-
 
 <?php }else{ ?>
 			<h4> Você não possui autorização para visualizar esse conteúdo.</h4>

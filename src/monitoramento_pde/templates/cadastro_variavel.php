@@ -4,6 +4,7 @@
  */
 ?>
 
+
 <script type="text/javascript">
 jQuery.noConflict();
 
@@ -61,10 +62,16 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		}
 
 	};
+
+	$scope.delayedRefresh = function() {
+		window.setTimeout(function(){
+			document.getElementById('delayedRefreshBt').click();
+		}, 3000);
+	}
 	
 	$scope.filtrarFonte = function(){
 		if($scope.idFonteAtivo != null)
-			$rootScope.variaveis = $rootScope.listaVariaveis.filter((variavel) => variavel.id_fonte_dados == $scope.idFonteAtivo);
+			$rootScope.variaveis = $rootScope.listaVariaveis.filter((variavel) => variavel.id_fonte_dados === $scope.idFonteAtivo);
 		else
 			$rootScope.variaveis = $rootScope.listaVariaveis;
 	}
@@ -118,12 +125,12 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		
 		VariavelFiltro.update({filtro:$scope.variavelFiltro,id_variavel:$scope.itemAtual.id_variavel}).$promise.then(
 			function(mensagem){
-				Variavel.update({variavel:$rootScope.itemAtual}).$promise.then(
+				Variavel.update({variavel:$rootScope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Variavel.query(function(variaveis) {
 							$rootScope.variaveis = variaveis;
-							$scope.filtrarFonte();
+							$scope.delayedRefresh();
 													
 							$rootScope.modalProcessando.close();		
 							$scope.criarModalSucesso();
@@ -151,7 +158,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 		$rootScope.itemAtual = $scope.itemAtual;
 		VariavelFiltro.remove({id:$scope.itemAtual.id_variavel}).$promise.then(
 			function(mensagem){
-				Variavel.remove({id:$rootScope.itemAtual.id_variavel}).$promise.then(
+				Variavel.remove({id:$rootScope.itemAtual.id_variavel,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 					function(mensagem){
 
 						Variavel.query(function(variaveis) {
@@ -181,7 +188,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 
 	$scope.inserir = function(){
 		$rootScope.variavelFiltro = $scope.variavelFiltro;
-		Variavel.save({variavel:$scope.itemAtual}).$promise.then(
+		Variavel.save({variavel:$scope.itemAtual,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
 				VariavelFiltro.save({filtro:$rootScope.variavelFiltro,id_variavel:mensagem.id_variavel}).$promise.then(
 						function(mensagem){
@@ -398,7 +405,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
     <h3 class="modal-title" id="modal-titulo-variavel"> {{acao}} variável <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('confirmacao')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-variavel">
-			Você irá {{acao.toLowerCase()}} a variável {{itemAtual.nome}}. <br><br> Confirme sua ação.
+			Você irá {{acao.toLowerCase()}} a variável <strong>{{itemAtual.nome}}</strong>. <br><br> Confirme sua ação.
 			</div>
 	<div class="modal-footer">	
 		<button class="btn btn-danger" type="button" ng-click="fecharModal()">	Abortar</button>
@@ -414,7 +421,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
     <h3 class="modal-title" id="modal-titulo-variavel"> {{acaoExecutando}} variável </h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-variavel">
-			{{acaoExecutando}} a variável {{itemAtual.nome}}, por favor aguarde a conclusão.
+			{{acaoExecutando}} a variável <strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
 			</div>
 </div>
 </script>
@@ -430,7 +437,6 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 			</div>
 </div>
 </script>
-
 
 <?php the_content(); ?>
 <?php 
@@ -452,6 +458,7 @@ app.controller("cadastroVariavel", function($scope, $rootScope, $http, $filter, 
 				<div class="elemento-cadastro">
 				
 				<button class="btn-primary" type="button" ng-click="exportarVariaveis()"> Exportar relação de variáveis </button>
+				<button id="delayedRefreshBt" class="btn-primary" data-ng-click="filtrarFonte()">Atualizar filtro</button>
 				<br>
 				
 				<label for="fonte_filtro"> Filtrar por fonte de dados </label>

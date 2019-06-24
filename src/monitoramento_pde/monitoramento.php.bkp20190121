@@ -867,7 +867,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 							loader: function (extent) {
 								
 								
-								$http.jsonp('http://monitoramentopde.smul.pmsp/geoserver/Monitoramento_PDE/ows', {
+								$http.jsonp('http://monitoramentopde.gestaourbana.prefeitura.sp.gov.br/geoserver/Monitoramento_PDE/ows', {
 									params: {
 										service: 'WFS',
 										version: '1.1.0',
@@ -1017,7 +1017,7 @@ app.controller("dashboard", function($scope, $rootScope, $http, $filter, $uibMod
 		
 		$scope.layerContorno = new ol.layer.Tile({
 			source: new ol.source.TileWMS({
-				url: 'http://monitoramentopde.smul.pmsp/geoserver/Monitoramento_PDE/wms/reflect', 
+				url: 'http://monitoramentopde.gestaourbana.prefeitura.sp.gov.br/geoserver/Monitoramento_PDE/wms/reflect', 
 				params: {layers: 'Monitoramento_PDE:Município', tiled: true},
 				serverType: 'geoserver'
 			})

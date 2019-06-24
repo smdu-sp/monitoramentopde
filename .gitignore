@@ -1,2 +1,8 @@
 src/pentaho/
 varlib/
+*.xlsx
+*.xls
+src/UTAs/
+*.bkp*
+*.localbkp*
+src/monitoramento_pde_servidor/
