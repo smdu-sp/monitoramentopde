@@ -37,6 +37,22 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
+// Issue 45
+ add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/carregar_mapa_tematico/(?P<id_grupo_indicador>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_mapa_tematico'
+	) );
+} );
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/obter_mapa/(?P<id_grupo_indicador>\d+)', array(
+		'methods' => WP_REST_Server::READABLE,
+		'callback' => 'obter_mapa'
+	) );
+} );
+
  add_action( 'rest_api_init', function () {
 	global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/territorios', array(
@@ -1572,9 +1588,30 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 function carregar_fonte_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	
+	function loadFile($url) {
+	  $ch = curl_init();
+
+	  curl_setopt($ch, CURLOPT_HEADER, 0);
+	  curl_setopt($ch, CURLOPT_VERBOSE, true);
+	  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	  curl_setopt($ch, CURLOPT_URL, $url);
+
+	  $data = curl_exec($ch);
+	  curl_close($ch);
+
+	  return $data;
+	}
 	//  nome da fonte não presente nos parâmetros - buscando manualmente:
 	$protocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] && $_SERVER['HTTPS'] != "off") ? "https://" : "http://";
-    $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/fontes_dados?fonte_dados=".$parametros['id']);
+	// PROTOCOLO RETORNANDO INCORRETAMENTE. DECLARADO FORÇOSAMENTE:
+	// $protocol = "https://";
+	
+	$url = $protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/fontes_dados?fonte_dados=".$parametros['id'];
+	
+	$jsonFile = loadFile($url);
+
+    // $jsonFile = file_get_contents($protocol.$_SERVER["SERVER_NAME"]."/wp-json/monitoramento_pde/v1/fontes_dados?fonte_dados=".$parametros['id']);    
+
 	$jsonStr = json_decode($jsonFile, true);
 	$nomeElemento = $jsonStr[0]['nome'];
 
@@ -1584,21 +1621,20 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		'idElemento'=>$parametros['id'],
 		'nomeElemento'=>$nomeElemento
 	));
-	
 	global $DbConfig;
 	try {
 		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
 	} catch (PDOException $e) {
 		die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	}
-	
+
 	$comando_string = 
 	"select * 
 	from sistema.fonte_dados 
 	where id_fonte_dados = :id_fonte_dados";
 	
 	$comando = $pdo->prepare($comando_string);
-
+	
 	if(array_key_exists('id_fonte_dados',$parametros))
 		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
 	
@@ -1608,7 +1644,7 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	} else {
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
-	
+
 	$nome_fonte = $dados[0]['nome'];
 	
 	$diretorio = wp_upload_dir()['basedir'].'/'.$dados[0]['nome_tabela'];
@@ -1617,7 +1653,7 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	$nome_arquivo = $data.'_'.$_FILES['arquivo']['name'];
 	
 	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$nome_arquivo);
-	
+
 	$id_fonte_dados = $parametros['id_fonte_dados'];
 	
 	
@@ -1634,7 +1670,6 @@ function carregar_fonte_dados(WP_REST_Request $request){
 				
 			}
 	}
-	
 	if($roleMonitoramento == 'administrator')
 	{
 		$output = 0;
@@ -1642,17 +1677,50 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		
 		putenv('KETTLE_HOME=/var/www/pentaho/Pentaho/Configuracao');
 		$varia_amb = getenv('KETTLE_HOME');
-		
+
 		$linha_comando = '/var/www/pentaho/Pentaho/data-integration/kitchen.sh -rep=MonitoramentoPDE -job=Carga -dir=/ -param:ID_FONTE_DADOS='.$id_fonte_dados.' -param:"FORMATO_ARQUIVO='.$nome_arquivo.'"  -param:"DIRETORIO_FONTE='.$diretorio.'" -param:TIPO_ARQUIVO=2';
 		
+		set_time_limit(90);
+
 		exec($linha_comando,$output,$response);
-		// var_dump($linha_comando);
-		// echo "------------------------ <br /> Output:";
-		// echo "<pre>";
-		// print_r($output);
-		// echo "</pre>";
-		// echo "**************************** <br /> Response: <br />";
-		// var_dump($response);
+		
+		$listaErros = [];
+		foreach ($output as $key => $value) {
+			if (strpos($value, "ERROR")) {
+				array_push($listaErros, $value);				
+			}
+		}
+
+		// SE FOREM IDENTIFICADOS ERROS, RETORNA LISTA DE ERROS
+		if (sizeof($listaErros) > 0) {
+			$objErros = new stdClass();
+			$objErros = (object) $listaErros;
+			$objErros->message = $listaErros[0];
+
+			// FACILITA DEPURAÇÃO DE ERROS PARA O USUÁRIO
+			// Coluna com mesmo nome
+			$inicioMsg = "guy) : Field";
+			$finalMsg = "is specified twice with the same name!";
+			if(strpos($listaErros[0], $finalMsg) !== false) {
+				$msgSimples = explode($inicioMsg, $listaErros[0])[1];
+				$msgSimples = 'Coluna' . str_replace($finalMsg, 'duplicada!', $msgSimples);
+				$objErros->message = $msgSimples;
+			}
+			
+			$response = new  WP_REST_Response($objErros,500);
+			return $response;
+		}		
+		
+		// DEBUG / DEPURAÇÃO DO PENTAHO/KITCHEN JOB/TRANSFORMATION
+		/*
+		var_dump($linha_comando);
+		echo "------------------------ <br /> Output:";
+		echo "<pre>";
+		print_r($output);
+		echo "</pre>";
+		echo "**************************** <br /> Response: <br />";
+		var_dump($response);
+		*/
 		
 		$comando_string = 
 		"select distinct id_indicador 
@@ -1665,14 +1733,17 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		$comando = $pdo->prepare($comando_string);
 		
 		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
-		
+
 		if(!$comando->execute()){
 			$erro = $comando->errorInfo();
 			$response = new  WP_REST_Response($erro[2],500);
+			return $response;
 		}
 		else
 		{
 			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+			$indicadoresSucesso = [];
+
 			foreach($dados as $indicador){
 				$id_indicador = $indicador['id_indicador'];
 				$comando_string = "select sistema.calcular_indicador(:id_indicador)";
@@ -1680,25 +1751,24 @@ function carregar_fonte_dados(WP_REST_Request $request){
 				$comando = $pdo->prepare($comando_string);
 				
 				$comando->bindParam(':id_indicador',$indicador['id_indicador']);
-				
+				// echo "\nid_indicador: ".$id_indicador;
 				if(!$comando->execute()){
 					$erro = $comando->errorInfo();
-					//$debug = var_export($indicador,true);
+					$debug = var_export($indicador,true);
+					// return $debug;
 					$response = new  WP_REST_Response($erro[2], 500);//new  WP_REST_Response($erro[2],500);
 					return $response;
 				}
 			}
-			
-		}
-		
+		}		
 	}
 	
+	/** NOTIFICAÇÃO DE ATUALIZAÇÃO DESATIVADA DURANTE TESTES **/
+	/**
 	$headers = 'From: Monitoramento PDE <apache@c4v3i.localdomain>'. "\r\n";
 	$headers .= "MIME-Version: 1.0" . "\r\n";
 	$headers .= "Content-type:text/html;charset=UTF-8";
 	
-	/** NOTIFICAÇÃO DE ATUALIZAÇÃO DESATIVADA DURANTE TESTES **/
-	/**
 	$administradores = get_users('role=administrator');
 	foreach($administradores as $usuario){
 		$msg = 'A fonte de dados '.$nome_fonte.' foi atualizada por um mantenedor. <br><br> É necessário realizar a validação e carga do arquivo.';
@@ -1710,8 +1780,8 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	set nome_arquivo = '".$nome_arquivo."'
 	where id_fonte_dados = :id_fonte_dados";
 	
-	 $comando = $pdo->prepare($comando_string);
-
+	$comando = $pdo->prepare($comando_string);
+	
 	if(array_key_exists('id_fonte_dados',$parametros))
 		$comando->bindParam(':id_fonte_dados',$parametros['id_fonte_dados']);
 	
@@ -1719,11 +1789,9 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		$erro = $comando->errorInfo();
 		return $erro[2]; 
 	}
-	
 	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
 	
-	//var_dump(array_reverse($output));
-	//var_dump($response);
+	// var_dump(array_reverse($output));
 	
 	return $response;
 } 
@@ -2598,6 +2666,104 @@ select id_grupo_indicador, nome from sistema.grupo_indicador where tipo = 'instr
 	$response = new WP_REST_Response( $dados );
 	return $response;
 }
+
+/*
+	Issue 45
+*/
+function carregar_mapa_tematico(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	if(isset($_SERVER['X-WP-Nonce']))
+		wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
+	
+	$comando_string = 
+	"select * 
+	from sistema.grupo_indicador 
+	where id_grupo_indicador = :id_grupo_indicador";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_grupo_indicador',$parametros))
+		$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+	
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	$diretorio = wp_upload_dir()['basedir'].'/instrumentos';
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$mapa_tematico = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$mapa_tematico);
+	
+	$id_grupo_indicador = $parametros['id_grupo_indicador'];
+	
+	$comando_string = 
+	"update	sistema.grupo_indicador
+	set mapa_tematico = '".$mapa_tematico."'
+	where id_grupo_indicador = :id_grupo_indicador";
+	
+	 $comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_grupo_indicador',$parametros))
+		$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	if(sizeof($dados) == 1 && sizeof($dados[0]) == 0)
+		$dados = 1;	
+	else if(is_array($dados))
+		$dados = json_encode($dados);
+
+	$response = new WP_REST_Response( $dados );
+	return $response;
+}
+
+function obter_mapa(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+	select mapa_tematico, parametros_mapa
+	from sistema.grupo_indicador
+	where id_grupo_indicador = :id_grupo_indicador";
+
+	$comando = $pdo->prepare($comando_string);
+	 
+	if(array_key_exists('id_grupo_indicador',$parametros))
+			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados[0] );
+	return $response;
+}
+// END Issue 45
 
 function indicador_fusao(WP_REST_Request $request){
 	$parametros = $request->get_params();

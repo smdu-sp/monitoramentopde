@@ -2004,10 +2004,10 @@ app.controller("dashboard", function($scope,
 			id: 3,
 			nome: "Zonas Especiais",
 			objetivos: [
-				"Zonas Especiais de Interesse Social (ZEIS)",
-				"Zonas Especiais de Preservação (ZEP)",
-				"Zonas Especiais de Preservação Cultural (ZEPEC)",
-				"Zonas Especiais de Proteção Ambiental (ZEPAM)"
+				// "Zonas Especiais de Interesse Social (ZEIS)",
+				"Zonas Especiais de Preservação (ZEP)"
+				// "Zonas Especiais de Preservação Cultural (ZEPEC)",
+				// "Zonas Especiais de Proteção Ambiental (ZEPAM)"
 			]
 		}
 		// "Macroáreas": ["A","B"],

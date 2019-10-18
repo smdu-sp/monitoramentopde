@@ -204,11 +204,31 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			size: 'md',
 		});
 	}
-	
+
+	$scope.lancarErro = function(erro){
+		console.warn(erro);
+		let errorData = erro.data;		
+		if (typeof(erro.data) == 'object') {
+			errorData = '';
+			for (var p in erro.data) {
+				errorData += p + ': ' + erro.data[p] + '\n';
+			}
+		}
+		// TRATA ERROS COMUNS PARA FACILITAR INTERPRETAÇÃO DO USUÁRIO
+		// Diferentes tipos de valor na mesma coluna (normalmente strings em colunas numéricas)
+		if(errorData.indexOf('invalid input syntax for type') >= 0) {
+			var msgSimples = 'Tipos diferentes de valor: ' + errorData.split('invalid input syntax for type')[1].split('"')[1];
+			erro.data = {message: msgSimples};
+		}
+		
+		alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Mensagem Interna: ' + erro.data.message + '\n\n\n ---------- \n Detalhes técnicos \n ---------- \n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + errorData);
+	}
+	/*
 	$scope.lancarErro = function(erro){
 		console.warn(erro);
 		alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
 	}
+	*/
 	
 	$scope.inserirForm = function(){
 		$scope.idItemAtual = null;		
@@ -309,7 +329,6 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 							console.log(erro);					
 						}
 					).catch(function(err){
-						console.log("HEL");
 						console.error(err);
 					});
 					break;
@@ -337,6 +356,9 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 					});
 					break;
 				default:
+					window.setTimeout(function() {
+						document.getElementById('progresso').style.width = "90%";						
+					}, 200);
 					FonteDadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
 						function(mensagem){
 							$rootScope.carregandoArquivo = false;
@@ -348,7 +370,9 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 							$rootScope.modalConfirmacao.close();						
 							$rootScope.carregandoArquivo = false;
 							$rootScope.mensagemArquivo = '';
-							$scope.lancarErro(erro);					
+							$scope.lancarErro(erro);
+							$rootScope.modalProcessando.close();
+							// TODO: DESCOMENTAR ACIMA APÓS TESTES
 						}
 					).catch(function(err){
 						console.log("erro: ");
@@ -388,8 +412,10 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		if(tipo == 'confirmacao')
 			$rootScope.modalConfirmacao.close();
 		
-		if(tipo == 'sucesso')
+		if(tipo == 'sucesso') {
 			$rootScope.modalSucesso.close();
+			location.reload();
+		}
 	};
 	
 	$scope.changeDataInicial = function(){
@@ -600,6 +626,9 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 <div class="modal-instrumento">
 	<div class="modal-header">
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> {{acaoExecutando}} fonte de dados </h3> 
+	</div>	
+	<div id="progresso" class="barra-progresso" style="width: 0">
+		<span> </span>
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte-dados">
 			{{acaoExecutando}} a fonte de dados <strong>{{itemAtual.nome}}</strong>, por favor aguarde a conclusão.
@@ -614,8 +643,8 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
     <h3 class="modal-title" id="modal-titulo-fonte-dados"> Ação concluída <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('sucesso')">X</button></h3> 
 	</div>
 	<div class="modal-body" id="modal-corpo-fonte_dados">
-			 A ação foi concluída com sucesso!
-			</div>
+		A ação foi concluída com sucesso!
+	</div>
 </div>
 </script>
 
@@ -847,7 +876,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				
 			</p>
 			
-			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo Fonte de Dados" data-ng-click="criarModalConfirmacao('Carregar')">
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo de Fonte de Dados" data-ng-click="criarModalConfirmacao('Carregar')">
 			<!-- Carregar mapas (SHP / Shapefiles / KMZ) -->
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Mapas" data-ng-click="criarModalConfirmacao('Carregar Mapas')">
 			<!-- Carregar metadados -->

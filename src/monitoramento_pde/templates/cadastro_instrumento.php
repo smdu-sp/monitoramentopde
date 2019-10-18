@@ -6,8 +6,69 @@
 
 <script type="text/javascript">
 jQuery.noConflict();
-
+var pumba = false;
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','angular.filter','as.sortable']);
+
+/** 
+	ISSUE 45 - Mapa temático para cada instrumento
+**/
+
+app.factory('CarregarMapaTematico',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/carregar_mapa_tematico/:id',{id:'@id_instrumento'},{
+		update: cargaUpdateParams
+	});
+});
+
+app.factory('ObterMapa',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/obter_mapa/:id_grupo_indicador',{id_grupo_indicador:'@id_instrumento'},{
+		get:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+					}
+		},query:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+			}	
+		}
+	});
+});
+
+var cargaUpdateParams = {
+	method:'POST',
+	transformRequest: function(data) {
+		if (data === undefined){
+			return data;
+		}
+
+		var fd = new FormData();
+		angular.forEach(data, function(value, key) {
+			if (value instanceof FileList) {
+				if (value.length == 1) {
+					fd.append(key, value[0]);
+				} else {
+					angular.forEach(value, function(file, index) {
+						fd.append(key + '_' + index, file);
+					});
+				}
+			} else {
+				if(value instanceof File){
+					fd.append('arquivo', value);
+				}
+				else if(value instanceof Array){
+					fd.append('arquivo', value[0]);
+				}else
+					fd.append(key, value);
+			}
+		});
+			
+		return fd;					
+	},
+	headers:{
+		'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+		,'Content-type': undefined
+	}
+};
+// END Issue 45
 
 app.factory('GrupoIndicador',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/grupo_indicador/:id',{id:'@id_grupo_indicador'},{
@@ -33,9 +94,203 @@ app.factory('Indicador',function($resource){
 	);
 });
 
-app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $uibModal, GrupoIndicador, Indicador) {
+app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $uibModal, GrupoIndicador, Indicador, CarregarMapaTematico, ObterMapa) {
  
 	$scope.estado = "listar";
+
+	// Issue 45
+
+	$scope.carregarMapa = function(){
+		if(!$rootScope.carregandoArquivo){
+			$rootScope.carregandoArquivo = true;
+			$rootScope.mensagemArquivo = 'Aguarde... Realizando Carga';
+			// TO DO confirmar carregamento
+			// CARGA DB FONTE DE DADOS
+			CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
+				function(mensagem){
+					console.log(mensagem);
+					$rootScope.carregandoArquivo = false;
+					$rootScope.mensagemArquivo = '';					
+					$rootScope.modalProcessando.close();		
+					$scope.criarModalSucesso();
+					$scope.renderizarMapa();
+				},
+				function(erro){
+					$rootScope.modalConfirmacao.close();						
+					$rootScope.carregandoArquivo = false;
+					$rootScope.mensagemArquivo = '';
+					// $scope.lancarErro(erro);
+					console.log("PRE ERROR:");
+					console.log(erro);					
+				}
+			).catch(function(err){				
+				console.error(err);
+			});
+		}else{
+			alert('O mapa está sendo carregado. Por favor, aguarde.');
+		};
+	}
+
+	/**
+		MAPA OSM
+	**/
+	$scope.loadMap = function() {
+		if($rootScope.mapLoaded)
+			return;
+		$rootScope.mapLoaded = true;
+		$rootScope.osmLayer = new ol.layer.Tile({
+			source: new ol.source.OSM()
+		});
+		// mapa MapBox
+		let mbDefault = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbSatellite = 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbLight = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbMonoblue = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v65hgy0fgf1drt97mjreic/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		$rootScope.mbLayer = new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: mbLight
+			})
+		});
+
+		<?php
+		
+		// Verifica se API excedeu a quantidade de tile downloads do MapBox
+			$tileUrl = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/13/3034/4647?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+
+			// Para funcionamento em ambiente de homologação
+			if (getenv('PROXY') == true) {
+				$auth = base64_encode(getenv('PROXY_AUTH'));
+				stream_context_set_default(
+					array(
+						'http' => array(
+							'proxy' => "tcp://".getenv('PROXY'),
+							'request_fulluri' => true,
+							'header' => "Proxy-Authorization: Basic $auth"
+						)
+					)
+				);
+			}
+
+			if (strpos(get_headers($tileUrl)[1], 'image')) {
+				// Imagem obtida - utiliza mapa do MapBox
+				echo "\$rootScope.mapLayers = [\$scope.mbLayer];";
+			}
+			else {
+				// Erro de autorização (API) - utiliza mapa do OpenStreetMaps
+				echo "\$rootScope.mapLayers = [\$scope.osmLayer];";
+			}
+		?>
+		// $rootScope.mapLayers = [$scope.osmLayer];
+		// $rootScope.mapLayers = [$scope.mbLayer];
+
+		$rootScope.map = new ol.Map({
+			target: 'map',
+			layers: $rootScope.mapLayers,
+			view: new ol.View({
+			  // center: ol.proj.fromLonLat([37.41, 8.82]),
+			  center: [-5191207.638373509,-2698731.105121977],
+			  zoom: 10,
+			  maxZoom: 20
+			})
+		});
+	}
+	$scope.loadMap();
+
+	$scope.addLayers = function(layersInstrumento){
+		for(i in layersInstrumento) {
+			let index = layersInstrumento[i];
+			// let kmlLayer = new VectorLayer({
+			let kmlLayer = new ol.layer.Vector({
+				style: new ol.style.Style({
+					stroke: new ol.style.Stroke({
+						color: index.stroke_color,
+						width: index.stroke_width,
+						lineDash: index.stroke_dash
+					}),
+					fill: new ol.style.Fill({
+						color: index.fill_color
+					})
+				}),
+				source: new ol.source.Vector({
+					url: index.path,
+					format: new ol.format.KML({
+						extractStyles: index.style_from_kml
+					})
+				})
+			});
+			$scope.mapLayers.push(kmlLayer);
+			// $scope.map.layers = $scope.mapLayers;			
+		}
+	};
+
+	$scope.renderizarMapa = function() {
+		if(!$scope.renderizandoMapa || true){
+			$scope.renderizandoMapa = true;
+			console.log('renderizandoMapa');
+			ObterMapa.query({id_grupo_indicador:$scope.idItemAtual},function(mapaObtido) {
+				$scope.mapa = mapaObtido;
+			}).$promise.then(function(){
+				console.log($scope.mapa);
+				$scope.renderizandoMapa = false;
+				console.log("Query terminada.");
+				
+				var contornoSP = {
+					path: "/app/uploads/instrumentos/msp_contorno.kml",
+					stroke_color: 'rgba(0, 0, 0, 0.5)',
+					stroke_width: 4,
+					fill_color: 'rgba(0, 0, 10, 0.08)',
+					style_from_kml: false
+				};
+
+				console.warn("Scope map GetLayers:");
+				console.log($scope.map.getLayers());
+				if($scope.map.getLayers().getLength() === 1)
+					$scope.addLayers([contornoSP]);
+
+				var cLayers = $scope.map.getLayers();
+				for(layer in cLayers) {
+					$scope.map.removeLayer(layer);
+				}
+
+				console.log("MapLayers: "+$scope.mapLayers.length);
+				console.log($scope.mapLayers);
+				for(layer in $scope.mapLayers){
+					$scope.map.addLayer($scope.mapLayers[layer]);
+				}
+				
+				// $scope.map.renderSync();
+				// var extent = my_vector_layer.getSource().getExtent();
+				// map.getView().fit(extent, map.getSize());
+
+				pumba = $scope.map;
+				
+				window.setTimeout(function(){
+					var extent = ol.extent.createEmpty();
+					$scope.map.getLayers().forEach(function(layer) {
+						if(layer.getSource().getExtent !== undefined)
+					  		ol.extent.extend(extent, layer.getSource().getExtent());
+					});
+					$scope.map.getView().fit(extent, $scope.map.getSize());
+				}, 2000);
+
+				// $scope.map.getView().setZoom(9);
+			});
+		}
+	}
+
+	$scope.lerArquivos = function(element) {
+		
+		$scope.$apply(function($scope) {
+		// Turn the FileList object into an Array
+			$scope.arquivos = [];
+			for (var i = 0; i < element.files.length; i++) {
+				$scope.arquivos.push(element.files[i])
+			}
+		});
+	};
+
+	
+		// END Issue 45
 	
 	$scope.carregarTipo = function(){
 		if($scope.tipo=='estrategia')
@@ -70,6 +325,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	};
 	
 	$scope.criarModalConfirmacao = function(acao){
+		// Verifica se arquivo foi selecionado antes de carregar o mapa
+		if(acao === 'CarregarMapa' && !$scope.arquivos){
+			window.alert('Nenhum arquivo enviado. Clique no botão "Escolher arquivo" para enviar o arquivo de mapa primeiro.');
+			return;
+		}
 		$rootScope.modalConfirmacao = $uibModal.open({
 			animation: true,
 			ariaLabelledBy: 'modal-titulo-instrumento',
@@ -212,7 +472,13 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				}
 			}
 		}
-	
+		
+		// Issue 45
+		if($scope.acao == 'Carregar Mapa'){
+			$scope.acaoExecutando = 'Carregando';
+			$scope.acaoSucesso = 'Carregado';
+			$scope.carregarMapa();
+		}
 	};	
 	
 	$scope.deletarElemento = function(indice){
@@ -559,6 +825,31 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			
 			<input data-ng-show="estado=='inserir'" type="button" value="Gravar" data-ng-click="criarModalConfirmacao('Inserir')">
 			<input data-ng-show="estado=='inserir'" type="button" value="Voltar" data-ng-click="voltar()">
+			<!-- Issue 45 -->
+			<br>
+			<!-- APAGAR -->
+			<input type="submit" data-ng-click="renderizarMapa()" value="TESTAR MAPA">
+			<!-- END APAGAR -->
+			<hr>
+			<br>
+			<div data-ng-show="estado!='inserir' && tipo=='instrumento' && idItemAtual">
+				<h4>Mapa temático</h4>
+
+				<!-- <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css"> -->
+				<style>
+					.map {
+						height: 550px;
+						width: 350px;
+					}
+				</style>
+				<!-- <script src="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/build/ol.js"></script> -->
+				<div id="map" class="map"></div>
+
+				<label for="arquivo"> Selecione o arquivo </label>
+				<br>
+				<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant id="arquivos" name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">
+				<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Mapa" data-ng-click="criarModalConfirmacao('CarregarMapa')">
+			</div>
 			
 </form>
 
