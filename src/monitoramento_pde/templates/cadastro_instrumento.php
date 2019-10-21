@@ -7,6 +7,7 @@
 <script type="text/javascript">
 jQuery.noConflict();
 var pumba = false;
+var customStyle = {};
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','angular.filter','as.sortable']);
 
 /** 
@@ -108,7 +109,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			// CARGA DB FONTE DE DADOS
 			CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
 				function(mensagem){
-					console.log(mensagem);
+					// console.log(mensagem);
 					$rootScope.carregandoArquivo = false;
 					$rootScope.mensagemArquivo = '';					
 					$rootScope.modalProcessando.close();		
@@ -152,8 +153,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			})
 		});
 
-		<?php
-		
+		<?php		
 		// Verifica se API excedeu a quantidade de tile downloads do MapBox
 			$tileUrl = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/13/3034/4647?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
 
@@ -187,10 +187,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			target: 'map',
 			layers: $rootScope.mapLayers,
 			view: new ol.View({
-			  // center: ol.proj.fromLonLat([37.41, 8.82]),
-			  center: [-5191207.638373509,-2698731.105121977],
-			  zoom: 10,
-			  maxZoom: 20
+				// center: ol.proj.fromLonLat([37.41, 8.82]),
+				center: [-5191207.638373509,-2698731.105121977],
+				zoom: 10,
+				maxZoom: 20
 			})
 		});
 	}
@@ -230,7 +230,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			ObterMapa.query({id_grupo_indicador:$scope.idItemAtual},function(mapaObtido) {
 				$scope.mapa = mapaObtido;
 			}).$promise.then(function(){
-				console.log($scope.mapa);
+				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa)
+				var customLayer = $scope.mapa.parametros_mapa === null ? {} : $scope.mapa.parametros_mapa;
+				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapa.mapa_tematico;
+				customLayer.style_from_kml = true;
+				$scope.addLayers([customLayer]);
+				
 				$scope.renderizandoMapa = false;
 				console.log("Query terminada.");
 				
@@ -238,12 +243,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					path: "/app/uploads/instrumentos/msp_contorno.kml",
 					stroke_color: 'rgba(0, 0, 0, 0.5)',
 					stroke_width: 4,
-					fill_color: 'rgba(0, 0, 10, 0.08)',
+					fill_color: 'rgba(0, 0, 10, 0.02)',
 					style_from_kml: false
 				};
 
-				console.warn("Scope map GetLayers:");
-				console.log($scope.map.getLayers());
 				if($scope.map.getLayers().getLength() === 1)
 					$scope.addLayers([contornoSP]);
 
@@ -252,8 +255,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					$scope.map.removeLayer(layer);
 				}
 
-				console.log("MapLayers: "+$scope.mapLayers.length);
-				console.log($scope.mapLayers);
 				for(layer in $scope.mapLayers){
 					$scope.map.addLayer($scope.mapLayers[layer]);
 				}
@@ -261,7 +262,15 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				// $scope.map.renderSync();
 				// var extent = my_vector_layer.getSource().getExtent();
 				// map.getView().fit(extent, map.getSize());
-
+				customStyle = new ol.style.Style({
+					stroke: new ol.style.Stroke({
+						color: 'rgba(200, 0, 0, 1)',
+						width: 2
+					}),
+					fill: new ol.style.Fill({
+						color: 'rgba(0,100,0, 0.5)'
+					})
+				});
 				pumba = $scope.map;
 				
 				window.setTimeout(function(){
@@ -317,6 +326,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		 });
 		if($scope.itemAtual != null){
 			$scope.estado = "selecionar";
+			$scope.renderizarMapa(); // TODO: verificar se dados do indicador já foram obtidos antes de renderizar mapa
 		}
 	};
 	
@@ -474,7 +484,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		}
 		
 		// Issue 45
-		if($scope.acao == 'Carregar Mapa'){
+		if($scope.acao == 'CarregarMapa'){
 			$scope.acaoExecutando = 'Carregando';
 			$scope.acaoSucesso = 'Carregado';
 			$scope.carregarMapa();
