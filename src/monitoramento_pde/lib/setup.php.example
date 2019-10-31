@@ -58,10 +58,10 @@ function setup() {
 	global $DbConfig;
 	$DbConfig = array(
 		'host'     => 'localhost',
-		'port'     => '5432',
-		'user'     => 'postgres',
-		'dbname'   => 'MonitoramentoPDE',
-		'password' => 'kofphxxn1989'
+    'port'     => '5432',
+		'user'     => 'nomeUsuario',
+		'dbname'   => 'nomeBanco',
+		'password' => 'senha'
 	);
 	
 }
@@ -126,6 +126,7 @@ function assets() {
   wp_enqueue_script( 'highcharts_more', get_template_directory_uri() . '/js/Highcharts-4.2.5/js/highcharts-more.js', false );
   wp_enqueue_script( 'angular', get_template_directory_uri() . '/js/angular-1.5.8/angular.min.js', false );
   wp_enqueue_script( 'angular_resource', get_template_directory_uri() . '/js/angular-1.5.8/angular-resource.min.js', false );
+	wp_enqueue_script( 'angular_sanitize', get_template_directory_uri() . '/js/angular-1.5.8/angular-sanitize.min.js', false );
   wp_enqueue_script( 'angular_animate', get_template_directory_uri() . '/js/angular-1.5.8/angular-animate.min.js', false );
   wp_enqueue_script( 'angular_touch', get_template_directory_uri() . '/js/angular-1.5.8/angular-touch.min.js', false );
   wp_enqueue_script( 'angular_ptbr', get_template_directory_uri() . '/js/angular-1.5.8/angular-locale_pt-br.js',false );
@@ -134,11 +135,20 @@ function assets() {
   wp_enqueue_script( 'bootstrap-js', get_template_directory_uri() . '/js/Bootstrap-3.3.7/bootstrap.min.js',false );
   wp_enqueue_script( 'angular-filter', get_template_directory_uri() . '/js/angular-filter.js',false );
 	wp_enqueue_script( 'angular-route', get_template_directory_uri() . '/js/angular-route.js',false );
-	
+	wp_enqueue_script( 'blob', get_template_directory_uri() . '/js/js-xlsx/Blob.js',false );
+	wp_enqueue_script( 'file_saver', get_template_directory_uri() . '/js/js-xlsx/FileSaver.js',false );
+	wp_enqueue_script( 'jszip', get_template_directory_uri() . '/js/js-xlsx/jszip.js',false );
+	wp_enqueue_script( 'js-xlsx', get_template_directory_uri() . '/js/js-xlsx/xlsx.js',false );
+	wp_enqueue_script( 'cpexcel', get_template_directory_uri() . '/js/js-xlsx/cpexcel.js',false );
+	wp_enqueue_script( 'filesaver', get_template_directory_uri() . '/js/FileSaver.min.js',false );
+	wp_enqueue_script( 'sortable', get_template_directory_uri() . '/js/ng-sortable.min.js',false );
+	wp_enqueue_script( 'dropdown-multiselect', get_template_directory_uri() . '/js/dropdown-multiselect/angularjs-dropdown-multiselect.min.js',false );
 	
   wp_enqueue_style( 'open_layers', get_template_directory_uri() . '/css/ol.css' );
 	wp_enqueue_style( 'font-awesome', get_template_directory_uri() . '/css/font-awesome.min.css' );
   wp_enqueue_style( 'bootstrap', get_template_directory_uri() . '/css/bootstrap-3.3.7/css/bootstrap.min.css' );
+  wp_enqueue_style( 'sortable-required', get_template_directory_uri() . '/css/ng-sortable.css' );
+  wp_enqueue_style( 'sortable-style', get_template_directory_uri() . '/css/ng-sortable.style.css' );
   wp_enqueue_style( 'monitoramento_pde', get_template_directory_uri() . '/style.css' );
 }
 add_action('wp_enqueue_scripts', __NAMESPACE__ . '\\assets', 100);

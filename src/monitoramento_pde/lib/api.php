@@ -52,6 +52,13 @@ add_action( 'rest_api_init', function () {
 		'callback' => 'obter_mapa'
 	) );
 } );
+add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/gravar_parametros_mapa/(?P<id_grupo_indicador>\d+)', array(
+		'methods' => 'PUT',
+		'callback' => 'gravar_parametros_mapa'
+	) );
+} );
 
  add_action( 'rest_api_init', function () {
 	global $ApiConfig;
@@ -2755,6 +2762,40 @@ function obter_mapa(WP_REST_Request $request){
  
  	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
+		var_dump($erro);
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	$response = new WP_REST_Response( $dados[0] );
+	return $response;
+}
+
+function gravar_parametros_mapa(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+	update sistema.grupo_indicador
+	set parametros_mapa = :parametros_mapa
+	where id_grupo_indicador = :id_grupo_indicador;";
+
+	$comando = $pdo->prepare($comando_string);
+	 
+	if(array_key_exists('id_grupo_indicador',$parametros))
+			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+	if(array_key_exists('parametros_mapa',$parametros))
+			$comando->bindParam(':parametros_mapa',$parametros['parametros_mapa']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		var_dump($erro);
 		return $erro[2]; 
 	} else {
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
@@ -2763,6 +2804,7 @@ function obter_mapa(WP_REST_Request $request){
 	$response = new WP_REST_Response( $dados[0] );
 	return $response;
 }
+
 // END Issue 45
 
 function indicador_fusao(WP_REST_Request $request){
