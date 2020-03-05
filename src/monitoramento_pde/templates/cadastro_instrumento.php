@@ -141,7 +141,8 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
  
 	$scope.estado = "listar";
 	$scope.estilo = {};
-	$scope.estiloKml = true;
+	$scope.estiloKml = false;
+	$scope.raio = 2;
 
 	// Issue 45
 
@@ -154,13 +155,19 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
 				function(mensagem){
 					// console.log(mensagem);
-					$rootScope.carregandoArquivo = false;
 					$rootScope.mensagemArquivo = '';					
 					$rootScope.modalProcessando.close();		
 					$scope.criarModalSucesso();
 					$scope.renderizarMapa();
 					// Limpa camadas antes de atualizar mapa
-					$rootScope.mapLayers = [$rootScope.mapLayers[0]];					
+					$rootScope.mapLayers = [$rootScope.mapLayers[0]];
+					// Marca opção "Utilizar estilo do KML" de acordo com opção marcada no banco
+					if ($scope.mapa.parametros_mapa !== undefined && $scope.mapa.parametros_mapa !== null){
+						var params = JSON.parse($scope.mapa.parametros_mapa);
+						$scope.estiloKml = params.style_from_kml;
+					}
+
+					$rootScope.carregandoArquivo = false;
 				},
 				function(erro){
 					$rootScope.modalConfirmacao.close();						
@@ -244,9 +251,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 	$scope.addLayers = function(layersInstrumento){
 		for(i in layersInstrumento) {
+			// Verifica se há estilo personalizado
 			let index = layersInstrumento[i];
-			let kmlLayer = new ol.layer.Vector({
-				style: new ol.style.Style({
+			var olStyle = {};
+			if (index.style.stroke_color !== undefined) {				
+				olStyle = new ol.style.Style({
 					stroke: new ol.style.Stroke({
 						color: index.style.stroke_color,
 						width: index.style.stroke_width,
@@ -254,16 +263,19 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					}),
 					fill: new ol.style.Fill({
 						color: index.style.fill_color
-					}),
+					}),					
 					image: new ol.style.Circle({ // Estilo do ponto
-						radius: 7,
+						radius: $scope.raio,
 						fill: new ol.style.Fill({color: index.style.fill_color}),
 						stroke: new ol.style.Stroke({
 							color: index.style.stroke_color,
 							width: index.style.stroke_width
 						})
 					})
-				}),				
+				})
+			}
+			let kmlLayer = new ol.layer.Vector({
+				style: olStyle,				
 				source: new ol.source.Vector({
 					url: index.path,
 					format: new ol.format.KML({
@@ -292,23 +304,26 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapa.mapa_tematico;
 
-				// Verifica se há estilo personalizado
-				if ($scope.mapa.parametros_mapa === undefined || $scope.mapa.parametros_mapa === null) {
+				// Verifica se não há estilo personalizado
+				if ($scope.mapa.parametros_mapa === undefined || $scope.mapa.parametros_mapa === null || $scope.mapa.parametros_mapa === '') {
 					customLayer.style.style_from_kml = true;
+					$scope.estiloKml = true;
 				}
 				else {
-					customLayer.style_from_kml = $scope.estiloKml;
 					customLayer.style = JSON.parse($scope.mapa.parametros_mapa);
+					if ($rootScope.firstLoad)
+						$scope.estiloKml = customLayer.style.style_from_kml;
+					else
+						customLayer.style.style_from_kml = $scope.estiloKml;
 					// Atualiza painel de configurações do mapa
 					$scope.estilo = customLayer.style;
-					
 					$scope.estilo.stroke_color_a = rgbaToHex($scope.estilo.stroke_color).alfa;
 					$scope.estilo.stroke_color = rgbaToHex($scope.estilo.stroke_color).hex;
 					
 					$scope.estilo.fill_color_a = rgbaToHex($scope.estilo.fill_color).alfa;
 					$scope.estilo.fill_color = rgbaToHex($scope.estilo.fill_color).hex;
 				}
-
+				
 				$scope.addLayers([customLayer]);
 				
 				$scope.renderizandoMapa = false;
@@ -380,6 +395,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 		lineWidth = document.getElementById('espessura-contorno').value;
 
+		
 		customStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
 				color: corStroke,
@@ -387,15 +403,28 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			}),
 			fill: new ol.style.Fill({
 				color: corFill
+			}),
+			image: new ol.style.Circle({ // Estilo do ponto
+				radius: $scope.raio,
+				fill: new ol.style.Fill({color: corFill}),
+				stroke: new ol.style.Stroke({
+					color: corStroke,
+					width: lineWidth
+				})
 			})
 		});
+		
+
+
+
 		$scope.mapa.parametros_mapa = {
 			// CRIA OBJETO QUE SERA ARMAZENADO NO SERVIDOR			
 			stroke_color: corStroke,
 			stroke_width: lineWidth,
 			// stroke_dash: false,
 			fill_color: corFill,
-			style_from_kml: $scope.estiloKml
+			// style_from_kml: $scope.estiloKml
+			style_from_kml: false
 		};
 
 		/** ALTERA ESTILO DAS FEATURES DO KML ENVIADO **/			
@@ -409,10 +438,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		*/		
 	}
 	$scope.gravarParametrosMapa = function(){
-		GravarParametrosMapa.update({id_grupo_indicador:$scope.idItemAtual,parametros_mapa:JSON.stringify($scope.mapa.parametros_mapa)}).$promise.then(
+		var parametrosTratados = typeof($scope.mapa.parametros_mapa) === 'object' ? JSON.stringify($scope.mapa.parametros_mapa) : '';
+
+		GravarParametrosMapa.update({id_grupo_indicador:$scope.idItemAtual,parametros_mapa:parametrosTratados}).$promise.then(
 			function(mensagem){				
-				console.log('SUCESSO');
-				console.log(mensagem);
+				// console.log('SUCESSO');
+				// console.log(mensagem);
 				$rootScope.modalProcessando.close();
 				$scope.criarModalSucesso();
 			},
@@ -644,8 +675,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				$scope.acaoExecutando = 'Gravando';
 				$scope.acaoSucesso = 'Gravado';
 				$scope.gravarParametrosMapa();
+				break;
 			default:
-				window.alert('Evento inesperado! Contate o desenvolvedor');
+				console.log($scope.acao);
+				// window.alert('Evento inesperado! Contate o desenvolvedor');
 		};
 		/*
 		if($scope.acao == 'Atualizar'){
@@ -1066,7 +1099,19 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					</table>
 					<!-- BOTÃO DE ENVIO DE PARÂMETROS -->
 					<div>
-						<input type="submit" data-ng-show="estado!='inserir'" ng-disabled="estiloKml" value="Gravar parâmetros" data-ng-click="criarModalConfirmacao('GravarParametrosMapa')">
+						<!-- <input
+							type="submit"
+							data-ng-show="estado!='inserir'"
+							ng-disabled="estiloKml"
+							value="Gravar parâmetros"
+							ng-class="{'disabled': estiloKml, 'btn':true, 'btn-block':true}"
+							data-ng-click="criarModalConfirmacao('GravarParametrosMapa')"> -->
+						<input
+							type="submit"
+							data-ng-show="estado!='inserir'"
+							value="Gravar parâmetros"
+							class="btn btn-block"
+							data-ng-click="criarModalConfirmacao('GravarParametrosMapa')">
 					</div>
 				</div>
 				
