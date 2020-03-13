@@ -6,7 +6,6 @@
 
 <script type="text/javascript">
 jQuery.noConflict();
-var pumba = false;
 var customStyle = false;
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','angular.filter','as.sortable']);
 var contornoSP = {
@@ -145,6 +144,8 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.raio = 2;
 
 	// Issue 45
+	// IDENTIFICAR POR QUE NÃO GRAVA INFORMAÇÕES DE LEGENDA QUANDO OPÇÃO DE OBTER DO KML ESTÁ MARCADA
+	$scope.mapLegendas = [];
 
 	$scope.carregarMapa = function(){
 		if(!$rootScope.carregandoArquivo){
@@ -154,7 +155,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			// CARGA DB FONTE DE DADOS
 			CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
 				function(mensagem){
-					// console.log(mensagem);
 					$rootScope.mensagemArquivo = '';					
 					$rootScope.modalProcessando.close();		
 					$scope.criarModalSucesso();
@@ -163,8 +163,8 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					$rootScope.mapLayers = [$rootScope.mapLayers[0]];
 					// Marca opção "Utilizar estilo do KML" de acordo com opção marcada no banco
 					if ($scope.mapa.parametros_mapa !== undefined && $scope.mapa.parametros_mapa !== null){
-						var params = JSON.parse($scope.mapa.parametros_mapa);
-						$scope.estiloKml = params.style_from_kml;
+						var params = JSON.parse($scope.mapa.parametros_mapa);						
+						$scope.estiloKml = params.style_from_kml;						
 					}
 
 					$rootScope.carregandoArquivo = false;
@@ -210,7 +210,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		// Verifica se API excedeu a quantidade de tile downloads do MapBox
 			$tileUrl = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/13/3034/4647?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
 
-			// Para funcionamento em ambiente de homologação
+			// Para funcionamento em ambiente de homologação ({pasta raiz}/.env)
 			if (getenv('PROXY') == true) {
 				$auth = base64_encode(getenv('PROXY_AUTH'));
 				stream_context_set_default(
@@ -233,14 +233,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				echo "\$rootScope.mapLayers = [\$scope.osmLayer];";
 			}
 		?>
-		// $rootScope.mapLayers = [$scope.osmLayer];
-		// $rootScope.mapLayers = [$scope.mbLayer];
-
+		
 		$rootScope.map = new ol.Map({
 			target: 'map',
 			layers: $rootScope.mapLayers,
 			view: new ol.View({
-				// center: ol.proj.fromLonLat([37.41, 8.82]),
 				center: [-5191207.638373509,-2698731.105121977],
 				zoom: 10,
 				maxZoom: 20
@@ -287,6 +284,16 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		}
 	};
 
+	$scope.parseJson = function(json) {
+		var parsed = {};
+		try {
+			parsed = JSON.parse(json)
+		} catch (e) {
+			console.error(e);
+		}
+		return parsed;
+	}
+
 	$scope.renderizarMapa = function() {
 		if(!$scope.renderizandoMapa || true){
 			$scope.renderizandoMapa = true;
@@ -304,25 +311,36 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapa.mapa_tematico;
 
-				// Verifica se não há estilo personalizado
-				if ($scope.mapa.parametros_mapa === undefined || $scope.mapa.parametros_mapa === null || $scope.mapa.parametros_mapa === '') {
-					customLayer.style.style_from_kml = true;
-					$scope.estiloKml = true;
-				}
-				else {
-					customLayer.style = JSON.parse($scope.mapa.parametros_mapa);
-					if ($rootScope.firstLoad)
-						$scope.estiloKml = customLayer.style.style_from_kml;
-					else
-						customLayer.style.style_from_kml = $scope.estiloKml;
-					// Atualiza painel de configurações do mapa
-					$scope.estilo = customLayer.style;
+				// Verifica se não há estilo personalizado				
+				if(!$scope.mapa.parametros_mapa) 
+					$scope.mapa.parametros_mapa = {style_from_kml: true}
+				if (typeof($scope.mapa.parametros_mapa) == "string")
+					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);
+
+				// Se houver legendas, acrescenta ao array				
+				if(typeof($scope.mapa.parametros_mapa.items_legenda) != "undefined" && $scope.mapa.parametros_mapa.items_legenda.length > 0)
+					$scope.mapLegendas = $scope.mapa.parametros_mapa.items_legenda;
+
+				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
+				customLayer.style = $scope.mapa.parametros_mapa;
+				if ($rootScope.firstLoad)
+					$scope.estiloKml = customLayer.style.style_from_kml;
+				else
+					customLayer.style.style_from_kml = $scope.estiloKml;
+				// Atualiza painel de configurações do mapa
+				$scope.estilo = customLayer.style;
+				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
 					$scope.estilo.stroke_color_a = rgbaToHex($scope.estilo.stroke_color).alfa;
 					$scope.estilo.stroke_color = rgbaToHex($scope.estilo.stroke_color).hex;
 					
 					$scope.estilo.fill_color_a = rgbaToHex($scope.estilo.fill_color).alfa;
 					$scope.estilo.fill_color = rgbaToHex($scope.estilo.fill_color).hex;
 				}
+				else {
+					customLayer.style.style_from_kml = true;
+					$scope.estiloKml = true;
+				}
+				// }
 				
 				$scope.addLayers([customLayer]);
 				
@@ -336,16 +354,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					$scope.map.removeLayer(layer);
 				}
 
-				// console.warn('MAP LAYERS');
-				// console.log($scope.mapLayers);
 				for(layer in $scope.mapLayers){
 					$scope.map.addLayer($scope.mapLayers[layer]);
 				}
-				
-				// $scope.map.renderSync();
-				// var extent = my_vector_layer.getSource().getExtent();
-				// map.getView().fit(extent, map.getSize());
-				pumba = $scope.map;
+				// Recupera informações das features da camada enviada para preencher a legenda
+				var mapLayersSource = $scope.mapLayers[1].getSource();
 				
 				window.setTimeout(function(){
 					var extent = ol.extent.createEmpty();
@@ -355,8 +368,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					});
 					$scope.map.getView().fit(extent, $scope.map.getSize());
 				}, 2000);
-
-				// $scope.map.getView().setZoom(9);
 			});
 		}
 	}
@@ -376,7 +387,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.lerArquivos = function(element) {
 		
 		$scope.$apply(function($scope) {
-		// Turn the FileList object into an Array
+		// Converte a lista de arquivos (objeto) em um array
 			$scope.arquivos = [];
 			for (var i = 0; i < element.files.length; i++) {
 				$scope.arquivos.push(element.files[i])
@@ -394,7 +405,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		let corFill = 'rgba(' + hexToRgb(hexFill).r + ', ' + hexToRgb(hexFill).g + ', ' + hexToRgb(hexFill).b + ', ' + opacityFill + ')';
 
 		lineWidth = document.getElementById('espessura-contorno').value;
-
 		
 		customStyle = new ol.style.Style({
 			stroke: new ol.style.Stroke({
@@ -413,9 +423,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				})
 			})
 		});
-		
-
-
 
 		$scope.mapa.parametros_mapa = {
 			// CRIA OBJETO QUE SERA ARMAZENADO NO SERVIDOR			
@@ -424,7 +431,8 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			// stroke_dash: false,
 			fill_color: corFill,
 			// style_from_kml: $scope.estiloKml
-			style_from_kml: false
+			style_from_kml: false,
+			items_legenda: $scope.mapLegendas
 		};
 
 		/** ALTERA ESTILO DAS FEATURES DO KML ENVIADO **/			
@@ -437,13 +445,46 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		}
 		*/		
 	}
-	$scope.gravarParametrosMapa = function(){
-		var parametrosTratados = typeof($scope.mapa.parametros_mapa) === 'object' ? JSON.stringify($scope.mapa.parametros_mapa) : '';
 
+	$scope.validaLegendas = function() {
+		$scope.mapa.parametros_mapa.items_legenda = $scope.mapLegendas;
+	}
+
+	$scope.estiloLegenda = function(legenda) {
+		var raio = "0";
+		var largura = "20px";
+		
+		if (legenda.tipo == "ponto") {
+			raio = "50%";
+			largura = "10px";
+		}
+
+		var altura = legenda.tipo == "linha" ? "0px" : largura;
+		var borda = "2px "+legenda.tipoBorda+" "+legenda.corBorda;		
+		
+		if (legenda.tipoBorda == "none") {
+			borda = "none";
+		}
+
+		var estilo = {
+			"background-color": legenda.tipo == "linha" ? "unset" : legenda.cor,
+			"width": largura,
+			"height": altura,
+			"display": "inline-block",
+			"margin": legenda.tipo == "ponto" ? "0 10px" : "0 5px",
+			"border": borda,
+			"border-radius": raio,
+			"border-top": legenda.tipo == "linha" ? "none" : borda,
+			"vertical-align": "middle"
+		}
+		return estilo;
+	}
+
+	$scope.gravarParametrosMapa = function(){
+		var parametrosTratados = typeof($scope.mapa.parametros_mapa) == 'string' ? $scope.mapa.parametros_mapa : JSON.stringify($scope.mapa.parametros_mapa);
+		
 		GravarParametrosMapa.update({id_grupo_indicador:$scope.idItemAtual,parametros_mapa:parametrosTratados}).$promise.then(
 			function(mensagem){				
-				// console.log('SUCESSO');
-				// console.log(mensagem);
 				$rootScope.modalProcessando.close();
 				$scope.criarModalSucesso();
 			},
@@ -1072,7 +1113,13 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 				<!-- <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css"> -->
 				
-				<div id="map" class="map"></div>
+				<div id="map" class="map">
+					<div id="legenda-mapa">
+						<div ng-repeat="(key, legenda) in mapLegendas">
+							<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+						</div>
+					</div>
+				</div>
 				<div id="controles-mapa">
 					<h3>Configurações do mapa</h3>
 					<label for="estilo-kml">Usar estilo do KML</label>
@@ -1081,7 +1128,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 						<!-- LINHA / CONTORNO -->
 						<tr>
 							<td><label for="colorpicker-contorno">Cor da linha</label></td>
-							<td><input type="color" ng-disabled="estiloKml" data-ng-model-instant onchange="angular.element(this).scope().alterarCor()" class="colpick" ng-model="estilo.stroke_color" id="colorpicker-contorno"></td>
+							<td><input type="color" ng-disabled="estiloKml" data-ng-model-instant onchange="angular.element(this).scope().alterarCor()" class="colpick" ng-model="estilo.stroke_color" id="colorpicker-contorno" value="#000000"></td>
 							<td><label for="opacidade-contorno">Alfa</label></td>
 							<td><input type="range" ng-disabled="estiloKml" min="0" max="1" step="0.1" value="1" id="opacidade-contorno" ng-model="estilo.stroke_color_a" onchange="angular.element(this).scope().alterarCor()"></td>
 						</tr>
@@ -1097,21 +1144,43 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 							<td><input type="range" ng-disabled="estiloKml" min="0" max="1" step="0.1" value="1" id="opacidade-preenchimento" ng-model="estilo.fill_color_a" onchange="angular.element(this).scope().alterarCor()"></td>
 						</tr>
 					</table>
+					<div>
+						<h4>Legenda</h4>
+						<div ng-repeat="(key, legenda) in mapLegendas" class="legenda-input">
+							<div class="form-inline">
+								<div class="form-group">
+									<input type="color" value="#FFFFFF" ng-model="mapLegendas[key].cor" data-ng-model-instant class="colpick" ng-style="estiloLegenda(legenda)">
+									<input class="form-control" type="text" ng-model="mapLegendas[key].descricao" data-ng-model-instant placeholder="Descrição...">
+									<select class="form-control" ng-model="mapLegendas[key].tipo">
+										<option value="poligono">Polígono</option>
+										<option value="linha">Linha</option>
+										<option value="ponto">Ponto</option>
+									</select>
+								</div>
+								<div class="form-group">
+									<span>Cor do contorno</span>
+									<input type="color" value="#FFFFFF" ng-model="mapLegendas[key].corBorda" data-ng-model-instant class="colpick">
+									<select ng-model="mapLegendas[key].tipoBorda">
+										<option value="solid">Sólida</option>
+										<option value="dotted">Pontilhada</option>
+										<option value="dashed">Tracejada</option>
+										<option value="none">Sem borda</option>
+									</select>									
+									<button ng-click="mapLegendas.splice(key, 1)" class="btn btn-danger">Remover item</button>
+								</div>
+							</div>
+						</div>
+						<div style="margin: 1em 0"><button ng-click="mapLegendas.push({tipo: 'poligono', cor: '#000000', corBorda: '#000000', tipoBorda: 'solid'})" class="btn btn-success">+ Adicionar item de legenda</button></div>
+					</div>
+					<br>
 					<!-- BOTÃO DE ENVIO DE PARÂMETROS -->
 					<div>
-						<!-- <input
-							type="submit"
-							data-ng-show="estado!='inserir'"
-							ng-disabled="estiloKml"
-							value="Gravar parâmetros"
-							ng-class="{'disabled': estiloKml, 'btn':true, 'btn-block':true}"
-							data-ng-click="criarModalConfirmacao('GravarParametrosMapa')"> -->
 						<input
 							type="submit"
 							data-ng-show="estado!='inserir'"
 							value="Gravar parâmetros"
-							class="btn btn-block"
-							data-ng-click="criarModalConfirmacao('GravarParametrosMapa')">
+							class="btn btn-block btn-primary"
+							data-ng-click="validaLegendas(); criarModalConfirmacao('GravarParametrosMapa')">
 					</div>
 				</div>
 				
@@ -1126,6 +1195,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 <style type="text/css">
 	#map {
 		display: inline-block;
+		position: relative;
 		height: 550px;
 		width: 50%;
 	}	
@@ -1134,10 +1204,32 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		position: absolute;
 		padding: 0 30px 30px;
 		margin: 0 1em;
+		max-height: 650px;
+		max-width: 580px;
+		overflow: auto;
 		background-color: #f3f3f3;
+		z-index: 1;
 	}
 	#controles-mapa td {
 		padding: 5px;
+	}
+	#legenda-mapa {
+		position: absolute;
+		right: 0;
+		bottom: 0;
+		margin: 10px;
+		padding: 10px;
+		border-radius: 5px;
+		min-width: 200px;
+		min-height: 100px;
+		background-color: rgba(255,255,255,0.7);
+		border: 1px solid #cccccc;
+		z-index: 1;
+	}
+	.legenda-input {
+		border-bottom: 1px solid #aaaaaa;
+		margin: 0;
+		padding: 10px;
 	}
 	.colpick {
 		padding: 0;
