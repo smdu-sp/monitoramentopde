@@ -720,41 +720,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			default:
 				console.log($scope.acao);
 				// window.alert('Evento inesperado! Contate o desenvolvedor');
-		};
-		/*
-		if($scope.acao == 'Atualizar'){
-			$scope.acaoExecutando = 'Atualizando';
-			$scope.acaoSucesso = 'Atualizada';
-			$scope.atualizar();
-			
-		}else{
-			if($scope.acao == 'Remover'){	
-				$scope.acaoExecutando = 'Removendo';
-				$scope.acaoSucesso = 'Removida';
-				$scope.remover();
-				
-			}else{
-				if($scope.acao == 'Inserir'){	
-					$scope.acaoExecutando = 'Inserindo';
-					$scope.acaoSucesso = 'Inserida';
-					$scope.inserir();
-					
-				}
-			}
-		}
-		
-		// Issue 45
-		if($scope.acao == 'CarregarMapa'){
-			$scope.acaoExecutando = 'Carregando';
-			$scope.acaoSucesso = 'Carregado';
-			$scope.carregarMapa();
-		}
-		else if ($scope.acao == 'GravarParametrosMapa') {
-			$scope.acaoExecutando = 'Gravando';
-			$scope.acaoSucesso = 'Gravado';
-			gravarParametrosMapa();
-		}
-		*/
+		};		
 	};	
 	
 	$scope.deletarElemento = function(indice){
@@ -943,9 +909,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				
 				saveAs(new Blob([s2ab(wbout)],{type:"application/octet-stream"}), "estrategias_instrumentos_objetivos.xlsx");
 			}
-	}
-	
-	
+	}	
 });
 
 </script>
@@ -1028,8 +992,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			</div>
 
 			<span data-ng-show="estado!='inserir' && tipo!=null">
-				<div class="elemento-cadastro"  >
-					
+				<div class="elemento-cadastro">					
 					
 				<label for="grupo" > {{tipoExibicao}} </label>
 					
@@ -1043,8 +1006,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			</span>
 			
 			<span data-ng-show="estado!='listar' && tipo!=null">
-			
-
 			
 			<div class="elemento-cadastro">
 				<label for="nome"> Nome do {{tipoExibicao}} </label>
@@ -1101,18 +1062,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			
 			<input data-ng-show="estado=='inserir'" type="button" value="Gravar" data-ng-click="criarModalConfirmacao('Inserir')">
 			<input data-ng-show="estado=='inserir'" type="button" value="Voltar" data-ng-click="voltar()">
-			<!-- Issue 45 -->
 			<br>
-			<!-- APAGAR -->
-			<!-- <input type="submit" data-ng-click="renderizarMapa()" value="TESTAR MAPA"> -->
-			<!-- END APAGAR -->
 			<hr>
 			<br>
 			<div data-ng-show="estado!='inserir' && tipo=='instrumento' && idItemAtual">
 				<h4>Mapa temático</h4>
-
-				<!-- <link rel="stylesheet" href="https://cdn.rawgit.com/openlayers/openlayers.github.io/master/en/v5.3.0/css/ol.css" type="text/css"> -->
-				
 				<div id="map" class="map">
 					<div id="legenda-mapa">
 						<div ng-repeat="(key, legenda) in mapLegendas">
