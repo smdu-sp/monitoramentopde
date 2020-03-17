@@ -29,6 +29,17 @@ jQuery.noConflict();
 
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','ngRoute','ngSanitize']);
 
+// CONTORNO DO MAPA 
+const contornoSP = {
+	path: "/app/uploads/instrumentos/msp_contorno.kml",
+	style: {
+		stroke_color: 'rgba(0, 0, 0, 0.5)',
+		stroke_width: 4,
+		fill_color: 'rgba(0, 0, 10, 0.02)',
+		style_from_kml: false
+	}
+};
+
 // CORES PADRÃO DOS GRÁFICOS
 app.defaultColors = ['#edc70a', '#4b1241', '#a90537', '#009045', '#5f87c1', '#cb6037', '#6e5128', '#ba007c', '#a3bd31', '#062e45'];
 
@@ -47,6 +58,21 @@ app.factory('Indicador',function($resource){
 	}
 	);
 });
+
+app.factory('ObterMapa',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/obter_mapa/:id_grupo_indicador',{id_grupo_indicador:'@id_instrumento'},{
+		get:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+					}
+		},query:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+			}	
+		}
+	});
+});
+
 
 app.factory('IndicadorMemoria',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/indicador/memoria/:id');
@@ -137,6 +163,7 @@ app.controller("dashboard", function($scope,
 									AcaoPrioritaria, 
 									IndicadorHistorico, 
 									GrupoIndicador, 
+									ObterMapa,
 									FichaTecnicaInstrumento, 
 									IndicadorMemoria, 
 									VariavelHistorico) {
@@ -157,6 +184,7 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.atualizaListaInstrumentos = function(){
+		$scope.atualizarStatusMapa();
 		// Atualiza lista de instrumentos para evitar listagem incorreta de indicadores quando alternado para 'Instrumentos'
 		if($scope.tabAtivaForma == 2){			
 			// if(typeof(angular.element(document.getElementsByClassName('ng-dirty')[0]).scope()) !== "undefined")
@@ -247,8 +275,8 @@ app.controller("dashboard", function($scope,
 		$scope.selecao.idIndicSel = indicador.id_indicador;
 		$scope.inicializarSelecao();
 		// VERIFICA SE JA EXISTE UMA VIEWPORT PARA O MAPA E A REMOVE PARA EVITAR PROBLEMAS DE EXIBICAO
-		if(document.getElementsByClassName('ol-viewport')[0])
-			document.getElementsByClassName('ol-viewport')[0].remove();
+		// if(document.getElementsByClassName('ol-viewport')[0])
+		// 	document.getElementsByClassName('ol-viewport')[0].remove();
 		
 		$scope.cargaIndicadorValores(true,true);
 		window.setTimeout(function(){			
@@ -1616,6 +1644,7 @@ app.controller("dashboard", function($scope,
 				$scope.indicador = {id_instrumento: idGrupo, instrumento: fichaInstrumento.nome};
 				if(fichaInstrumento.propriedades["Definição"]){
 					$scope.descricaoGrupoIndicador = fichaInstrumento.propriedades["Definição"].substr(0,300);
+					$scope.carregaMapa(fichaInstrumento);
 					$scope.verMais = true;
 				}
 				else{
@@ -1687,7 +1716,6 @@ app.controller("dashboard", function($scope,
 			};
 		};
 	};
-		
 	$scope.fecharModal = function(tipo){
 		if(tipo=='instrumento'){
 			$rootScope.modalFichaInstrumento.close();
@@ -1701,6 +1729,208 @@ app.controller("dashboard", function($scope,
 			}
 		}
 	};
+
+	$scope.addLayers = function(layersInstrumento){
+		for(i in layersInstrumento) {
+			// Verifica se há estilo personalizado
+			let index = layersInstrumento[i];
+			var olStyle = {};
+			if (index.style.stroke_color !== undefined) {				
+				olStyle = new ol.style.Style({
+					stroke: new ol.style.Stroke({
+						color: index.style.stroke_color,
+						width: index.style.stroke_width,
+						lineDash: index.style.stroke_dash
+					}),
+					fill: new ol.style.Fill({
+						color: index.style.fill_color
+					}),					
+					image: new ol.style.Circle({ // Estilo do ponto
+						radius: $scope.raio,
+						fill: new ol.style.Fill({color: index.style.fill_color}),
+						stroke: new ol.style.Stroke({
+							color: index.style.stroke_color,
+							width: index.style.stroke_width
+						})
+					})
+				})
+			}
+			let kmlLayer = new ol.layer.Vector({
+				style: olStyle,				
+				source: new ol.source.Vector({
+					url: index.path,
+					format: new ol.format.KML({
+						extractStyles: index.style.style_from_kml
+					})
+				})
+			});
+			$scope.mapLayers.push(kmlLayer);
+		}
+	};
+
+	$scope.carregaMapa = function(instrumento) {
+		console.warn("Carrega Mapa...");		
+		console.log(instrumento);
+
+		ObterMapa.query({id_grupo_indicador:instrumento.id_grupo_indicador},function(mapaObtido) {
+				$scope.mapaObj = mapaObtido;
+			}).$promise.then(function(){
+				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa).
+				// limpa layers
+				for (var i = $scope.mapaInstrumento.getLayers().getArray().length - 1; i > 0; i--) {
+					$scope.mapaInstrumento.removeLayer($scope.mapaInstrumento.getLayers().getArray()[i]);
+				}
+				$rootScope.mapLayers = [$rootScope.mapLayers[0]];
+				
+				var customLayer = {style: {}};
+
+				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapaObj.mapa_tematico;
+
+				// Verifica se não há estilo personalizado				
+				if(!$scope.mapaObj.parametros_mapa) 
+					$scope.mapaObj.parametros_mapa = {style_from_kml: true}
+				if (typeof($scope.mapaObj.parametros_mapa) == "string")
+					$scope.mapaObj.parametros_mapa = $scope.parseJson($scope.mapaObj.parametros_mapa);
+
+				// Se houver legendas, acrescenta ao array				
+				if(typeof($scope.mapaObj.parametros_mapa.items_legenda) != "undefined" && $scope.mapaObj.parametros_mapa.items_legenda.length > 0)
+					$scope.mapLegendas = $scope.mapaObj.parametros_mapa.items_legenda;
+
+				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
+				customLayer.style = $scope.mapaObj.parametros_mapa;
+				if ($rootScope.firstLoad)
+					$scope.estiloKml = customLayer.style.style_from_kml;
+				else
+					customLayer.style.style_from_kml = $scope.estiloKml;
+				// Atualiza painel de configurações do mapa
+				$scope.estilo = customLayer.style;
+				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
+					$scope.estilo.stroke_color_a = rgbaToHex($scope.estilo.stroke_color).alfa;
+					$scope.estilo.stroke_color = rgbaToHex($scope.estilo.stroke_color).hex;
+					
+					$scope.estilo.fill_color_a = rgbaToHex($scope.estilo.fill_color).alfa;
+					$scope.estilo.fill_color = rgbaToHex($scope.estilo.fill_color).hex;
+				}
+				else {
+					customLayer.style.style_from_kml = true;
+					$scope.estiloKml = true;
+				}
+				// }
+				
+				$scope.addLayers([customLayer]);
+				
+				$scope.renderizandoMapa = false;
+				
+				if($scope.mapaInstrumento.getLayers().getLength() === 1)
+					$scope.addLayers([contornoSP]);
+
+				var cLayers = $scope.mapaInstrumento.getLayers();
+				for(layer in cLayers) {
+					$scope.mapaInstrumento.removeLayer(layer);
+				}
+
+				for(layer in $scope.mapLayers){
+					$scope.mapaInstrumento.addLayer($scope.mapLayers[layer]);
+				}
+				// Recupera informações das features da camada enviada para preencher a legenda
+				var mapLayersSource = $scope.mapLayers[1].getSource();
+				
+				// window.setTimeout(function(){
+				// 	var extent = ol.extent.createEmpty();
+				// 	$scope.mapaInstrumento.getLayers().forEach(function(layer) {
+				// 		if(layer.getSource().getExtent !== undefined)
+				// 	  		ol.extent.extend(extent, layer.getSource().getExtent());
+				// 	});
+				// 	$scope.mapaInstrumento.getView().fit(extent, $scope.mapaInstrumento.getSize());
+				// }, 2000);
+			});
+		};
+	$scope.ocultarMapaIndicador = true;
+
+	$scope.atualizarStatusMapa = function() {
+		var optInstrumento = angular.element(document.getElementsByClassName('ng-dirty')[0]).scope().optInstrumento;
+		console.log("mapLoaded, $scope.optInstrumento, tabAtivaForma")
+		console.log($rootScope.mapLoaded);
+		console.log(optInstrumento);
+		console.log($scope.tabAtivaForma);
+		if ($rootScope.mapLoaded && typeof(optInstrumento) === "number" && tabAtivaForma === 2) {
+			$scope.ocultarMapaIndicador = false;
+		}
+		else {
+			$scope.ocultarMapaIndicador = true;
+		}
+	}
+	$scope.loadMap = function() {
+		console.log("function loadMap");
+
+		if($rootScope.mapLoaded)
+			return;
+		$rootScope.mapLoaded = true;
+		$rootScope.osmLayer = new ol.layer.Tile({
+			source: new ol.source.OSM()
+		});
+		// mapa MapBox
+		let mbDefault = 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbSatellite = 'https://api.mapbox.com/v4/mapbox.satellite/{z}/{x}/{y}.png?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbLight = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		let mbMonoblue = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v65hgy0fgf1drt97mjreic/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+		$rootScope.mbLayer = new ol.layer.Tile({
+			source: new ol.source.XYZ({
+				url: mbLight
+			})
+		});
+
+		<?php		
+		// Verifica se API excedeu a quantidade de tile downloads do MapBox
+			$tileUrl = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v59cvs7zw51cow5n7e5itl/tiles/256/13/3034/4647?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
+
+			// Para funcionamento em ambiente de homologação ({pasta raiz}/.env)
+			if (getenv('PROXY') == true) {
+				$auth = base64_encode(getenv('PROXY_AUTH'));
+				stream_context_set_default(
+					array(
+						'http' => array(
+							'proxy' => "tcp://".getenv('PROXY'),
+							'request_fulluri' => true,
+							'header' => "Proxy-Authorization: Basic $auth"
+						)
+					)
+				);
+			}
+
+			if (strpos(get_headers($tileUrl)[1], 'image')) {
+				// Imagem obtida - utiliza mapa do MapBox
+				echo "\$rootScope.mapLayers = [\$scope.mbLayer];";
+			}
+			else {
+				// Erro de autorização (API) - utiliza mapa do OpenStreetMaps
+				echo "\$rootScope.mapLayers = [\$scope.osmLayer];";
+			}
+		?>
+		
+		$rootScope.mapaInstrumento = new ol.Map({
+			target: 'map-instrumento',
+			layers: $rootScope.mapLayers,
+			view: new ol.View({
+				center: [-5191207.638373509,-2698731.105121977],
+				zoom: 10,
+				maxZoom: 20
+			})
+		});
+		console.log("Mapa carregado");
+		console.log($rootScope.mapaInstrumento);
+	}
+	// $scope.loadMap();
+	
+	$scope.parseJson = function(json) {
+		var parsed = {};
+		try {
+			parsed = JSON.parse(json)
+		} catch (e) {
+			console.error(e);
+		}
+		return parsed;
+	}
 	
 	$scope.exportarMemoria = function(){
 			function datenum(v, date1904) {
@@ -2318,7 +2548,7 @@ app.controller("dashboard", function($scope,
 		
 		<p> Escolha a forma como deseja visualizar os indicadores </p>
 		<hr>
-				
+
 		<uib-tabset active="tabAtivaForma" type="pills">
 			<uib-tab index="$index + 1" ng-click="atualizaListaInstrumentos()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
 				<hr>
@@ -2332,7 +2562,7 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa()"><option value="">Todos</option></select>
 					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
@@ -2340,6 +2570,19 @@ app.controller("dashboard", function($scope,
 							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
 					</div>
+					<!-- MAPA DO INSTRUMENTO -->
+					<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
+					<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+
+					<div id="map-instrumento" class="map">
+						<div id="legenda-mapa">
+							<div ng-repeat="(key, legenda) in mapLegendas">
+								<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+							</div>
+						</div>
+					</div> -->
+
+					<!-- FIM MAPA DO INSTRUMENTO -->
 				</div>
 				
 				<div ng-show="tabAtivaForma==3">	
@@ -2356,7 +2599,17 @@ app.controller("dashboard", function($scope,
 				</div>
 			</uib-tab>
 		</uib-tabset>
-		
+
+		<!-- Mapa dos instrumentos -->
+		<!-- <div id="map-instrumento" class="map" ng-class="{'zeroheight': ocultarMapaIndicador}"> -->
+			<div id="map-instrumento" class="map" ng-class="{'zeroheight': tabAtivaForma !== 2}">
+			<div id="legenda-mapa">
+				<div ng-repeat="(key, legenda) in mapLegendas">
+					<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+				</div>
+			</div>
+		</div>
+
 		<span ng-show="tabAtivaForma==1">
 			<hr>
 			<h4 class="titulo-forma-visu">{{estrategia.nome}}</h4>
@@ -2406,3 +2659,16 @@ app.controller("dashboard", function($scope,
 		</uib-accordion>
 	</div>
 </div>
+
+<style type="text/css">
+	#map-instrumento {
+		display: inline-block;
+		position: relative;
+		min-height: 400px;
+		max-height: 500px;
+		width: 100%;
+	}
+	.zeroheight {
+		position: fixed !important;
+	}
+</style>
