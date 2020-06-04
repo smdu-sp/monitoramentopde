@@ -28,6 +28,12 @@ function hexToRgb(hex) {
 }
 function rgbaToHex(rgbaString) {
 	//  = "rgba(0, 0, 0, 1)"
+	console.log("rgbaString");
+	console.log(rgbaString);
+	// Verifica se string informada é um hex
+	if (rgbaString.length === 7 && rgbaString[0] === '#') {
+		return {hex: rgbaString, alfa: '1'}
+	}
 	rgbaString = rgbaString.replace(/ +/g, '').split('(')[1].split(')')[0].split(',');
 	var hexStr = '#';
 	for (var i = 0; i < 3; i++) {

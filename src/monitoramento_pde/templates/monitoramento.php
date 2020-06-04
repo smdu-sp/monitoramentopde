@@ -40,6 +40,11 @@ const contornoSP = {
 	}
 };
 
+var ultimoSelecionado = false;
+var featureInfo = null;
+// DEBUG
+var dmap = {};
+
 // CORES PADRÃO DOS GRÁFICOS
 app.defaultColors = ['#edc70a', '#4b1241', '#a90537', '#009045', '#5f87c1', '#cb6037', '#6e5128', '#ba007c', '#a3bd31', '#062e45'];
 
@@ -1765,17 +1770,42 @@ app.controller("dashboard", function($scope,
 				})
 			});
 			$scope.mapLayers.push(kmlLayer);
+			if(index.path.indexOf('msp_contorno.kml') === -1)
+				$scope.kmlMapaAtual = index.path;
 		}
 	};
 
+	$scope.rgbaToHex = function(rgbaString) {
+		//  = "rgba(0, 0, 0, 1)"
+		// console.log("rgbaString");
+		// console.log(rgbaString);
+		// Verifica se string informada é um hex
+		if (rgbaString.length === 7 && rgbaString[0] === '#') {
+			return {hex: rgbaString, alfa: '1'}
+		}
+		rgbaString = rgbaString.replace(/ +/g, '').split('(')[1].split(')')[0].split(',');
+		var hexStr = '#';
+		for (var i = 0; i < 3; i++) {
+			var num = parseInt(rgbaString[i]).toString(16);
+			num = num.length === 2 ? num : "0" + num;
+			hexStr += num;
+		}
+		
+		var hexAlfa = {	
+			hex: hexStr,
+			alfa: rgbaString[3]
+		}
+		return hexAlfa;
+	}
+
 	$scope.carregaMapa = function(instrumento) {
-		console.warn("Carrega Mapa...");		
 		console.log(instrumento);
 
 		ObterMapa.query({id_grupo_indicador:instrumento.id_grupo_indicador},function(mapaObtido) {
 				$scope.mapaObj = mapaObtido;
 			}).$promise.then(function(){
 				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa).
+				dmap = $scope.mapaInstrumento;
 				// limpa layers
 				for (var i = $scope.mapaInstrumento.getLayers().getArray().length - 1; i > 0; i--) {
 					$scope.mapaInstrumento.removeLayer($scope.mapaInstrumento.getLayers().getArray()[i]);
@@ -1795,6 +1825,8 @@ app.controller("dashboard", function($scope,
 				// Se houver legendas, acrescenta ao array				
 				if(typeof($scope.mapaObj.parametros_mapa.items_legenda) != "undefined" && $scope.mapaObj.parametros_mapa.items_legenda.length > 0)
 					$scope.mapLegendas = $scope.mapaObj.parametros_mapa.items_legenda;
+				else
+					$scope.mapLegendas = [];
 
 				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
 				customLayer.style = $scope.mapaObj.parametros_mapa;
@@ -1805,11 +1837,11 @@ app.controller("dashboard", function($scope,
 				// Atualiza painel de configurações do mapa
 				$scope.estilo = customLayer.style;
 				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
-					$scope.estilo.stroke_color_a = rgbaToHex($scope.estilo.stroke_color).alfa;
-					$scope.estilo.stroke_color = rgbaToHex($scope.estilo.stroke_color).hex;
+					$scope.estilo.stroke_color_a = $scope.rgbaToHex($scope.estilo.stroke_color).alfa;
+					$scope.estilo.stroke_color = $scope.rgbaToHex($scope.estilo.stroke_color).hex;
 					
-					$scope.estilo.fill_color_a = rgbaToHex($scope.estilo.fill_color).alfa;
-					$scope.estilo.fill_color = rgbaToHex($scope.estilo.fill_color).hex;
+					$scope.estilo.fill_color_a = $scope.rgbaToHex($scope.estilo.fill_color).alfa;
+					$scope.estilo.fill_color = $scope.rgbaToHex($scope.estilo.fill_color).hex;
 				}
 				else {
 					customLayer.style.style_from_kml = true;
@@ -1846,13 +1878,51 @@ app.controller("dashboard", function($scope,
 			});
 		};
 	$scope.ocultarMapaIndicador = true;
+	$scope.mostrarMapa = false;
 
-	$scope.atualizarStatusMapa = function() {
-		var optInstrumento = angular.element(document.getElementsByClassName('ng-dirty')[0]).scope().optInstrumento;
-		console.log("mapLoaded, $scope.optInstrumento, tabAtivaForma")
-		console.log($rootScope.mapLoaded);
-		console.log(optInstrumento);
-		console.log($scope.tabAtivaForma);
+	$scope.estiloLegenda = function(legenda) {
+		var raio = "0";
+		var largura = "20px";
+		
+		if (legenda.tipo == "ponto") {
+			raio = "50%";
+			largura = "10px";
+		}
+
+		var altura = legenda.tipo == "linha" ? "0px" : largura;
+		var borda = "2px "+legenda.tipoBorda+" "+legenda.corBorda;		
+		
+		if (legenda.tipoBorda == "none") {
+			borda = "none";
+		}
+
+		var estilo = {
+			"background-color": legenda.tipo == "linha" ? "unset" : legenda.cor,
+			"width": largura,
+			"height": altura,
+			"display": "inline-block",
+			"margin": legenda.tipo == "ponto" ? "0 10px" : "0 5px",
+			"border": borda,
+			"border-radius": raio,
+			"border-top": legenda.tipo == "linha" ? "none" : borda,
+			"vertical-align": "middle"
+		}
+		return estilo;
+	}
+
+	$scope.atualizarStatusMapa = function(optInstrumento) {
+		// var optInstrumento = angular.element(document.getElementsByClassName('ng-dirty')[0]).scope().optInstrumento;
+		// console.log("typeof optInstrumento", typeof(optInstrumento) === "number");
+		// return;
+		// if (document.getElementsByClassName('ng-dirty').length === 0) {
+		// 	return;
+		// }
+		// console.log("mapLoaded, optInstrumento, tabAtivaForma")
+		// console.log($rootScope.mapLoaded);
+		// console.log(optInstrumento >= 0);
+		$scope.mostrarMapa = optInstrumento >= 0;
+		// console.log($scope.tabAtivaForma);
+		return;
 		if ($rootScope.mapLoaded && typeof(optInstrumento) === "number" && tabAtivaForma === 2) {
 			$scope.ocultarMapaIndicador = false;
 		}
@@ -1919,6 +1989,69 @@ app.controller("dashboard", function($scope,
 		});
 		console.log("Mapa carregado");
 		console.log($rootScope.mapaInstrumento);
+
+		var highlightStyle = new ol.style.Style({
+		  fill: new ol.style.Fill({
+		    color: 'rgba(255,255,255,0.7)'
+		  }),
+		  stroke: new ol.style.Stroke({
+		    color: '#3399CC',
+		    width: 3
+		  })
+		});
+
+		var selecionado = null;
+		var ultimoEstilo = null;
+		featureInfo = document.getElementById('feature-info');
+		$rootScope.mapaInstrumento.on('pointermove', function(e) {
+		  if (selecionado !== null) {
+		  	// CASO FEATURE POSSUA ESTILO "FROM KML", RECUPERA ESTILO EM VEZ DE REMOVÊ-LO
+		    if(ultimoEstilo !== null) {
+		    	selecionado.setStyle(ultimoEstilo);
+		    	ultimoEstilo = null;
+		    }
+		    else {
+					selecionado.setStyle(undefined);
+			  }
+		    selecionado = null;
+		    // featureInfo.style.opacity = '0';
+		  }
+
+		  var isLit = false;
+		  $rootScope.mapaInstrumento.forEachFeatureAtPixel(e.pixel, function(f) {
+		  	// SE LAYER É O CONTORNO DE SP (3), IGNORA. DO CONTRÁRIO, ACENDE CAMADA (HIGHLIGHT)
+		  	if (f.getProperties().CAMADA === "3")
+		  		return;
+		  	selecionado = f;
+		    ultimoEstilo = f.getStyle();
+		    f.setStyle(highlightStyle);
+		    isLit = true;
+		    // return true;
+		  });
+		  
+		  if(!isLit) {
+		  	featureInfo.style.opacity = '0.75';
+		    // featureInfo.innerHTML = '&nbsp;';
+		  }
+
+		  if(selecionado)
+		  {
+		  	// Exibe dados da feature na tooltip
+		  	let descricao = selecionado.get('description') ? "<br>Descrição: " + selecionado.get('description') : "";
+		  	featureInfo.innerHTML = 'Nome: ' + selecionado.get('name') + descricao;
+		    featureInfo.style.opacity = '1';
+		  }
+
+		  /*
+		  if (selecionado && selecionado !== ultimoSelecionado) {
+		  	// TODO: EXIBIR "TOOLTIP" COM INFORMAÇÕES DA CAMADA
+		  	console.log(selecionado);
+		  	ultimoSelecionado = selecionado;
+		    featureInfo.innerHTML = 'Hovering: ' + selecionado.get('name') + ', description: ' + selecionado.get('description');
+		    featureInfo.style.opacity = '1';		    
+		  }
+		  */
+		});
 	}
 	// $scope.loadMap();
 	
@@ -2562,27 +2695,15 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa()"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
 					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
-					</div>
-					<!-- MAPA DO INSTRUMENTO -->
-					<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css" type="text/css">
-					<script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
-
-					<div id="map-instrumento" class="map">
-						<div id="legenda-mapa">
-							<div ng-repeat="(key, legenda) in mapLegendas">
-								<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
-							</div>
-						</div>
-					</div> -->
-
-					<!-- FIM MAPA DO INSTRUMENTO -->
+						<p>Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
+					</div>					
 				</div>
 				
 				<div ng-show="tabAtivaForma==3">	
@@ -2601,13 +2722,20 @@ app.controller("dashboard", function($scope,
 		</uib-tabset>
 
 		<!-- Mapa dos instrumentos -->
-		<!-- <div id="map-instrumento" class="map" ng-class="{'zeroheight': ocultarMapaIndicador}"> -->
-			<div id="map-instrumento" class="map" ng-class="{'zeroheight': tabAtivaForma !== 2}">
-			<div id="legenda-mapa">
-				<div ng-repeat="(key, legenda) in mapLegendas">
-					<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+			<div id="mapcontainer" ng-show="tabAtivaForma==2" ng-class="{'zeroheight': !mostrarMapa}">
+				<div id="map-instrumento" class="map"></div>
+				<div id="legenda-mapa" ng-show="mostrarMapa && mapLegendas.length>0">
+					<h5><strong>Legenda</strong></h5>
+					<div ng-repeat="(key, legenda) in mapLegendas">
+						<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+					</div>
 				</div>
-			</div>
+				<div class="info-box" ng-show="mostrarMapa">
+					<h5>Informações do item</h5>
+					<br>
+					<div id="feature-info">&nbsp;</div>
+				</div>
+			</div>			
 		</div>
 
 		<span ng-show="tabAtivaForma==1">
@@ -2662,13 +2790,59 @@ app.controller("dashboard", function($scope,
 
 <style type="text/css">
 	#map-instrumento {
-		display: inline-block;
+		display: block;
 		position: relative;
 		min-height: 400px;
 		max-height: 500px;
-		width: 100%;
+		width: 100%;		
+	}
+	#mapcontainer {
+		/*height: 400px;*/
+		/*border: 1px solid grey;*/
+		position: relative;
 	}
 	.zeroheight {
-		position: fixed !important;
+		height: 0;
+	}
+	#legenda-mapa {
+		position: absolute;
+    right: 0;
+    bottom: 0;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 5px;
+    min-width: 200px;
+    min-height: 100px;
+    background-color: rgba(255,255,255,0.95);
+    border: 1px solid #cccccc;
+    line-height: 2em;
+    overflow: auto;
+    z-index: 1;
+	}
+	#feature-info {
+		/*background-color: rgba(255,255,255,0.8);*/
+		opacity: 0;
+		z-index: 2;
+	}
+	.info-box {
+		margin: 10px;
+    padding: 10px;
+    border: 1px solid #cccccc;
+    background-color: rgba(255,255,255,0.95);
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 20%;
+    min-height: 20%;
+    max-height: 50%;
+    overflow: auto;
+    border-radius: 5px;
+	}
+	a.download-badge {
+    background-color: #cccc;
+    color: black;
+    padding: 5px 10px;
+    border-radius: 1em;
+    font-size: .75em;
 	}
 </style>
