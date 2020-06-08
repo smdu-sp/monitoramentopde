@@ -783,7 +783,6 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 					<option value=""></option>
 					<option value="data">Data</option>
 					<option value="territorio">Territorio</option>
-					<option value="inteiro">Número</option>
 				</select>
 				
 				</div>
