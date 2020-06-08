@@ -165,7 +165,7 @@ app.controller("dashboard", function($scope,
 									IndicadorValores, 
 									Noticia, 
 									Menu, 
-									AcaoPrioritaria, 
+									AcaoPrioritaria,
 									IndicadorHistorico, 
 									GrupoIndicador, 
 									ObterMapa,
@@ -274,7 +274,7 @@ app.controller("dashboard", function($scope,
 			v = v.replace('.',',');
 		return v;
 	};
-
+	
 	// BUSCA INFORMACOES DO INDICADOR SELECIONADO PARA CARREGAR DADOS
 	$scope.atualizarAccordion = function(indicador){
 		$scope.selecao.idIndicSel = indicador.id_indicador;
@@ -1030,7 +1030,6 @@ app.controller("dashboard", function($scope,
 		return true;
 	}
 	
-// TODO: P1.3
 	$scope.cargaIndicadorValores = function(inserirMapa, inserirTerritorioMapa){
 		// VERIFICA SE MAPA ESTA SENDO CARREGADO
 		$scope.carregandoMapa = inserirTerritorioMapa ? 'Aguarde... carregando mapa' : null;
@@ -1770,8 +1769,10 @@ app.controller("dashboard", function($scope,
 				})
 			});
 			$scope.mapLayers.push(kmlLayer);
-			if(index.path.indexOf('msp_contorno.kml') === -1)
-				$scope.kmlMapaAtual = index.path;
+			if(index.path.indexOf('msp_contorno.kml') === -1) {
+				$scope.kmlMapaAtual = index.path.indexOf('null') === -1 ? index.path : false;
+				console.log("kmlMapaAtual: ",$scope.kmlMapaAtual);
+			}
 		}
 	};
 
@@ -1990,6 +1991,10 @@ app.controller("dashboard", function($scope,
 		console.log("Mapa carregado");
 		console.log($rootScope.mapaInstrumento);
 
+		const white = [255, 255, 255, 1];
+		const blue = [0, 153, 255, 1];
+		const width = 4;
+
 		var highlightStyle = new ol.style.Style({
 		  fill: new ol.style.Fill({
 		    color: 'rgba(255,255,255,0.7)'
@@ -1997,7 +2002,17 @@ app.controller("dashboard", function($scope,
 		  stroke: new ol.style.Stroke({
 		    color: '#3399CC',
 		    width: 3
-		  })
+		  }),
+		  image: new ol.style.Circle({
+       radius: width * 2,
+       fill: new ol.style.Fill({
+         color: blue
+       }),
+       stroke: new ol.style.Stroke({
+         color: white,
+         width: width / 2
+       })
+     })
 		});
 
 		var selecionado = null;
@@ -2026,12 +2041,11 @@ app.controller("dashboard", function($scope,
 		    ultimoEstilo = f.getStyle();
 		    f.setStyle(highlightStyle);
 		    isLit = true;
-		    // return true;
 		  });
 		  
+		  // Verifica se feature está 'apagada' (sem highlight)
 		  if(!isLit) {
 		  	featureInfo.style.opacity = '0.75';
-		    // featureInfo.innerHTML = '&nbsp;';
 		  }
 
 		  if(selecionado)
@@ -2041,19 +2055,8 @@ app.controller("dashboard", function($scope,
 		  	featureInfo.innerHTML = 'Nome: ' + selecionado.get('name') + descricao;
 		    featureInfo.style.opacity = '1';
 		  }
-
-		  /*
-		  if (selecionado && selecionado !== ultimoSelecionado) {
-		  	// TODO: EXIBIR "TOOLTIP" COM INFORMAÇÕES DA CAMADA
-		  	console.log(selecionado);
-		  	ultimoSelecionado = selecionado;
-		    featureInfo.innerHTML = 'Hovering: ' + selecionado.get('name') + ', description: ' + selecionado.get('description');
-		    featureInfo.style.opacity = '1';		    
-		  }
-		  */
 		});
 	}
-	// $scope.loadMap();
 	
 	$scope.parseJson = function(json) {
 		var parsed = {};
@@ -2455,6 +2458,11 @@ app.controller("dashboard", function($scope,
 		    $scope.salvarComo(canvas.toDataURL('image/png'), $scope.indicador.nome+'.png');
 		});
 	};
+
+	$scope.debugLog = function(el) {
+		console.warn("DEBUG LOG:");
+		console.log(el);
+	}
 });	
 
 </script>
@@ -2702,7 +2710,14 @@ app.controller("dashboard", function($scope,
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
-						<p>Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
+						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
+						<!-- DADOS ABERTOS -->
+						<div class="download-dados-abertos">
+							<p>Download do banco de dados:
+								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
+							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
+							</p>
+						</div>
 					</div>					
 				</div>
 				

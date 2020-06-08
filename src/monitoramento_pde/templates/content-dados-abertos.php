@@ -212,6 +212,10 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		});
 	}
 	
+	$scope.debugLog = function (el) {
+		console.warn("DebugLOG:");
+		console.log(el);
+	}
 });
 
 </script>
@@ -226,7 +230,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 			<p><span ng-bind-html="item.introducao | trustedHtml"></span>
 
 			</p>
-			<ul class="list-group">
+		<ul class="list-group">
 			
 			<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
 				<div class="col-sm-8">
