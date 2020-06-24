@@ -31,7 +31,7 @@ var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.boots
 
 // CONTORNO DO MAPA 
 const contornoSP = {
-	path: "/app/uploads/instrumentos/msp_contorno.kml",
+	path: "/app/uploads/instrumentos/msp_contorno.kml?d=200616",
 	style: {
 		stroke_color: 'rgba(0, 0, 0, 0.5)',
 		stroke_width: 4,
@@ -1983,8 +1983,9 @@ app.controller("dashboard", function($scope,
 			target: 'map-instrumento',
 			layers: $rootScope.mapLayers,
 			view: new ol.View({
-				center: [-5191207.638373509,-2698731.105121977],
-				zoom: 10,
+				// center: [-5191207.638373509,-2698731.105121977],
+				center: [-5190000,-2715000],
+				zoom: 9.75,
 				maxZoom: 20
 			})
 		});
@@ -2034,8 +2035,8 @@ app.controller("dashboard", function($scope,
 
 		  var isLit = false;
 		  $rootScope.mapaInstrumento.forEachFeatureAtPixel(e.pixel, function(f) {
-		  	// SE LAYER É O CONTORNO DE SP (3), IGNORA. DO CONTRÁRIO, ACENDE CAMADA (HIGHLIGHT)
-		  	if (f.getProperties().CAMADA === "3")
+		  	// SE LAYER É O CONTORNO DE SP (propriedade 'limite_id' é "27"), IGNORA. DO CONTRÁRIO, ACENDE CAMADA (HIGHLIGHT)
+		  	if (f.getProperties().limite_id === "27")
 		  		return;
 		  	selecionado = f;
 		    ultimoEstilo = f.getStyle();
@@ -2051,8 +2052,25 @@ app.controller("dashboard", function($scope,
 		  if(selecionado)
 		  {
 		  	// Exibe dados da feature na tooltip
+		  	/*
 		  	let descricao = selecionado.get('description') ? "<br>Descrição: " + selecionado.get('description') : "";
 		  	featureInfo.innerHTML = 'Nome: ' + selecionado.get('name') + descricao;
+		  	*/
+
+		  	var fProps = {};
+		  	let descricao = "";
+
+		  	for (var prop in selecionado.getProperties())
+		  	{
+		  		if(typeof(selecionado.getProperties()[prop]) === 'string' && prop !== 'styleUrl')
+		  		{
+		  			let valor = selecionado.getProperties()[prop];
+		  			fProps[prop] = valor;
+		  			descricao += '<p><strong>' + prop + ':</strong> ' + valor + '</p>';
+		  		}
+		  	}
+		  	featureInfo.innerHTML = descricao;
+
 		    featureInfo.style.opacity = '1';
 		  }
 		});

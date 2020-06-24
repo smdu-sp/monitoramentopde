@@ -2784,7 +2784,8 @@ function gravar_parametros_mapa(WP_REST_Request $request){
 	$comando_string = "
 	update sistema.grupo_indicador
 	set parametros_mapa = :parametros_mapa
-	where id_grupo_indicador = :id_grupo_indicador;";
+	where id_grupo_indicador = :id_grupo_indicador;
+	";
 
 	$comando = $pdo->prepare($comando_string);
 	 
@@ -2802,7 +2803,13 @@ function gravar_parametros_mapa(WP_REST_Request $request){
 	}
 	
 	$response = new WP_REST_Response( $dados[0] );
-	return $response;
+	// Se não retornar nada, comando foi executado com sucesso. Se não, retorna erro
+	if (is_array($dados[0]) && sizeof($dados[0]) === 0) {
+		return 1;
+	}
+	else {
+		return $response;
+	}
 }
 
 // END Issue 45

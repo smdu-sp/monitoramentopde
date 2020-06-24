@@ -3,7 +3,6 @@
  * Template Name: Cadastro Instrumento
  */
 ?>
-
 <script type="text/javascript">
 jQuery.noConflict();
 var customStyle = false;
@@ -17,6 +16,7 @@ var contornoSP = {
 		style_from_kml: false
 	}
 };
+var pumba;
 
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -27,9 +27,11 @@ function hexToRgb(hex) {
 	} : null;
 }
 function rgbaToHex(rgbaString) {
+	/*
 	//  = "rgba(0, 0, 0, 1)"
 	console.log("rgbaString");
 	console.log(rgbaString);
+	*/
 	// Verifica se string informada é um hex
 	if (rgbaString.length === 7 && rgbaString[0] === '#') {
 		return {hex: rgbaString, alfa: '1'}
@@ -150,7 +152,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.raio = 2;
 
 	// Issue 45
-	// IDENTIFICAR POR QUE NÃO GRAVA INFORMAÇÕES DE LEGENDA QUANDO OPÇÃO DE OBTER DO KML ESTÁ MARCADA
 	$scope.mapLegendas = [];
 
 	$scope.carregarMapa = function(){
@@ -286,7 +287,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					})
 				})
 			});
-			$scope.mapLayers.push(kmlLayer);
+			$scope.mapLayers.push(kmlLayer);			
 		}
 	};
 
@@ -318,14 +319,26 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapa.mapa_tematico;
 
 				// Verifica se não há estilo personalizado				
+				if (typeof($scope.mapa.parametros_mapa) == "string"){
+					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);
+					$scope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
+				}
 				if(!$scope.mapa.parametros_mapa) 
 					$scope.mapa.parametros_mapa = {style_from_kml: true}
-				if (typeof($scope.mapa.parametros_mapa) == "string")
-					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);
+				else {
+					$rootScope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
+				}
 
 				// Se houver legendas, acrescenta ao array				
-				if(typeof($scope.mapa.parametros_mapa.items_legenda) != "undefined" && $scope.mapa.parametros_mapa.items_legenda.length > 0)
+				if(typeof($scope.mapa.parametros_mapa.items_legenda) != "undefined" && $scope.mapa.parametros_mapa.items_legenda.length > 0){
 					$scope.mapLegendas = $scope.mapa.parametros_mapa.items_legenda;
+					$rootScope.buscaEstilos = false;
+				}
+				else
+				{
+					// Se não houver legendas, procura estilos nas camadas e sugere itens de legenda
+					$rootScope.buscaEstilos = true;
+				}
 
 				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
 				customLayer.style = $scope.mapa.parametros_mapa;
@@ -349,6 +362,69 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				// }
 				
 				$scope.addLayers([customLayer]);
+
+				if ($rootScope.buscaEstilos) {
+					// Grava estilos do KML para criar legenda
+					var xhttp = new XMLHttpRequest();
+					var scopedLegendas = $scope.mapLegendas;
+					const kmlcolToRgba = function(abgr) {
+						if(abgr.length !== 8){
+							console.error("Entrada AABBGGRR inválida");
+							return "rgba(0,0,0,0)";
+						}
+						let rgbaCol = "rgba(";
+						for(var i = 6; i >= 0; i-=2){
+							if (i > 0){
+								rgbaCol += parseInt(abgr.substr(i,2), 16);
+								rgbaCol += ",";
+							}
+							else {
+								rgbaCol += (parseInt(abgr.substr(i,2), 16) / 255).toFixed(3)
+							}	
+						}
+						rgbaCol += ")";
+						return rgbaCol;
+					}
+					// Requisição xhttp retorna kml da camada (customLayer.path)
+					xhttp.onreadystatechange = function() {
+				    if (this.readyState == 4 && this.status == 200) {
+				    	// KML obtido. Converte para documento XML
+							const parser = new DOMParser();
+							// const xmlDoc = parser.parseFromString(xhttp.responseText,"text/xml");
+							// const estilos = xmlDoc.getElementsByTagName("Style");
+							const estilos = parser.parseFromString(xhttp.responseText,"text/xml").getElementsByTagName("Style");
+							pumba = estilos;
+							for (var i = estilos.length - 1; i > 0; i--) {
+								if(estilos[i].getElementsByTagName("LineStyle").length > 0 && !estilos[i].id.contains("highlight")){
+									let objTipo = 'poligono';
+									let objCor = '#000000';
+									let objCorBorda = '#000000';
+									// Obtém informações do estilo (linha, preenchimento, etc)
+									console.log(estilos[i]);
+									let kmlCorLinha = estilos[i].getElementsByTagName("LineStyle")[0].getElementsByTagName("color")[0].textContent;
+									objCorBorda = kmlcolToRgba(kmlCorLinha);
+
+									// if(estilos[i].getElementsByTagName("PolyStyle").length > 0){
+									if(estilos[i].id.contains("poly")){
+										objCor = kmlcolToRgba(estilos[i].getElementsByTagName("PolyStyle")[0].getElementsByTagName("color")[0].textContent);
+									}
+									else if(estilos[i].id.contains("line")){
+										objTipo = "linha";
+									}
+
+									let objLegenda = {tipo: objTipo, cor: objCor, corBorda: objCorBorda, tipoBorda: 'solid'};
+									
+									scopedLegendas.push(objLegenda);
+								}
+								// $rootScope.mapLegendas.push({tipo: 'poligono', cor: '#000000', corBorda: '#000000', tipoBorda: 'solid'})
+							}
+				    }
+					};
+					xhttp.open("GET", customLayer.path, true);
+					xhttp.send();
+
+					$rootScope.buscaEstilos = false;					
+				}				
 				
 				$scope.renderizandoMapa = false;
 				
@@ -363,14 +439,14 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				for(layer in $scope.mapLayers){
 					$scope.map.addLayer($scope.mapLayers[layer]);
 				}
-				// Recupera informações das features da camada enviada para preencher a legenda
 				var mapLayersSource = $scope.mapLayers[1].getSource();
 				
 				window.setTimeout(function(){
 					var extent = ol.extent.createEmpty();
 					$scope.map.getLayers().forEach(function(layer) {
-						if(layer.getSource().getExtent !== undefined)
+						if(layer.getSource().getExtent !== undefined){
 					  		ol.extent.extend(extent, layer.getSource().getExtent());
+					  	}
 					});
 					$scope.map.getView().fit(extent, $scope.map.getSize());
 				}, 2000);
@@ -554,7 +630,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		$scope.estado = 'listar';
 	};
 	
-	$scope.carregar = function(){
+	$scope.carregar = function(){		
+		$scope.mapLegendas = []; // Limpa legenda
+
 		$scope.itemAtual = $rootScope.grupos.filter((grupo) => grupo.id_grupo_indicador == $scope.idItemAtual)[0];
 		
 		Indicador.query({grupo_indicador:$scope.idItemAtual,somente_ativos:true},function(indicadores) {
