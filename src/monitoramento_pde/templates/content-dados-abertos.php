@@ -97,8 +97,15 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	}
 	
 	$scope.pontoParaVirgula = function(v){
-		if(v !==null && !isNaN(parseFloat(v)))
-			v = v.toString().replace('.',',');
+		if(v !==null && !isNaN(parseFloat(v))){
+			let vString = v.toString();
+			if(vString.length - vString.indexOf('.') === 3 || vString.length - vString.indexOf('.') === 2){
+				if(vString.charAt(vString.length - 1) === '0' && vString.charAt(vString.length - 2) === '.'){
+					return vString.split('.')[0];
+				}
+				v = vString.replace('.',',');
+			}
+		}
 		return v;
 	}
 	
@@ -241,7 +248,8 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 				</div>
 				<div class="col-sm-4 text-right"> <a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
 					<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
-					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | Mapas</strong></a> 
+					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | SHP</strong></a> 
+					<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong> | Tabelas</strong></a>
 				</div>
 
 			</li>

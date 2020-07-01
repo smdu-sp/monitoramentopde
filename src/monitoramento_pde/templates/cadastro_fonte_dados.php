@@ -83,6 +83,12 @@ app.factory('ArquivoMetadadosCarregar',function($resource){
 	});
 });
 
+app.factory('ArquivoTabelasCarregar',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar_arquivo_tabelas/:id',{id:'@id_fonte_dados'},{
+		update: cargaUpdateParams
+	});
+});
+
 app.factory('Usuarios',function($resource){
 	return $resource('/wp-json/wp/v2/users');
 });
@@ -99,7 +105,7 @@ app.factory('FonteDadosColuna',function($resource){
 	});
 });
 
-app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, ArquivoMapasCarregar, ArquivoMetadadosCarregar, Territorios, FonteDadosColuna, uibDateParser) {
+app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, ArquivoMapasCarregar, ArquivoMetadadosCarregar, ArquivoTabelasCarregar, Territorios, FonteDadosColuna, uibDateParser) {
 
 	$scope.lerArquivos = function(element) {
 		
@@ -355,6 +361,29 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 						console.error(err);
 					});
 					break;
+				case "tabelas":
+					console.log("TABELAS ArquivoTabelasCarregar");
+					ArquivoTabelasCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
+						function(mensagem){
+							console.log(mensagem);
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';					
+							$rootScope.modalProcessando.close();		
+							$scope.criarModalSucesso();
+						},
+						function(erro){
+							$rootScope.modalConfirmacao.close();						
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';
+							// $scope.lancarErro(erro);
+							console.log("PRE ERROR:");
+							console.log(erro);					
+						}
+					).catch(function(err){
+						console.log("HEL");
+						console.error(err);
+					});
+					break;
 				default:
 					window.setTimeout(function() {
 						document.getElementById('progresso').style.width = "90%";						
@@ -478,6 +507,11 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				$scope.acaoExecutando = 'Carregando';
 				$scope.acaoSucesso = 'Carregado';
 				$scope.carregarArquivo('metadados');
+				break;
+			case 'Carregar Tabelas':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregado';
+				$scope.carregarArquivo('tabelas');
 				break;
 			default:
 				console.warn($scope.acao);
@@ -850,7 +884,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			</p>
 			<p ng-if="itemAtual.arquivo_mapas">
 		
-				Arquivo de mapas mais recente: 
+				Arquivo SHP mais recente: 
 				<br>
 				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_mapas}}"> {{itemAtual.arquivo_mapas}} </a>
 				
@@ -861,6 +895,11 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				<br>
 				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_metadados}}"> {{itemAtual.arquivo_metadados}} </a>
 				
+			</p>
+			<p ng-if="itemAtual.arquivo_tabelas">		
+				Arquivo de tabelas mais recente: 
+				<br>
+				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_tabelas}}"> {{itemAtual.arquivo_tabelas}} </a>				
 			</p>
 
 			<p>
@@ -877,9 +916,11 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo de Fonte de Dados" data-ng-click="criarModalConfirmacao('Carregar')">
 			<!-- Carregar mapas (SHP / Shapefiles / KMZ) -->
-			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Mapas" data-ng-click="criarModalConfirmacao('Carregar Mapas')">
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar SHP" data-ng-click="criarModalConfirmacao('Carregar Mapas')">
 			<!-- Carregar metadados -->
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Metadados" data-ng-click="criarModalConfirmacao('Carregar Metadados')">
+			<!-- Carregar tabelas -->
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Tabelas" data-ng-click="criarModalConfirmacao('Carregar Tabelas')">
 			</span>
 			<?php if($roleMonitoramento == 'administrator'){ ?>
 			<input data-ng-show="estado!='inserir'" type="submit" value="Nova Fonte de dados" data-ng-click="inserirForm()">

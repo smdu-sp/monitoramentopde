@@ -16,7 +16,6 @@ var contornoSP = {
 		style_from_kml: false
 	}
 };
-var pumba;
 
 function hexToRgb(hex) {
 	var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -27,11 +26,6 @@ function hexToRgb(hex) {
 	} : null;
 }
 function rgbaToHex(rgbaString) {
-	/*
-	//  = "rgba(0, 0, 0, 1)"
-	console.log("rgbaString");
-	console.log(rgbaString);
-	*/
 	// Verifica se string informada é um hex
 	if (rgbaString.length === 7 && rgbaString[0] === '#') {
 		return {hex: rgbaString, alfa: '1'}
@@ -151,45 +145,37 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.estiloKml = false;
 	$scope.raio = 2;
 
-	// Issue 45
 	$scope.mapLegendas = [];
 
 	$scope.carregarMapa = function(){
-		if(!$rootScope.carregandoArquivo){
-			$rootScope.carregandoArquivo = true;
-			$rootScope.mensagemArquivo = 'Aguarde... Realizando Carga';
-			// TO DO confirmar carregamento
-			// CARGA DB FONTE DE DADOS
-			CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
-				function(mensagem){
-					$rootScope.mensagemArquivo = '';					
-					$rootScope.modalProcessando.close();		
-					$scope.criarModalSucesso();
-					$scope.renderizarMapa();
-					// Limpa camadas antes de atualizar mapa
-					$rootScope.mapLayers = [$rootScope.mapLayers[0]];
-					// Marca opção "Utilizar estilo do KML" de acordo com opção marcada no banco
-					if ($scope.mapa.parametros_mapa !== undefined && $scope.mapa.parametros_mapa !== null){
-						var params = JSON.parse($scope.mapa.parametros_mapa);						
-						$scope.estiloKml = params.style_from_kml;						
-					}
-
-					$rootScope.carregandoArquivo = false;
-				},
-				function(erro){
-					$rootScope.modalConfirmacao.close();						
-					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';
-					// $scope.lancarErro(erro);
-					console.log("PRE ERROR:");
-					console.log(erro);					
+		$rootScope.carregandoArquivo = true;
+		$rootScope.mensagemArquivo = 'Aguarde... Realizando Carga';
+		// CARGA DB FONTE DE DADOS
+		CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
+			function(mensagem){
+				$rootScope.mensagemArquivo = '';					
+				$rootScope.modalProcessando.close();		
+				$scope.criarModalSucesso();
+				$scope.renderizarMapa();
+				// Limpa camadas antes de atualizar mapa
+				$rootScope.mapLayers = [$rootScope.mapLayers[0]];
+				// Marca opção "Utilizar estilo do KML" de acordo com opção marcada no banco
+				if ($scope.mapa.parametros_mapa !== undefined && $scope.mapa.parametros_mapa !== null){
+					var params = JSON.parse($scope.mapa.parametros_mapa);						
+					$scope.estiloKml = params.style_from_kml;						
 				}
-			).catch(function(err){				
-				console.error(err);
-			});
-		}else{
-			alert('O mapa está sendo carregado. Por favor, aguarde.');
-		};
+
+				$rootScope.carregandoArquivo = false;
+			},
+			function(erro){
+				$rootScope.modalConfirmacao.close();						
+				$rootScope.carregandoArquivo = false;
+				$rootScope.mensagemArquivo = '';
+				console.log(erro);					
+			}
+		).catch(function(err){				
+			console.error(err);
+		});		
 	}
 
 	/**
@@ -301,12 +287,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		return parsed;
 	}
 
-	$scope.renderizarMapa = function() {
+	$scope.renderizarMapa = function(ignoraEstiloDB = false) {
 		if(!$scope.renderizandoMapa || true){
 			$scope.renderizandoMapa = true;
 			ObterMapa.query({id_grupo_indicador:$scope.idItemAtual},function(mapaObtido) {
 				$scope.mapa = mapaObtido;
-			}).$promise.then(function(){				
+			}).$promise.then(function(){
 				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa).
 				// limpa layers
 				for (var i = $scope.map.getLayers().getArray().length - 1; i > 0; i--) {
@@ -320,13 +306,14 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 				// Verifica se não há estilo personalizado				
 				if (typeof($scope.mapa.parametros_mapa) == "string"){
-					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);
-					$scope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
+					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);					
 				}
 				if(!$scope.mapa.parametros_mapa) 
 					$scope.mapa.parametros_mapa = {style_from_kml: true}
-				else {
-					$rootScope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
+				
+				if(!ignoraEstiloDB){
+					// se renderização for chamada pela alteração do input estiloKml, ignora valor guardado no banco de dados
+					$scope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
 				}
 
 				// Se houver legendas, acrescenta ao array				
@@ -342,10 +329,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 
 				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
 				customLayer.style = $scope.mapa.parametros_mapa;
-				if ($rootScope.firstLoad)
+				if ($rootScope.firstLoad){
 					$scope.estiloKml = customLayer.style.style_from_kml;
-				else
+				}
+				else{
 					customLayer.style.style_from_kml = $scope.estiloKml;
+				}
 				// Atualiza painel de configurações do mapa
 				$scope.estilo = customLayer.style;
 				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
@@ -362,7 +351,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				// }
 				
 				$scope.addLayers([customLayer]);
-
+				// Confere se estiloKml está marcado
 				if ($rootScope.buscaEstilos) {
 					// Grava estilos do KML para criar legenda
 					var xhttp = new XMLHttpRequest();
@@ -390,21 +379,16 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				    if (this.readyState == 4 && this.status == 200) {
 				    	// KML obtido. Converte para documento XML
 							const parser = new DOMParser();
-							// const xmlDoc = parser.parseFromString(xhttp.responseText,"text/xml");
-							// const estilos = xmlDoc.getElementsByTagName("Style");
 							const estilos = parser.parseFromString(xhttp.responseText,"text/xml").getElementsByTagName("Style");
-							pumba = estilos;
 							for (var i = estilos.length - 1; i > 0; i--) {
 								if(estilos[i].getElementsByTagName("LineStyle").length > 0 && !estilos[i].id.contains("highlight")){
 									let objTipo = 'poligono';
 									let objCor = '#000000';
 									let objCorBorda = '#000000';
 									// Obtém informações do estilo (linha, preenchimento, etc)
-									console.log(estilos[i]);
 									let kmlCorLinha = estilos[i].getElementsByTagName("LineStyle")[0].getElementsByTagName("color")[0].textContent;
 									objCorBorda = kmlcolToRgba(kmlCorLinha);
 
-									// if(estilos[i].getElementsByTagName("PolyStyle").length > 0){
 									if(estilos[i].id.contains("poly")){
 										objCor = kmlcolToRgba(estilos[i].getElementsByTagName("PolyStyle")[0].getElementsByTagName("color")[0].textContent);
 									}
@@ -416,7 +400,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 									
 									scopedLegendas.push(objLegenda);
 								}
-								// $rootScope.mapLegendas.push({tipo: 'poligono', cor: '#000000', corBorda: '#000000', tipoBorda: 'solid'})
 							}
 				    }
 					};
@@ -459,7 +442,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		if ($scope.estiloKml) {
 			// Limpa camadas antes de atualizar mapa
 			$rootScope.mapLayers = [$rootScope.mapLayers[0]];
-			$scope.renderizarMapa();
+			$scope.renderizarMapa(true);
 		}
 		else {
 			$scope.alterarCor();
@@ -510,22 +493,15 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			// CRIA OBJETO QUE SERA ARMAZENADO NO SERVIDOR			
 			stroke_color: corStroke,
 			stroke_width: lineWidth,
-			// stroke_dash: false,
 			fill_color: corFill,
-			// style_from_kml: $scope.estiloKml
-			style_from_kml: false,
+			style_from_kml: $scope.estiloKml,
 			items_legenda: $scope.mapLegendas
 		};
 
 		/** ALTERA ESTILO DAS FEATURES DO KML ENVIADO **/			
 		for (var i = $scope.mapLayers[1].getSource().getFeatures().length - 1; i >= 0; i--) {
 			$scope.mapLayers[1].getSource().getFeatures()[i].setStyle(customStyle);
-		}
-		/*
-		for (var i in $scope.map.getLayers().getArray()[2].getSource().getFeatures()){
-			$scope.map.getLayers().getArray()[2].getSource().getFeatures()[i].setStyle(customStyle);
-		}
-		*/		
+		}		
 	}
 
 	$scope.validaLegendas = function() {
@@ -574,45 +550,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				$rootScope.modalProcessando.close();
 				$scope.lancarErro(erro);
 			}
-		);
-		/*
-		$scope.itemAtual = $rootScope.grupos.filter((grupo) => grupo.id_grupo_indicador == $scope.idItemAtual)[0];
-		
-		GravarParametrosMapa.update({grupo_indicador:$scope.idItemAtual,parametros_mapa:$scope.mapa.parametros_mapa},function(indicadores) {
-			 $scope.indicadores = indicadores;
-		 });
-
-		Indicador.query({grupo_indicador:$scope.idItemAtual,somente_ativos:true},function(indicadores) {
-			 $scope.indicadores = indicadores;
-		 });
-		CarregarMapaTematico.update({id_instrumento:$scope.idItemAtual,arquivos:$scope.arquivos}).$promise.then(
-				function(mensagem){
-					// console.log(mensagem);
-					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';					
-					$rootScope.modalProcessando.close();		
-					$scope.criarModalSucesso();
-					$scope.renderizarMapa();
-					// Limpa camadas antes de atualizar mapa
-					$rootScope.mapLayers = [$rootScope.mapLayers[0]];					
-				},
-				function(erro){
-					$rootScope.modalConfirmacao.close();						
-					$rootScope.carregandoArquivo = false;
-					$rootScope.mensagemArquivo = '';
-					// $scope.lancarErro(erro);
-					console.log("PRE ERROR:");
-					console.log(erro);					
-				}
-			).catch(function(err){				
-				console.error(err);
-			});
-		}
-		*/
+		);		
 	};
-	
-		// END Issue 45
-	
+		
 	$scope.carregarTipo = function(){
 		if($scope.tipo=='estrategia')
 			$scope.tipoExibicao = 'Estratégia';

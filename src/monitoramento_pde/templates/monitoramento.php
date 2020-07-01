@@ -1737,7 +1737,7 @@ app.controller("dashboard", function($scope,
 	$scope.addLayers = function(layersInstrumento){
 		for(i in layersInstrumento) {
 			// Verifica se há estilo personalizado
-			let index = layersInstrumento[i];
+			let index = layersInstrumento[i];			
 			var olStyle = {};
 			if (index.style.stroke_color !== undefined) {				
 				olStyle = new ol.style.Style({
@@ -1771,7 +1771,9 @@ app.controller("dashboard", function($scope,
 			$scope.mapLayers.push(kmlLayer);
 			if(index.path.indexOf('msp_contorno.kml') === -1) {
 				$scope.kmlMapaAtual = index.path.indexOf('null') === -1 ? index.path : false;
-				console.log("kmlMapaAtual: ",$scope.kmlMapaAtual);
+				// console.log("extractStyles:");
+				// console.log(index.style);
+				// console.log("kmlMapaAtual: ",$scope.kmlMapaAtual);
 			}
 		}
 	};
@@ -1813,7 +1815,7 @@ app.controller("dashboard", function($scope,
 				}
 				$rootScope.mapLayers = [$rootScope.mapLayers[0]];
 				
-				var customLayer = {style: {}};
+				let customLayer = {style: {}};
 
 				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapaObj.mapa_tematico;
 
@@ -1830,11 +1832,17 @@ app.controller("dashboard", function($scope,
 					$scope.mapLegendas = [];
 
 				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
+				console.log("Parametros mapa");
+				console.log($scope.mapaObj.parametros_mapa);
+				console.log("from kml", $scope.mapaObj.parametros_mapa.style_from_kml);
 				customLayer.style = $scope.mapaObj.parametros_mapa;
+				/*
 				if ($rootScope.firstLoad)
 					$scope.estiloKml = customLayer.style.style_from_kml;
 				else
 					customLayer.style.style_from_kml = $scope.estiloKml;
+
+				$scope.estiloKml = $scope.mapaObj.parametros_mapa.style_from_kml;
 				// Atualiza painel de configurações do mapa
 				$scope.estilo = customLayer.style;
 				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
@@ -1849,7 +1857,7 @@ app.controller("dashboard", function($scope,
 					$scope.estiloKml = true;
 				}
 				// }
-				
+				*/
 				$scope.addLayers([customLayer]);
 				
 				$scope.renderizandoMapa = false;
