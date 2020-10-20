@@ -219,6 +219,39 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		});
 	}
 	
+	$scope.verificaTabela = function (id_fonte) {
+		try {
+			/*
+			DadoAberto.query({fonte_dados:id_fonte},function(dadoAberto) {
+				console.log(typeof(dadoAberto));
+				// if(dadoAberto.length > 0)
+				// 	existe = true;
+			});
+			*/
+			/*
+			var xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if(this.readyState == 4 && this.status == 200) {
+					console.log("SUCESSO");
+					// console.log(xhttp.responseText);
+					let resposta = JSON.parse(this.responseText);
+					console.log(typeof(resposta));
+					return (typeof(resposta) == "object");
+				}
+				else {
+					return false;
+				}
+			}
+			xhttp.open("GET", "/wp-json/monitoramento_pde/v1/dado_aberto/"+id_fonte, true);
+			xhttp.send();
+			*/
+		}
+		catch(err) {
+			console.warn(err);
+			return false;
+		}
+	}
+
 	$scope.debugLog = function (el) {
 		console.warn("DebugLOG:");
 		console.log(el);
@@ -246,10 +279,10 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 					<br>
 					<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					
 				</div>
-				<div class="col-sm-4 text-right"> <a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
+				<div class="col-sm-4 text-right"> <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
 					<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
 					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | SHP</strong></a> 
-					<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong> | Tabelas</strong></a>
+					<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong><span ng-show="(dado.colunas.length > 1)"> | </span>Tabelas</strong></a>
 				</div>
 
 			</li>

@@ -268,6 +268,18 @@ app.controller("dashboard", function($scope,
 		
 		return 'Q' + quarter.toString() + ' / ' + dataAjustada.getYear().toString()
 	};
+
+	$scope.razaoOODC = function(id){
+		if(id == 107){
+			window.setTimeout(function(){
+				$scope.selecao.dataMin = "2002-01-01";
+				$scope.ajustarDataFinal();
+				$scope.carregarGraficoHistorico($scope.regiaoRealcada.codigo, true);				
+			}, 2000);
+			return "2002-01-01";
+		}
+		return;
+	}
 	
 	$scope.pontoParaVirgula = function(v){
 		if(v !== null && typeof(parseFloat(v)) != NaN)
@@ -2355,7 +2367,14 @@ app.controller("dashboard", function($scope,
 		}
 		else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
 			$scope.objetivos = [];
-			var idPDE = $scope.rawObjetivos.filter(function(obj){return obj.nome === "Plano Diretor Estratégico"})[0].id_grupo_indicador;
+		// TODO: pumba
+		console.log("idPDE...");
+		console.log($scope.rawObjetivos);
+			var idPDE = $scope.rawObjetivos.filter(function(obj){
+				console.log("filtraObjetivos obj");
+				console.log(obj);
+				return obj.nome === "Plano Diretor Estratégico"
+			})[0].id_grupo_indicador;
 			$scope.cargaCadastroIndicadores(idPDE);
 			$scope.atualizaFicha(idPDE, true)
 			$scope.mostraPDE = true;
@@ -2591,7 +2610,12 @@ app.controller("dashboard", function($scope,
 							
 								<label for="data"> Data inicial:</label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.dataMin" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo, true);" name="dataInicial"></select>
+								<select style="max-width:100%;" 
+									data-ng-model="selecao.dataMin"
+									data-ng-init="selecao.dataMin = razaoOODC(indicador.id_indicador)"
+									data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " 
+									data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo, true);"
+									name="dataInicial"></select>
 							</p>
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
 								<label for="data"> Data final: </label>
@@ -2764,6 +2788,8 @@ app.controller("dashboard", function($scope,
 
 		<!-- Mapa dos instrumentos -->
 			<div id="mapcontainer" ng-show="tabAtivaForma==2" ng-class="{'zeroheight': !mostrarMapa}">
+				
+
 				<div id="map-instrumento" class="map"></div>
 				<div id="legenda-mapa" ng-show="mostrarMapa && mapLegendas.length>0">
 					<h5><strong>Legenda</strong></h5>
@@ -2777,7 +2803,7 @@ app.controller("dashboard", function($scope,
 					<div id="feature-info">&nbsp;</div>
 				</div>
 			</div>			
-		</div>
+		</div>		
 
 		<span ng-show="tabAtivaForma==1">
 			<hr>
