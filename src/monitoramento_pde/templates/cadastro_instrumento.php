@@ -7,7 +7,7 @@
 jQuery.noConflict();
 var customStyle = false;
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','angular.filter','as.sortable']);
-var contornoSP = {
+const contornoSP = {
 	path: "/app/uploads/instrumentos/msp_contorno.kml",
 	style: {
 		stroke_color: 'rgba(0, 0, 0, 0.5)',
@@ -25,6 +25,7 @@ function hexToRgb(hex) {
 		b: parseInt(result[3], 16)
 	} : null;
 }
+
 function rgbaToHex(rgbaString) {
 	// Verifica se string informada é um hex
 	if (rgbaString.length === 7 && rgbaString[0] === '#') {
@@ -43,6 +44,35 @@ function rgbaToHex(rgbaString) {
 		alfa: rgbaString[3]
 	}
 	return hexAlfa;
+}
+
+function abgrHex2rgba(abgrHex){
+	// Esperada string aabbggrr hexadecimal
+	let r = abgrHex[6]+abgrHex[7];
+	let g = abgrHex[4]+abgrHex[5];
+	let b = abgrHex[2]+abgrHex[3];
+	let a = abgrHex[0]+abgrHex[1];
+	let rgb = hexToRgb(r+g+b);
+	return 'rgba('+rgb.r+', '+rgb.g+', '+rgb.b+', '+(parseInt(a, 16)/255).toString()+')';
+}
+
+function html2olDash(lineDash){
+	let olDash = [1,0];
+	switch (lineDash) {
+		case "dotted":
+			olDash = [2,2];
+			break;
+		case "dashed":
+			olDash = [5,5];
+			break;
+		case "none":
+			olDash = [0,1];
+			break;
+		default:
+			// Solid
+			olDash = [1,0];
+	}
+	return olDash;
 }
 
 /** 
@@ -77,7 +107,7 @@ app.factory('GravarParametrosMapa',function($resource){
 	});
 });
 
-var cargaUpdateParams = {
+const cargaUpdateParams = {
 	method:'POST',
 	transformRequest: function(data) {
 		if (data === undefined){
@@ -112,6 +142,42 @@ var cargaUpdateParams = {
 		,'Content-type': undefined
 	}
 };
+
+// Suporte a multiplas camadas
+app.factory('Camadas',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/camadas/:id_grupo_indicador',{id_grupo_indicador:'@id_instrumento'},{
+		get:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+					}
+		},query:{
+			isArray:true,
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+			}	
+		}
+	});
+});
+app.factory('CarregarCamadaKML',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/carregar_camada_kml/:id_camada',{id_camada:'@id_camada'},{
+		update: cargaUpdateParams
+	});
+});
+app.factory('IncluirCamada',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/camadas/:id_grupo_indicador',{id_grupo_indicador:'@id_grupo_indicador'},{
+		update:{
+			method:'POST'
+		}
+	});
+});
+app.factory('Camada',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/camada/:id_camada',{id_camada:'@id_camada'},{
+		update:{
+			method:'PUT'
+		}
+	});
+});
+
 // END Issue 45
 
 app.factory('GrupoIndicador',function($resource){
@@ -138,12 +204,12 @@ app.factory('Indicador',function($resource){
 	);
 });
 
-app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $uibModal, GrupoIndicador, Indicador, CarregarMapaTematico, ObterMapa, GravarParametrosMapa) {
+app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $uibModal, GrupoIndicador, Indicador, CarregarMapaTematico, ObterMapa, GravarParametrosMapa, Camadas, CarregarCamadaKML, IncluirCamada, Camada) {
  
 	$scope.estado = "listar";
 	$scope.estilo = {};
-	$scope.estiloKml = false;
-	$scope.raio = 2;
+	// $scope.estiloKml = false;
+	$scope.raio = 4;
 
 	$scope.mapLegendas = [];
 
@@ -162,7 +228,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				// Marca opção "Utilizar estilo do KML" de acordo com opção marcada no banco
 				if ($scope.mapa.parametros_mapa !== undefined && $scope.mapa.parametros_mapa !== null){
 					var params = JSON.parse($scope.mapa.parametros_mapa);						
-					$scope.estiloKml = params.style_from_kml;						
+					// $scope.estiloKml = params.style_from_kml;						
 				}
 
 				$rootScope.carregandoArquivo = false;
@@ -243,13 +309,14 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		for(i in layersInstrumento) {
 			// Verifica se há estilo personalizado
 			let index = layersInstrumento[i];
+
 			var olStyle = {};
 			if (index.style.stroke_color !== undefined) {				
 				olStyle = new ol.style.Style({
 					stroke: new ol.style.Stroke({
 						color: index.style.stroke_color,
 						width: index.style.stroke_width,
-						lineDash: index.style.stroke_dash
+						lineDash: html2olDash(index.style.stroke_dash)
 					}),
 					fill: new ol.style.Fill({
 						color: index.style.fill_color
@@ -264,6 +331,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					})
 				})
 			}
+
 			let kmlLayer = new ol.layer.Vector({
 				style: olStyle,				
 				source: new ol.source.Vector({
@@ -273,6 +341,8 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					})
 				})
 			});
+			kmlLayer.id = index.id_camada;
+			kmlLayer.nome = index.nome_camada;
 			$scope.mapLayers.push(kmlLayer);			
 		}
 	};
@@ -288,164 +358,111 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	}
 
 	$scope.renderizarMapa = function(ignoraEstiloDB = false) {
-		if(!$scope.renderizandoMapa || true){
-			$scope.renderizandoMapa = true;
-			ObterMapa.query({id_grupo_indicador:$scope.idItemAtual},function(mapaObtido) {
-				$scope.mapa = mapaObtido;
-			}).$promise.then(function(){
-				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa).
-				// limpa layers
-				for (var i = $scope.map.getLayers().getArray().length - 1; i > 0; i--) {
-					$scope.map.removeLayer($scope.map.getLayers().getArray()[i]);
-				}
-				$rootScope.mapLayers = [$rootScope.mapLayers[0]];
-				
-				var customLayer = {style: {}};
-
-				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapa.mapa_tematico;
-
-				// Verifica se não há estilo personalizado				
-				if (typeof($scope.mapa.parametros_mapa) == "string"){
-					$scope.mapa.parametros_mapa = $scope.parseJson($scope.mapa.parametros_mapa);					
-				}
-				if(!$scope.mapa.parametros_mapa) 
-					$scope.mapa.parametros_mapa = {style_from_kml: true}
-				
-				if(!ignoraEstiloDB){
-					// se renderização for chamada pela alteração do input estiloKml, ignora valor guardado no banco de dados
-					$scope.estiloKml = $scope.mapa.parametros_mapa.style_from_kml;
-				}
-
-				// Se houver legendas, acrescenta ao array				
-				if(typeof($scope.mapa.parametros_mapa.items_legenda) != "undefined" && $scope.mapa.parametros_mapa.items_legenda.length > 0){
-					$scope.mapLegendas = $scope.mapa.parametros_mapa.items_legenda;
-					$rootScope.buscaEstilos = false;
-				}
-				else
-				{
-					// Se não houver legendas, procura estilos nas camadas e sugere itens de legenda
-					$rootScope.buscaEstilos = true;
-				}
-
-				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
-				customLayer.style = $scope.mapa.parametros_mapa;
-				if ($rootScope.firstLoad){
-					$scope.estiloKml = customLayer.style.style_from_kml;
-				}
-				else{
-					customLayer.style.style_from_kml = $scope.estiloKml;
-				}
-				// Atualiza painel de configurações do mapa
-				$scope.estilo = customLayer.style;
-				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
-					$scope.estilo.stroke_color_a = rgbaToHex($scope.estilo.stroke_color).alfa;
-					$scope.estilo.stroke_color = rgbaToHex($scope.estilo.stroke_color).hex;
-					
-					$scope.estilo.fill_color_a = rgbaToHex($scope.estilo.fill_color).alfa;
-					$scope.estilo.fill_color = rgbaToHex($scope.estilo.fill_color).hex;
-				}
-				else {
-					customLayer.style.style_from_kml = true;
-					$scope.estiloKml = true;
-				}
-				// }
-				
-				$scope.addLayers([customLayer]);
-				// Confere se estiloKml está marcado
-				if ($rootScope.buscaEstilos) {
-					// Grava estilos do KML para criar legenda
-					var xhttp = new XMLHttpRequest();
-					var scopedLegendas = $scope.mapLegendas;
-					const kmlcolToRgba = function(abgr) {
-						if(abgr.length !== 8){
-							console.error("Entrada AABBGGRR inválida");
-							return "rgba(0,0,0,0)";
-						}
-						let rgbaCol = "rgba(";
-						for(var i = 6; i >= 0; i-=2){
-							if (i > 0){
-								rgbaCol += parseInt(abgr.substr(i,2), 16);
-								rgbaCol += ",";
-							}
-							else {
-								rgbaCol += (parseInt(abgr.substr(i,2), 16) / 255).toFixed(3)
-							}	
-						}
-						rgbaCol += ")";
-						return rgbaCol;
-					}
-					// Requisição xhttp retorna kml da camada (customLayer.path)
-					xhttp.onreadystatechange = function() {
-				    if (this.readyState == 4 && this.status == 200) {
-				    	// KML obtido. Converte para documento XML
-							const parser = new DOMParser();
-							const estilos = parser.parseFromString(xhttp.responseText,"text/xml").getElementsByTagName("Style");
-							for (var i = estilos.length - 1; i > 0; i--) {
-								if(estilos[i].getElementsByTagName("LineStyle").length > 0 && !estilos[i].id.contains("highlight")){
-									let objTipo = 'poligono';
-									let objCor = '#000000';
-									let objCorBorda = '#000000';
-									// Obtém informações do estilo (linha, preenchimento, etc)
-									let kmlCorLinha = estilos[i].getElementsByTagName("LineStyle")[0].getElementsByTagName("color")[0].textContent;
-									objCorBorda = kmlcolToRgba(kmlCorLinha);
-
-									if(estilos[i].id.contains("poly")){
-										objCor = kmlcolToRgba(estilos[i].getElementsByTagName("PolyStyle")[0].getElementsByTagName("color")[0].textContent);
-									}
-									else if(estilos[i].id.contains("line")){
-										objTipo = "linha";
-									}
-
-									let objLegenda = {tipo: objTipo, cor: objCor, corBorda: objCorBorda, tipoBorda: 'solid'};
-									
-									scopedLegendas.push(objLegenda);
-								}
-							}
-				    }
-					};
-					xhttp.open("GET", customLayer.path, true);
-					xhttp.send();
-
-					$rootScope.buscaEstilos = false;					
-				}				
-				
-				$scope.renderizandoMapa = false;
-				
-				if($scope.map.getLayers().getLength() === 1)
-					$scope.addLayers([contornoSP]);
-
-				var cLayers = $scope.map.getLayers();
-				for(layer in cLayers) {
-					$scope.map.removeLayer(layer);
-				}
-
-				for(layer in $scope.mapLayers){
-					$scope.map.addLayer($scope.mapLayers[layer]);
-				}
-				var mapLayersSource = $scope.mapLayers[1].getSource();
-				
-				window.setTimeout(function(){
-					var extent = ol.extent.createEmpty();
-					$scope.map.getLayers().forEach(function(layer) {
-						if(layer.getSource().getExtent !== undefined){
-					  		ol.extent.extend(extent, layer.getSource().getExtent());
-					  	}
-					});
-					$scope.map.getView().fit(extent, $scope.map.getSize());
-				}, 2000);
-			});
+		// limpa layers
+		for (var i = $scope.map.getLayers().getArray().length - 1; i > 0; i--) {
+			$scope.map.removeLayer($scope.map.getLayers().getArray()[i]);
 		}
+		$rootScope.mapLayers = [$rootScope.mapLayers[0]];
+		
+		var customLayers = [];
+
+		for (var indiceCamada = 0; indiceCamada < $scope.camadasInstrumento.length; indiceCamada++) {
+			var camada = $scope.camadasInstrumento[indiceCamada];			
+			camada.path = "/app/uploads/instrumentos/" + camada.arquivo_kml;
+
+			// Verifica se não há estilo personalizado				
+			if (typeof(camada.parametros_estilo) == "string"){
+				camada.parametros_estilo = $scope.parseJson(camada.parametros_estilo);					
+			}
+			if(!camada.parametros_estilo) {
+				camada.parametros_estilo = {
+					style_from_kml: true,
+					fill_color: "rgba(255,255,255, 0.5)",
+					stroke_color: "rgba(0, 0, 0, 0.9)"
+				}
+			}
+			/*
+			if(!ignoraEstiloDB){
+				// se renderização for chamada pela alteração do input estiloKml, ignora valor guardado no banco de dados
+				camada.estiloKml = camada.parametros_estilo ? camada.parametros_estilo.style_from_kml : false;
+			}
+			*/
+
+			// Em features do tipo ponto, prioriza não obter estilo do KML
+			if(camada.tipo_feature === "ponto") {
+				// camada.parametros_estilo.style_from_kml, camada.estiloKml = false;
+				camada.parametros_estilo.style_from_kml = false;
+			}
+
+			camada.style = camada.style ? camada.style : camada.parametros_estilo;
+			
+			camada.hexStyle = {
+				stroke_color: camada.style.stroke_color ? rgbaToHex(camada.style.stroke_color).hex : null,
+				stroke_color_a: camada.style.stroke_color ? rgbaToHex(camada.style.stroke_color).alfa : null,
+				fill_color: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).hex : null,
+				fill_color_a: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).alfa : null
+			}
+			console.log(camada);
+			customLayers.push(camada);
+		}
+		// Ordena camadas conforme propriedade 'ordem'
+		console.warn("customLayers pré-sort");
+		console.log(customLayers);
+		customLayers.sort(function(a,b){return a.ordem-b.ordem});
+		console.warn("Sorted:");
+		console.log(customLayers)
+		// FIM ITERAÇÃO DE CAMADAS
+		
+		$scope.addLayers(customLayers);
+		
+		if($scope.map.getLayers().getLength() === 1)
+			$scope.addLayers([contornoSP]);
+
+		var cLayers = $scope.map.getLayers();
+		for(layer in cLayers) {
+			$scope.map.removeLayer(layer);
+		}
+
+		for(layer in $scope.mapLayers){
+			$scope.map.addLayer($scope.mapLayers[layer]);
+		}
+		var mapLayersSource = $scope.mapLayers[1].getSource();
+
+		// INICIO LEGENDA
+		/*
+		$scope.map.getLayers().forEach(function(layer){
+			if(layer.nome) {
+				console.warn("foreach Layer");
+				console.log(layer);
+			}
+		});
+		*/
+		// FIM LEGENDA
+		
+		window.setTimeout(function(){
+			var extent = ol.extent.createEmpty();
+			$scope.map.getLayers().forEach(function(layer) {
+				// Ajusta zoom e centraliza mapa
+				if(layer.getSource().getExtent !== undefined){
+			  		ol.extent.extend(extent, layer.getSource().getExtent());
+			  	}
+			  // Identifica estilo do KML e grava valores para criação da legenda
+			  // ...INSERIR AQUI CASO NÃO CONSIGA REALIZAR IMEDIATAMENTE 
+			});
+			$scope.map.getView().fit(extent, $scope.map.getSize());
+		}, 2000);
 	}
 
-	$scope.atualizaEstilo = function() {
+	$scope.atualizaEstilo = function(camada) {
+		estiloKml = camada.parametros_estilo.style_from_kml;
 		/** Verifica checkbox "Usar estilo do KML" e atualiza estilo das features no mapa **/
-		if ($scope.estiloKml) {
+		if (estiloKml) {
 			// Limpa camadas antes de atualizar mapa
 			$rootScope.mapLayers = [$rootScope.mapLayers[0]];
 			$scope.renderizarMapa(true);
 		}
 		else {
-			$scope.alterarCor();
+			$scope.alterarCor(camada);
 		}
 	}
 
@@ -460,81 +477,86 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		});
 	};
 
-	$scope.alterarCor = function() {
-		hexStroke = document.getElementById('colorpicker-contorno').value;
-		opacityStroke = document.getElementById('opacidade-contorno').value;
-		let corStroke = 'rgba(' + hexToRgb(hexStroke).r + ', ' + hexToRgb(hexStroke).g + ', ' + hexToRgb(hexStroke).b + ', ' + opacityStroke + ')';
+	$scope.alterarCor = function(camada) {
+		let hexStroke = camada.hexStyle.stroke_color ? camada.hexStyle.stroke_color : "#000000";
+		let opacityStroke = camada.hexStyle.stroke_color_a ? camada.hexStyle.stroke_color_a : "1";
+		let hexFill = camada.hexStyle.fill_color ? camada.hexStyle.fill_color : "#000000";
+		let opacityFill = camada.hexStyle.fill_color_a ? camada.hexStyle.fill_color_a : "0.5";
 
-		hexFill = document.getElementById('colorpicker-preenchimento').value;
-		opacityFill = document.getElementById('opacidade-preenchimento').value;
-		let corFill = 'rgba(' + hexToRgb(hexFill).r + ', ' + hexToRgb(hexFill).g + ', ' + hexToRgb(hexFill).b + ', ' + opacityFill + ')';
+		let strokeColor = 'rgba(' + hexToRgb(hexStroke).r + ', ' + hexToRgb(hexStroke).g + ', ' + hexToRgb(hexStroke).b + ', ' + opacityStroke + ')';
+		let fillColor = 'rgba(' + hexToRgb(hexFill).r + ', ' + hexToRgb(hexFill).g + ', ' + hexToRgb(hexFill).b + ', ' + opacityFill + ')';
 
-		lineWidth = document.getElementById('espessura-contorno').value;
-		
-		customStyle = new ol.style.Style({
-			stroke: new ol.style.Stroke({
-				color: corStroke,
-				width: lineWidth
-			}),
-			fill: new ol.style.Fill({
-				color: corFill
-			}),
-			image: new ol.style.Circle({ // Estilo do ponto
-				radius: $scope.raio,
-				fill: new ol.style.Fill({color: corFill}),
-				stroke: new ol.style.Stroke({
-					color: corStroke,
-					width: lineWidth
-				})
-			})
-		});
+		camada.parametros_estilo.stroke_color = strokeColor;
+		camada.parametros_estilo.fill_color = fillColor;
 
-		$scope.mapa.parametros_mapa = {
-			// CRIA OBJETO QUE SERA ARMAZENADO NO SERVIDOR			
-			stroke_color: corStroke,
-			stroke_width: lineWidth,
-			fill_color: corFill,
-			style_from_kml: $scope.estiloKml,
-			items_legenda: $scope.mapLegendas
-		};
-
-		/** ALTERA ESTILO DAS FEATURES DO KML ENVIADO **/			
-		for (var i = $scope.mapLayers[1].getSource().getFeatures().length - 1; i >= 0; i--) {
-			$scope.mapLayers[1].getSource().getFeatures()[i].setStyle(customStyle);
-		}		
+		// Parametros gravados, atualiza mapa
+		$scope.renderizarMapa();
 	}
 
 	$scope.validaLegendas = function() {
 		$scope.mapa.parametros_mapa.items_legenda = $scope.mapLegendas;
 	}
 
-	$scope.estiloLegenda = function(legenda) {
-		var raio = "0";
-		var largura = "20px";
+	$scope.estiloLegenda = function(camada) {
+		// ESTILO DO KML
+		// Se opção "Usar estilo do KML" estiver marcada, pega estilo da primeira feature para desenhar ícone da legenda
+		if (camada.parametros_estilo.style_from_kml && camada.arquivo_kml) {
+			var xhttp = new XMLHttpRequest();
+			let xmlCamada = '';
+			xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+					parser = new DOMParser();
+					xmlCamada = parser.parseFromString(xhttp.responseText,"text/xml");
+					let xmlFillColor = xmlCamada.getElementsByTagName("PolyStyle")[0] ? xmlCamada.getElementsByTagName("PolyStyle")[0].childNodes : [];
+					for (var i = 0; i < xmlFillColor.length - 1; i++){
+						if(xmlFillColor[i].tagName === "color"){
+							camada.style.fill_color = abgrHex2rgba(xmlFillColor[i].innerHTML);
+							// console.log(xmlFillColor[i].innerHTML);
+							break;
+						}
+					}
+					let xmlStrokeColor = xmlCamada.getElementsByTagName("LineStyle")[0] ? xmlCamada.getElementsByTagName("LineStyle")[0].childNodes : [];
+					for (var i = 0; i < xmlStrokeColor.length - 1; i++){
+						if(xmlStrokeColor[i].tagName === "color"){
+							camada.style.stroke_color = abgrHex2rgba(xmlStrokeColor[i].innerHTML);
+							// console.log(xmlStrokeColor[i].innerHTML);
+							break;
+						}
+					}
+		    }
+			};
+			xhttp.open("GET", camada.path, true);
+			xhttp.send();
+		}
+		// FIM ESTILO DO KML
+
+		let raio = "0";
+		let largura = "20px";
 		
-		if (legenda.tipo == "ponto") {
+		if (camada.tipo_feature == "ponto") {
 			raio = "50%";
-			largura = "10px";
+			largura = "12px";
 		}
 
-		var altura = legenda.tipo == "linha" ? "0px" : largura;
-		var borda = "2px "+legenda.tipoBorda+" "+legenda.corBorda;		
+		let altura = camada.tipo_feature == "linha" ? "0px" : largura;
+		let borda = "2px "+camada.style.stroke_dash+" "+camada.style.stroke_color;
 		
-		if (legenda.tipoBorda == "none") {
+		if (camada.style.stroke_dash == "none") {
 			borda = "none";
 		}
 
-		var estilo = {
-			"background-color": legenda.tipo == "linha" ? "unset" : legenda.cor,
+		let estilo = {
+			"background-color": camada.tipo_feature == "linha" ? "unset" : camada.style.fill_color,
 			"width": largura,
 			"height": altura,
 			"display": "inline-block",
-			"margin": legenda.tipo == "ponto" ? "0 10px" : "0 5px",
+			"margin": camada.tipo_feature == "ponto" ? "0 10px" : "0 5px",
 			"border": borda,
 			"border-radius": raio,
-			"border-top": legenda.tipo == "linha" ? "none" : borda,
+			"border-top": camada.tipo_feature == "linha" ? "none" : borda,
 			"vertical-align": "middle"
 		}
+		
 		return estilo;
 	}
 
@@ -571,18 +593,120 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	};
 	
 	$scope.carregar = function(){		
-		$scope.mapLegendas = []; // Limpa legenda
+		$scope.camadasInstrumento = []; // Limpa legenda / camadas do instrumento
 
 		$scope.itemAtual = $rootScope.grupos.filter((grupo) => grupo.id_grupo_indicador == $scope.idItemAtual)[0];
 		
 		Indicador.query({grupo_indicador:$scope.idItemAtual,somente_ativos:true},function(indicadores) {
 			 $scope.indicadores = indicadores;
 		 });
+		
 		if($scope.itemAtual != null){
 			$scope.estado = "selecionar";
-			$scope.renderizarMapa(); // TODO: verificar se dados do indicador já foram obtidos antes de renderizar mapa
+			$scope.obterCamadas();
+			 // TODO: verificar se dados do indicador já foram obtidos antes de renderizar mapa
 		}
 	};
+
+	// Suporte multiplas camadas
+	$scope.obterCamadas = function(){
+		Camadas.query({id_grupo_indicador:$scope.idItemAtual},
+			function(retorno){				
+				if(retorno.length > 0) {
+					$scope.camadasInstrumento = retorno;
+					for (var i = $scope.camadasInstrumento.length - 1; i >= 0; i--) {
+						$scope.camadasInstrumento[i].parametros_estilo = JSON.parse($scope.camadasInstrumento[i].parametros_estilo);
+					}
+					$scope.renderizarMapa();
+				}
+				else {
+					console.error("Nenhuma camada obtida", retorno);
+				}
+			},
+			function(erro){
+				console.error(erro)
+			});
+	};
+
+	$scope.incluirCamada = function(){
+		IncluirCamada.save({id_grupo_indicador:$scope.idItemAtual},
+			function(mensagem){
+				console.log(mensagem);
+				$scope.obterCamadas();
+			},
+			function(erro){console.error(erro)});
+	};
+
+	$scope.setCamadaAtual = function(idCamada){
+		$scope.idCamadaAtual = idCamada;
+		console.log('Camada Atual: '+$scope.idCamadaAtual);
+	}
+/*
+	$scope.aplicarHex = function(camada){
+		console.warn("aplicarHex");
+		console.log(camada);
+
+		let hexStroke = camada.hexStyle.stroke_color ? camada.hexStyle.stroke_color : "#000000";
+		let hexStrokeA = camada.hexStyle.stroke_color_a ? camada.hexStyle.stroke_color_a : "1";
+		let hexFill = camada.hexStyle.fill_color ? camada.hexStyle.fill_color : "#000000";
+		let hexFillA = camada.hexStyle.fill_color_a ? camada.hexStyle.fill_color_a : "0.5";
+
+		$scope.alterarCor(camada, hexStroke, hexStrokeA, hexFill, hexFillA);
+
+		TODO: REMOVER CASO alterarCor esteja funcionando
+	}
+*/
+	$scope.enviarKML = function(){
+		$rootScope.carregandoArquivo = true;
+		$rootScope.mensagemArquivo = 'Enviando KML...';
+		CarregarCamadaKML.update({id_grupo_indicador:$scope.itemAtual.id_grupo_indicador,id_camada:$scope.idCamadaAtual,arquivos:$scope.arquivos}).$promise.then(
+			function(mensagem){
+				$rootScope.mensagemArquivo = '';					
+				$rootScope.modalProcessando.close();		
+				$scope.criarModalSucesso();
+				$scope.renderizarMapa();
+				$rootScope.carregandoArquivo = false;
+			},
+			function(erro){
+				$rootScope.modalConfirmacao.close();						
+				$rootScope.carregandoArquivo = false;
+				$rootScope.mensagemArquivo = '';
+				console.log(erro);					
+			}
+		).catch(function(err){				
+			console.error(err);
+		});
+	};
+
+	$scope.gravarParametrosCamada = function(idCamada, indice){		
+		// Pega parâmetros da camada
+		let parametrosEstilo = $scope.camadasInstrumento[indice].parametros_estilo;
+		let parametrosTratados = typeof(parametrosEstilo) == 'string' ? parametrosEstilo : JSON.stringify(parametrosEstilo);
+		let tipoFeature = $scope.camadasInstrumento[indice].tipo_feature;
+		let nomeCamada = $scope.camadasInstrumento[indice].nome_camada;
+		let ordem = $scope.camadasInstrumento[indice].ordem;
+
+		Camada.update({id_camada:idCamada, parametros_estilo:parametrosTratados, tipo_feature:tipoFeature, nome_camada:nomeCamada, ordem:ordem}).$promise.then(
+				function(mensagem){
+					console.log(mensagem);
+				},
+				function(erro){
+					console.error(erro);
+				}
+			);
+	};
+
+	$scope.removerCamada = function(idCamada, key){
+		Camada.remove({id_camada:idCamada}).$promise.then(
+			function(mensagem){
+				$scope.camadasInstrumento.splice(key, 1);
+			},
+			function(erro){
+				$scope.lancarErro(erro);
+			}
+		);
+	};
+	// END Suporte multiplas camadas
 	
 	$scope.adicionarElemento = function(){
 		$scope.itemAtual.propriedades.push({});
@@ -590,7 +714,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	
 	$scope.criarModalConfirmacao = function(acao){
 		// Verifica se arquivo foi selecionado antes de carregar o mapa
-		if(acao === 'CarregarMapa' && !$scope.arquivos){
+		if((acao === 'CarregarMapa' || acao === 'EnviarKML') && !$scope.arquivos){
 			window.alert('Nenhum arquivo enviado. Clique no botão "Escolher arquivo" para enviar o arquivo de mapa primeiro.');
 			return;
 		}
@@ -646,7 +770,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			}
 		);
 	};		
-	
+
 	$scope.remover = function(){
 		GrupoIndicador.remove({id:$scope.itemAtual.id_grupo_indicador,grupo:$scope.itemAtual,tipo:$scope.tipo,usuario:<?php $usrObj = wp_get_current_user(); echo json_encode($usrObj); ?>}).$promise.then(
 			function(mensagem){
@@ -735,6 +859,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				$scope.acaoExecutando = 'Carregando';
 				$scope.acaoSucesso = 'Carregado';
 				$scope.carregarMapa();
+				break;
+			case 'EnviarKML':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregado';
+				$scope.enviarKML();
 				break;
 			case 'GravarParametrosMapa':
 				$scope.acaoExecutando = 'Gravando';
@@ -1092,89 +1221,89 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			<div data-ng-show="estado!='inserir' && tipo=='instrumento' && idItemAtual">
 				<h4>Mapa temático</h4>
 				<div id="map" class="map">
+					<!-- TODO: Referenciar legendas às camadas -->
 					<div id="legenda-mapa">
-						<div ng-repeat="(key, legenda) in mapLegendas">
-							<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+						<div ng-repeat="(key, camada) in camadasInstrumento">
+							<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 						</div>
 					</div>
 				</div>
 				<div id="controles-mapa">
-					<h3>Configurações do mapa</h3>
-					<label for="estilo-kml">Usar estilo do KML</label>
-					<input type="checkbox" id="estilo-kml" ng-change="atualizaEstilo()" ng-model="estiloKml">
-					<table ng-class="{'inativo': estiloKml}">
-						<!-- LINHA / CONTORNO -->
-						<tr>
-							<td><label for="colorpicker-contorno">Cor da linha</label></td>
-							<td><input type="color" ng-disabled="estiloKml" data-ng-model-instant onchange="angular.element(this).scope().alterarCor()" class="colpick" ng-model="estilo.stroke_color" id="colorpicker-contorno" value="#000000"></td>
-							<td><label for="opacidade-contorno">Alfa</label></td>
-							<td><input type="range" ng-disabled="estiloKml" min="0" max="1" step="0.1" value="1" id="opacidade-contorno" ng-model="estilo.stroke_color_a" onchange="angular.element(this).scope().alterarCor()"></td>
-						</tr>
-						<tr>
-							<td><label for="espessura-contorno">Espessura da linha</label></td>
-							<td colspan="3"><input type="range" ng-disabled="estiloKml" min="1" max="20" step="0.5" value="1" id="espessura-contorno" ng-model="estilo.stroke_width" onchange="angular.element(this).scope().alterarCor()"></td>
-						</tr>
-						<!-- PREENCHIMENTO -->
-						<tr>
-							<td><label for="colorpicker-preenchimento">Cor do preenchimento</label></td>
-							<td><input type="color" ng-disabled="estiloKml" data-ng-model-instant onchange="angular.element(this).scope().alterarCor()" class="colpick" ng-model="estilo.fill_color" id="colorpicker-preenchimento"></td>
-							<td><label for="opacidade-preenchimento">Alfa</label></td>
-							<td><input type="range" ng-disabled="estiloKml" min="0" max="1" step="0.1" value="1" id="opacidade-preenchimento" ng-model="estilo.fill_color_a" onchange="angular.element(this).scope().alterarCor()"></td>
-						</tr>
-					</table>
-					<div>
-						<h4>Legenda</h4>
-						<div ng-repeat="(key, legenda) in mapLegendas" class="legenda-input">
+					<h3>Camadas</h3>
+					<div style="margin: 1em 0"><button ng-click="incluirCamada()" class="btn btn-success">+ Adicionar camada</button></div>
+					<div class="layer-containers">
+						<div ng-repeat="(key, camada) in camadasInstrumento" class="legenda-input">
 							<div class="form-inline">
 								<div class="form-group">
-									<input type="color" value="#FFFFFF" ng-model="mapLegendas[key].cor" data-ng-model-instant class="colpick" ng-style="estiloLegenda(legenda)">
-									<input class="form-control" type="text" ng-model="mapLegendas[key].descricao" data-ng-model-instant placeholder="Descrição...">
-									<select class="form-control" ng-model="mapLegendas[key].tipo">
+									<input class="form-control" type="text" ng-model="camadasInstrumento[key].nome_camada" data-ng-model-instant placeholder="Nome">
+									<select class="form-control" ng-model="camadasInstrumento[key].tipo_feature">
 										<option value="poligono">Polígono</option>
 										<option value="linha">Linha</option>
 										<option value="ponto">Ponto</option>
 									</select>
+									<label style="margin-left: 2em">Ordem</label>
+									<input class="form-control ordem-spinner" type="number" ng-model="camadasInstrumento[key].ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camadasInstrumento[key])">
 								</div>
+							</div>
+							<div class="form-inline">
 								<div class="form-group">
+									<span style="margin-right: 2em"><strong>Arquivo:</strong> {{camada.arquivo_kml}}</span>
+									<label>Usar estilo do KML</label>
+									<input type="checkbox" ng-change="atualizaEstilo(camadasInstrumento[key])" ng-model="camadasInstrumento[key].parametros_estilo.style_from_kml">
+								</div>
+							</div>
+							<div class="form-inline">
+								<div class="form-group">
+									<span>Cor do preenchimento</span>
+									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.fill_color" ng-change="alterarCor(camadasInstrumento[key])" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)">
+									<span>Opacidade</span>
+									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.fill_color_a" ng-change="alterarCor(camadasInstrumento[key])">
+
+									<br>									
+								
 									<span>Cor do contorno</span>
-									<input type="color" value="#FFFFFF" ng-model="mapLegendas[key].corBorda" data-ng-model-instant class="colpick">
-									<select ng-model="mapLegendas[key].tipoBorda">
+									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.stroke_color" data-ng-model-instant class="colpick" ng-change="alterarCor(camadasInstrumento[key])">
+									<span>Opacidade</span>
+									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.stroke_color_a" ng-change="alterarCor(camadasInstrumento[key])">
+									<select title="Linha de contorno" ng-model="camadasInstrumento[key].parametros_estilo.stroke_dash" ng-change="alterarCor(camadasInstrumento[key])">
 										<option value="solid">Sólida</option>
 										<option value="dotted">Pontilhada</option>
 										<option value="dashed">Tracejada</option>
 										<option value="none">Sem borda</option>
 									</select>									
-									<button ng-click="mapLegendas.splice(key, 1)" class="btn btn-danger">Remover item</button>
 								</div>
 							</div>
+							<!-- ENVIAR/SUBSTITUIR ARQUIVO KML -->
+							<div class="form-inline">
+								<div class="kml-form">
+									<label for="arquivo">Selecione o arquivo KML</label>
+									<br>
+									<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant id="arquivos" name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">									
+									<input type="submit" data-ng-show="estado!='inserir'" value="Carregar KML" data-ng-click="setCamadaAtual(camada.id_camada);criarModalConfirmacao('EnviarKML')">
+								</div>
+							</div>
+							<div>
+								<button class="btn btn-primary" ng-click="gravarParametrosCamada(camada.id_camada, key)">Gravar dados</button>
+								<button ng-click="removerCamada(camada.id_camada, key)" class="btn btn-danger">Remover camada</button>
+							</div>
 						</div>
-						<div style="margin: 1em 0"><button ng-click="mapLegendas.push({tipo: 'poligono', cor: '#000000', corBorda: '#000000', tipoBorda: 'solid'})" class="btn btn-success">+ Adicionar item de legenda</button></div>
 					</div>
-					<br>
-					<!-- BOTÃO DE ENVIO DE PARÂMETROS -->
-					<div>
-						<input
-							type="submit"
-							data-ng-show="estado!='inserir'"
-							value="Gravar parâmetros"
-							class="btn btn-block btn-primary"
-							data-ng-click="validaLegendas(); criarModalConfirmacao('GravarParametrosMapa')">
-					</div>
+
 				</div>
 				
-				<div>
+				<!-- <div>
 					<label for="arquivo"> Selecione o arquivo </label>
 					<br>
 					<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant id="arquivos" name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">
 					<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Mapa" data-ng-click="criarModalConfirmacao('CarregarMapa')">
-				</div>
+				</div> -->
 			</div>
 </form>
 <style type="text/css">
 	#map {
 		display: inline-block;
 		position: relative;
-		height: 550px;
+		height: 650px;
 		width: 50%;
 	}	
 	#controles-mapa {
@@ -1211,14 +1340,29 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	}
 	.colpick {
 		padding: 0;
-	    margin: 0;
-	    background: none;
-	    width: 30px;
-	    height: 30px;
-	    border: none;
+    margin: 0 !important;
+    background: none;
+    width: 30px !important;
+    height: 30px !important;
+    border: none !important;
 	}
 	.inativo {
 		opacity: 0.5;
+	}
+	.kml-form {
+		padding: 5px;
+    margin: 5px 0;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    text-align: center;
+	}
+	.alfa-slider {
+		display: inline-block !important;
+		width: 20% !important;
+	}
+	.ordem-spinner {
+		width: 4em !important;
+		font-weight: bold;
 	}
 </style>
 <?php }else{ ?>

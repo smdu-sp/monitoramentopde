@@ -60,6 +60,49 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
+// Suporte a multiplas camadas
+// OBTER CAMADAS
+add_action( 'rest_api_init', function() {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/camadas/(?P<id_grupo_indicador>\d+)', array(
+		'methods' => WP_REST_Server::READABLE,
+		'callback' => 'camadas'
+	));
+});
+// ENVIAR / CARREGAR KML
+add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/carregar_camada_kml/(?P<id_camada>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_camada_kml'
+	) );
+} );
+// INCLUIR CAMADA
+add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/incluir_camada/(?P<id_grupo_indicador>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'incluir_camada'
+	) );
+} );
+// APAGAR CAMADA
+add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/apagar_camada/(?P<id_camada>\d+)', array(
+		'methods' => WP_REST_Server::DELETABLE,
+		'callback' => 'apagar_camada'
+	) );
+} );
+// EDITAR CAMADA
+add_action( 'rest_api_init', function () {
+	 global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/gravar_parametros_camada/(?P<id_camada>\d+)', array(
+		'methods' => 'PUT',
+		'callback' => 'gravar_parametros_camada'
+	) );
+} );
+// END Suporte a multiplas camadas
+
  add_action( 'rest_api_init', function () {
 	global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/territorios', array(
@@ -2887,6 +2930,205 @@ function gravar_parametros_mapa(WP_REST_Request $request){
 			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
 	if(array_key_exists('parametros_mapa',$parametros))
 			$comando->bindParam(':parametros_mapa',$parametros['parametros_mapa']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		var_dump($erro);
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados[0] );
+	// Se não retornar nada, comando foi executado com sucesso. Se não, retorna erro
+	if (is_array($dados[0]) && sizeof($dados[0]) === 0) {
+		return 1;
+	}
+	else {
+		return $response;
+	}
+}
+
+//  SUPORTE A MULTIPLAS CAMADAS
+function camadas(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "select * from sistema.maplayers_grupo_indicador where id_grupo_indicador = :id_grupo_indicador;";
+
+ $comando = $pdo->prepare($comando_string);
+
+ 	if(array_key_exists('id_grupo_indicador',$parametros))
+		$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados );
+	return $response;
+}
+
+function carregar_camada_kml(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	if(isset($_SERVER['X-WP-Nonce']))
+		wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
+	
+	// Verificar se grupo indicador é válido, enviar arquivo KML e associar valor à tabela
+	
+	$id_camada = $parametros['id_camada'];
+	$id_grupo_indicador = $parametros['id_grupo_indicador'];
+	$diretorio = wp_upload_dir()['basedir'].'/instrumentos';
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$camada_kml = $id_grupo_indicador.'_'.$data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$camada_kml);
+	
+	$comando_string = 
+	"update	sistema.maplayers_grupo_indicador
+	set arquivo_kml = '".$camada_kml."'
+	where id_camada = :id_camada";
+	
+	$comando = $pdo->prepare($comando_string);
+
+	if(array_key_exists('id_camada',$parametros))
+		$comando->bindParam(':id_camada',$parametros['id_camada']);
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	if(sizeof($dados) == 1 && sizeof($dados[0]) == 0)
+		$dados = 1;	
+	else if(is_array($dados))
+		$dados = json_encode($dados);
+
+	$response = new WP_REST_Response( $dados );
+	return $response;
+}
+
+function incluir_camada(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+	insert into sistema.maplayers_grupo_indicador
+	(nome_camada, id_grupo_indicador, ordem)
+	values ('Camada 1', :id_grupo_indicador, 0);
+	";
+
+	$comando = $pdo->prepare($comando_string);
+	 
+	if(array_key_exists('id_grupo_indicador',$parametros))
+			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		var_dump($erro);
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados[0] );
+	// Se não retornar nada, comando foi executado com sucesso. Se não, retorna erro
+	if (is_array($dados[0]) && sizeof($dados[0]) === 0) {
+		return 1;
+	}
+	else {
+		return $response;
+	}
+}
+
+function apagar_camada(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+	delete from sistema.maplayers_grupo_indicador
+	where id_camada = :id_camada;
+	";
+
+	$comando = $pdo->prepare($comando_string);
+	 
+	if(array_key_exists('id_camada',$parametros))
+			$comando->bindParam(':id_camada',$parametros['id_camada']);
+ 
+ 	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		var_dump($erro);
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+	
+	$response = new WP_REST_Response( $dados[0] );
+	// Se não retornar nada, comando foi executado com sucesso. Se não, retorna erro
+	if (is_array($dados[0]) && sizeof($dados[0]) === 0) {
+		return 1;
+	}
+	else {
+		return $response;
+	}
+}
+
+function gravar_parametros_camada(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+	
+	$comando_string = "
+	update sistema.maplayers_grupo_indicador
+	set parametros_estilo = :parametros_estilo, tipo_feature = :tipo_feature, nome_camada = :nome_camada, ordem = :ordem
+	where id_grupo_indicador = :id_grupo_indicador;
+	";
+
+	$comando = $pdo->prepare($comando_string);
+	 
+	if(array_key_exists('id_grupo_indicador',$parametros))
+			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+	if(array_key_exists('parametros_estilo',$parametros))
+			$comando->bindParam(':parametros_estilo',$parametros['parametros_estilo']);
+	if(array_key_exists('tipo_feature',$parametros))
+			$comando->bindParam(':tipo_feature',$parametros['tipo_feature']);
+	if(array_key_exists('nome_camada',$parametros))
+			$comando->bindParam(':nome_camada',$parametros['nome_camada']);
+	if(array_key_exists('ordem',$parametros))
+			$comando->bindParam(':ordem',$parametros['ordem']);
  
  	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
