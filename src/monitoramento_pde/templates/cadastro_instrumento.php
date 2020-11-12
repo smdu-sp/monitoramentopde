@@ -402,15 +402,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				fill_color: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).hex : null,
 				fill_color_a: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).alfa : null
 			}
-			console.log(camada);
 			customLayers.push(camada);
 		}
 		// Ordena camadas conforme propriedade 'ordem'
-		console.warn("customLayers pré-sort");
-		console.log(customLayers);
 		customLayers.sort(function(a,b){return a.ordem-b.ordem});
-		console.warn("Sorted:");
-		console.log(customLayers)
 		// FIM ITERAÇÃO DE CAMADAS
 		
 		$scope.addLayers(customLayers);
@@ -465,6 +460,25 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			$scope.alterarCor(camada);
 		}
 	}
+	
+	$scope.forceFileUpdate = function(camada) {
+		console.warn("forceFileUpdate");
+		console.log(camada);
+		if(!$scope.arquivos[0]){
+			return;
+		}
+
+		for (var i = 0; i < $scope.camadasInstrumento.length; i++) {
+			if($scope.camadasInstrumento[i].id_camada === camada.id_camada){
+				let data = new Date();
+				let prefixo = $scope.itemAtual.id_grupo_indicador + "_" + data.getFullYear().toString()+(data.getMonth()+1)+data.getDate() + "_";
+				camada.arquivo_kml = prefixo + $scope.arquivos[0].name;
+				break;
+			}
+		}	
+			
+		console.log(camada);
+	}
 
 	$scope.lerArquivos = function(element) {
 		
@@ -493,13 +507,20 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		$scope.renderizarMapa();
 	}
 
+	$scope.verificarBorda = function(camada) {
+		// Se for selecionada opção "sem borda", muda opacidade do contorno para 0
+		if (camada.parametros_estilo.stroke_dash === "none") {
+			camada.hexStyle.stroke_color_a = "0";
+		}
+	}
+
 	$scope.validaLegendas = function() {
 		$scope.mapa.parametros_mapa.items_legenda = $scope.mapLegendas;
 	}
 
 	$scope.estiloLegenda = function(camada) {
 		// ESTILO DO KML
-		// Se opção "Usar estilo do KML" estiver marcada, pega estilo da primeira feature para desenhar ícone da legenda
+		// Se opção "estilo do KML" estiver marcada, pega estilo da primeira feature para desenhar ícone da legenda
 		if (camada.parametros_estilo.style_from_kml && camada.arquivo_kml) {
 			var xhttp = new XMLHttpRequest();
 			let xmlCamada = '';
@@ -599,13 +620,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		
 		Indicador.query({grupo_indicador:$scope.idItemAtual,somente_ativos:true},function(indicadores) {
 			 $scope.indicadores = indicadores;
+			 if($scope.itemAtual != null){
+			 	$scope.estado = "selecionar";
+			 	$scope.obterCamadas();
+			 	 // TODO: verificar se dados do indicador já foram obtidos antes de renderizar mapa
+			 }
 		 });
-		
-		if($scope.itemAtual != null){
-			$scope.estado = "selecionar";
-			$scope.obterCamadas();
-			 // TODO: verificar se dados do indicador já foram obtidos antes de renderizar mapa
-		}
 	};
 
 	// Suporte multiplas camadas
@@ -637,8 +657,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			function(erro){console.error(erro)});
 	};
 
-	$scope.setCamadaAtual = function(idCamada){
+	$scope.setCamadaAtual = function(idCamada, camada){
 		$scope.idCamadaAtual = idCamada;
+		$scope.camadaAtual = camada;
 		console.log('Camada Atual: '+$scope.idCamadaAtual);
 	}
 /*
@@ -664,8 +685,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				$rootScope.mensagemArquivo = '';					
 				$rootScope.modalProcessando.close();		
 				$scope.criarModalSucesso();
-				$scope.renderizarMapa();
 				$rootScope.carregandoArquivo = false;
+				// Tentar recarregar mapa com novo arquivo
+				$scope.carregar();
+				// $scope.forceFileUpdate($scope.camadaAtual);
+				// $scope.renderizarMapa();
+
 			},
 			function(erro){
 				$rootScope.modalConfirmacao.close();						
@@ -1241,34 +1266,47 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 										<option value="linha">Linha</option>
 										<option value="ponto">Ponto</option>
 									</select>
-									<label style="margin-left: 2em">Ordem</label>
-									<input class="form-control ordem-spinner" type="number" ng-model="camadasInstrumento[key].ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camadasInstrumento[key])">
+									<div class="caixa-ordem">
+										<label>Ordem</label>
+										<input class="form-control" type="number" ng-model="camadasInstrumento[key].ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camadasInstrumento[key])">
+									</div>
 								</div>
 							</div>
 							<div class="form-inline">
 								<div class="form-group">
-									<span style="margin-right: 2em"><strong>Arquivo:</strong> {{camada.arquivo_kml}}</span>
-									<label>Usar estilo do KML</label>
-									<input type="checkbox" ng-change="atualizaEstilo(camadasInstrumento[key])" ng-model="camadasInstrumento[key].parametros_estilo.style_from_kml">
+									<span class="caixa-nome-arquivo" ng-attr-title="{{camada.arquivo_kml}}"><strong>Arquivo:</strong> {{camada.arquivo_kml}}</span>
+									<div class="caixa-estilo-kml caixa-ordem" ng-if="camada.tipo_feature !== 'ponto'">
+										<label>Usar estilo do KML</label>
+										<input type="checkbox" ng-change="atualizaEstilo(camadasInstrumento[key])" ng-model="camadasInstrumento[key].parametros_estilo.style_from_kml">
+									</div>
 								</div>
 							</div>
 							<div class="form-inline">
-								<div class="form-group">
+								<div class="form-group" ng-class="camada.parametros_estilo.style_from_kml ? 'inativo' : ''">
 									<span>Cor do preenchimento</span>
-									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.fill_color" ng-change="alterarCor(camadasInstrumento[key])" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)">
+									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.fill_color" ng-change="alterarCor(camadasInstrumento[key])" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
 									<span>Opacidade</span>
-									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.fill_color_a" ng-change="alterarCor(camadasInstrumento[key])">
+									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.fill_color_a" ng-change="alterarCor(camadasInstrumento[key])" ng-disabled="camada.parametros_estilo.style_from_kml">
 
 									<br>									
-								
-									<span>Cor do contorno</span>
-									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.stroke_color" data-ng-model-instant class="colpick" ng-change="alterarCor(camadasInstrumento[key])">
-									<span>Opacidade</span>
-									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.stroke_color_a" ng-change="alterarCor(camadasInstrumento[key])">
-									<select title="Linha de contorno" ng-model="camadasInstrumento[key].parametros_estilo.stroke_dash" ng-change="alterarCor(camadasInstrumento[key])">
+								 
+									<div ng-class="camada.parametros_estilo.stroke_dash === 'none' ? 'inativo' : ''">
+										<span>Cor do contorno</span>
+										<input 
+											type="color"
+											value="#FFFFFF"
+											data-ng-model-instant
+											class="colpick"
+											ng-disabled="camada.parametros_estilo.stroke_dash === 'none'"
+											ng-model="camadasInstrumento[key].hexStyle.stroke_color"
+											ng-change="alterarCor(camadasInstrumento[key])">
+										<span>Opacidade</span>
+										<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-disabled="camada.parametros_estilo.stroke_dash === 'none'" ng-model="camadasInstrumento[key].hexStyle.stroke_color_a" ng-change="alterarCor(camadasInstrumento[key])">
+									</div>
+									<select title="Linha de contorno" ng-model="camadasInstrumento[key].parametros_estilo.stroke_dash" ng-change="verificarBorda(camadasInstrumento[key]);alterarCor(camadasInstrumento[key])">
 										<option value="solid">Sólida</option>
-										<option value="dotted">Pontilhada</option>
-										<option value="dashed">Tracejada</option>
+										<option value="dotted" ng-if="camada.tipo_feature !== 'ponto'">Pontilhada</option>
+										<option value="dashed" ng-if="camada.tipo_feature !== 'ponto'">Tracejada</option>
 										<option value="none">Sem borda</option>
 									</select>									
 								</div>
@@ -1278,8 +1316,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 								<div class="kml-form">
 									<label for="arquivo">Selecione o arquivo KML</label>
 									<br>
-									<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant id="arquivos" name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">									
-									<input type="submit" data-ng-show="estado!='inserir'" value="Carregar KML" data-ng-click="setCamadaAtual(camada.id_camada);criarModalConfirmacao('EnviarKML')">
+									<!-- <input type="file" style="max-width:100%;width:100%;" data-ng-model-instant name="arquivos" onchange="angular.element(this).scope().lerArquivos(this);angular.element(this).scope().forceFileUpdate(camada)">									 -->
+									<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">									
+									<input class="btn btn-info btn-block" type="submit" data-ng-show="estado!='inserir'" value="Carregar KML" data-ng-click="forceFileUpdate(camadasInstrumento[key]);setCamadaAtual(camada.id_camada, camada);criarModalConfirmacao('EnviarKML')">
 								</div>
 							</div>
 							<div>
@@ -1336,7 +1375,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	.legenda-input {
 		border-bottom: 1px solid #aaaaaa;
 		margin: 0;
-		padding: 10px;
+		padding: 30px 0;
 	}
 	.colpick {
 		padding: 0;
@@ -1360,9 +1399,27 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		display: inline-block !important;
 		width: 20% !important;
 	}
-	.ordem-spinner {
+	/*.ordem-spinner {*/
+	.caixa-ordem {
+		display: inline-block;
+    position: absolute;
+    right: 0;
+    margin: 0 1em;
+	}
+	.caixa-ordem input {
 		width: 4em !important;
 		font-weight: bold;
+	}
+	.caixa-nome-arquivo {
+    display: inline-block;
+		margin-right: 2em;
+    max-width: 290px;
+    max-height: 2em;
+    overflow: overlay;
+	}
+	.caixa-estilo-kml {
+		position: relative;
+    margin: 0;
 	}
 </style>
 <?php }else{ ?>
