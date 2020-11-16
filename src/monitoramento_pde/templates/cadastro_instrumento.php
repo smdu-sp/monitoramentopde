@@ -633,7 +633,14 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		Camadas.query({id_grupo_indicador:$scope.idItemAtual},
 			function(retorno){				
 				if(retorno.length > 0) {
-					$scope.camadasInstrumento = retorno;
+					// $scope.camadasInstrumento = retorno;
+					$scope.camadasInstrumento = [];
+					// Adiciona itens obtidos ao array camadasInstrumento
+					for (var i = retorno.length - 1; i >= 0; i--) {
+						$scope.camadasInstrumento.push(retorno[i]);
+					}
+					console.log($scope.camadasInstrumento);
+					// Fim da conversão (obj to arr)
 					for (var i = $scope.camadasInstrumento.length - 1; i >= 0; i--) {
 						$scope.camadasInstrumento[i].parametros_estilo = JSON.parse($scope.camadasInstrumento[i].parametros_estilo);
 					}
@@ -1260,15 +1267,15 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 						<div ng-repeat="(key, camada) in camadasInstrumento" class="legenda-input">
 							<div class="form-inline">
 								<div class="form-group">
-									<input class="form-control" type="text" ng-model="camadasInstrumento[key].nome_camada" data-ng-model-instant placeholder="Nome">
-									<select class="form-control" ng-model="camadasInstrumento[key].tipo_feature">
+									<input class="form-control" type="text" ng-model="camada.nome_camada" data-ng-model-instant placeholder="Nome">
+									<select class="form-control" ng-model="camada.tipo_feature">
 										<option value="poligono">Polígono</option>
 										<option value="linha">Linha</option>
 										<option value="ponto">Ponto</option>
 									</select>
 									<div class="caixa-ordem">
 										<label>Ordem</label>
-										<input class="form-control" type="number" ng-model="camadasInstrumento[key].ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camadasInstrumento[key])">
+										<input class="form-control" type="number" ng-model="camada.ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camada)">
 									</div>
 								</div>
 							</div>
@@ -1277,16 +1284,16 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 									<span class="caixa-nome-arquivo" ng-attr-title="{{camada.arquivo_kml}}"><strong>Arquivo:</strong> {{camada.arquivo_kml}}</span>
 									<div class="caixa-estilo-kml caixa-ordem" ng-if="camada.tipo_feature !== 'ponto'">
 										<label>Usar estilo do KML</label>
-										<input type="checkbox" ng-change="atualizaEstilo(camadasInstrumento[key])" ng-model="camadasInstrumento[key].parametros_estilo.style_from_kml">
+										<input type="checkbox" ng-change="atualizaEstilo(camada)" ng-model="camada.parametros_estilo.style_from_kml">
 									</div>
 								</div>
 							</div>
 							<div class="form-inline">
 								<div class="form-group" ng-class="camada.parametros_estilo.style_from_kml ? 'inativo' : ''">
 									<span>Cor do preenchimento</span>
-									<input type="color" value="#FFFFFF" ng-model="camadasInstrumento[key].hexStyle.fill_color" ng-change="alterarCor(camadasInstrumento[key])" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
+									<input type="color" value="#FFFFFF" ng-model="camada.hexStyle.fill_color" ng-change="alterarCor(camada)" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
 									<span>Opacidade</span>
-									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camadasInstrumento[key].hexStyle.fill_color_a" ng-change="alterarCor(camadasInstrumento[key])" ng-disabled="camada.parametros_estilo.style_from_kml">
+									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camada.hexStyle.fill_color_a" ng-change="alterarCor(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
 
 									<br>									
 								 
@@ -1298,12 +1305,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 											data-ng-model-instant
 											class="colpick"
 											ng-disabled="camada.parametros_estilo.stroke_dash === 'none'"
-											ng-model="camadasInstrumento[key].hexStyle.stroke_color"
-											ng-change="alterarCor(camadasInstrumento[key])">
+											ng-model="camada.hexStyle.stroke_color"
+											ng-change="alterarCor(camada)">
 										<span>Opacidade</span>
-										<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-disabled="camada.parametros_estilo.stroke_dash === 'none'" ng-model="camadasInstrumento[key].hexStyle.stroke_color_a" ng-change="alterarCor(camadasInstrumento[key])">
+										<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-disabled="camada.parametros_estilo.stroke_dash === 'none'" ng-model="camada.hexStyle.stroke_color_a" ng-change="alterarCor(camada)">
 									</div>
-									<select title="Linha de contorno" ng-model="camadasInstrumento[key].parametros_estilo.stroke_dash" ng-change="verificarBorda(camadasInstrumento[key]);alterarCor(camadasInstrumento[key])">
+									<select title="Linha de contorno" ng-model="camada.parametros_estilo.stroke_dash" ng-change="verificarBorda(camada);alterarCor(camada)">
 										<option value="solid">Sólida</option>
 										<option value="dotted" ng-if="camada.tipo_feature !== 'ponto'">Pontilhada</option>
 										<option value="dashed" ng-if="camada.tipo_feature !== 'ponto'">Tracejada</option>
@@ -1318,7 +1325,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 									<br>
 									<!-- <input type="file" style="max-width:100%;width:100%;" data-ng-model-instant name="arquivos" onchange="angular.element(this).scope().lerArquivos(this);angular.element(this).scope().forceFileUpdate(camada)">									 -->
 									<input type="file" style="max-width:100%;width:100%;" data-ng-model-instant name="arquivos" onchange="angular.element(this).scope().lerArquivos(this)">									
-									<input class="btn btn-info btn-block" type="submit" data-ng-show="estado!='inserir'" value="Carregar KML" data-ng-click="forceFileUpdate(camadasInstrumento[key]);setCamadaAtual(camada.id_camada, camada);criarModalConfirmacao('EnviarKML')">
+									<input class="btn btn-info btn-block" type="submit" data-ng-show="estado!='inserir'" value="Carregar KML" data-ng-click="forceFileUpdate(camada);setCamadaAtual(camada.id_camada, camada);criarModalConfirmacao('EnviarKML')">
 								</div>
 							</div>
 							<div>

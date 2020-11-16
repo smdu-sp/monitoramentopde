@@ -17,6 +17,36 @@ function hexToRgb(hex) {
     } : null;
 }
 
+function abgrHex2rgba(abgrHex){
+	// Esperada string aabbggrr hexadecimal
+	let r = abgrHex[6]+abgrHex[7];
+	let g = abgrHex[4]+abgrHex[5];
+	let b = abgrHex[2]+abgrHex[3];
+	let a = abgrHex[0]+abgrHex[1];
+	let rgb = hexToRgb(r+g+b);
+	return 'rgba('+rgb.r+', '+rgb.g+', '+rgb.b+', '+(parseInt(a, 16)/255).toString()+')';
+}
+
+
+function html2olDash(lineDash){
+	let olDash = [1,0];
+	switch (lineDash) {
+		case "dotted":
+			olDash = [2,2];
+			break;
+		case "dashed":
+			olDash = [5,5];
+			break;
+		case "none":
+			olDash = [0,1];
+			break;
+		default:
+			// Solid
+			olDash = [1,0];
+	}
+	return olDash;
+}
+
 function componentToHex(c) {
     var hex = c.toString(16);
     return hex.length == 1 ? "0" + hex : hex;
@@ -71,6 +101,21 @@ app.factory('ObterMapa',function($resource){
 				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
 					}
 		},query:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+			}	
+		}
+	});
+});
+
+app.factory('Camadas',function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/instrumentos/camadas/:id_grupo_indicador',{id_grupo_indicador:'@id_instrumento'},{
+		get:{
+			headers:{
+				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
+					}
+		},query:{
+			isArray:true,
 			headers:{
 				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
 			}	
@@ -169,6 +214,7 @@ app.controller("dashboard", function($scope,
 									IndicadorHistorico, 
 									GrupoIndicador, 
 									ObterMapa,
+									Camadas,
 									FichaTecnicaInstrumento, 
 									IndicadorMemoria, 
 									VariavelHistorico) {
@@ -1660,7 +1706,7 @@ app.controller("dashboard", function($scope,
 				$scope.indicador = {id_instrumento: idGrupo, instrumento: fichaInstrumento.nome};
 				if(fichaInstrumento.propriedades["Definição"]){
 					$scope.descricaoGrupoIndicador = fichaInstrumento.propriedades["Definição"].substr(0,300);
-					$scope.carregaMapa(fichaInstrumento);
+					$scope.obterCamadas(fichaInstrumento.id_grupo_indicador)
 					$scope.verMais = true;
 				}
 				else{
@@ -1749,20 +1795,21 @@ app.controller("dashboard", function($scope,
 	$scope.addLayers = function(layersInstrumento){
 		for(i in layersInstrumento) {
 			// Verifica se há estilo personalizado
-			let index = layersInstrumento[i];			
+			let index = layersInstrumento[i];
+
 			var olStyle = {};
 			if (index.style.stroke_color !== undefined) {				
 				olStyle = new ol.style.Style({
 					stroke: new ol.style.Stroke({
 						color: index.style.stroke_color,
 						width: index.style.stroke_width,
-						lineDash: index.style.stroke_dash
+						lineDash: html2olDash(index.style.stroke_dash)
 					}),
 					fill: new ol.style.Fill({
 						color: index.style.fill_color
 					}),					
 					image: new ol.style.Circle({ // Estilo do ponto
-						radius: $scope.raio,
+						radius: $scope.raio ? $scope.raio : 4,
 						fill: new ol.style.Fill({color: index.style.fill_color}),
 						stroke: new ol.style.Stroke({
 							color: index.style.stroke_color,
@@ -1771,6 +1818,7 @@ app.controller("dashboard", function($scope,
 					})
 				})
 			}
+
 			let kmlLayer = new ol.layer.Vector({
 				style: olStyle,				
 				source: new ol.source.Vector({
@@ -1780,20 +1828,13 @@ app.controller("dashboard", function($scope,
 					})
 				})
 			});
-			$scope.mapLayers.push(kmlLayer);
-			if(index.path.indexOf('msp_contorno.kml') === -1) {
-				$scope.kmlMapaAtual = index.path.indexOf('null') === -1 ? index.path : false;
-				// console.log("extractStyles:");
-				// console.log(index.style);
-				// console.log("kmlMapaAtual: ",$scope.kmlMapaAtual);
-			}
+			kmlLayer.id = index.id_camada;
+			kmlLayer.nome = index.nome_camada;
+			$scope.mapLayers.push(kmlLayer);			
 		}
 	};
 
 	$scope.rgbaToHex = function(rgbaString) {
-		//  = "rgba(0, 0, 0, 1)"
-		// console.log("rgbaString");
-		// console.log(rgbaString);
 		// Verifica se string informada é um hex
 		if (rgbaString.length === 7 && rgbaString[0] === '#') {
 			return {hex: rgbaString, alfa: '1'}
@@ -1813,121 +1854,157 @@ app.controller("dashboard", function($scope,
 		return hexAlfa;
 	}
 
-	$scope.carregaMapa = function(instrumento) {
-		console.log(instrumento);
-
-		ObterMapa.query({id_grupo_indicador:instrumento.id_grupo_indicador},function(mapaObtido) {
-				$scope.mapaObj = mapaObtido;
-			}).$promise.then(function(){
-				// Mapa obtido. Propriedades: 'mapa_tematico'(nome do arquivo), 'parametros_mapa'(json com o estilo do mapa).
-				dmap = $scope.mapaInstrumento;
-				// limpa layers
-				for (var i = $scope.mapaInstrumento.getLayers().getArray().length - 1; i > 0; i--) {
-					$scope.mapaInstrumento.removeLayer($scope.mapaInstrumento.getLayers().getArray()[i]);
+	$scope.obterCamadas = function(idInstrumento){
+		Camadas.query({id_grupo_indicador:idInstrumento}, function(retorno){
+			if(retorno.length > 0) {
+				$scope.camadasInstrumento = [];
+				// Adiciona itens obtidos ao array camadasInstrumento
+				for (var i = retorno.length - 1; i >= 0; i--) {
+					$scope.camadasInstrumento.push(retorno[i]);
 				}
-				$rootScope.mapLayers = [$rootScope.mapLayers[0]];
 				
-				let customLayer = {style: {}};
-
-				customLayer.path = "/app/uploads/instrumentos/" + $scope.mapaObj.mapa_tematico;
-
-				// Verifica se não há estilo personalizado				
-				if(!$scope.mapaObj.parametros_mapa) 
-					$scope.mapaObj.parametros_mapa = {style_from_kml: true}
-				if (typeof($scope.mapaObj.parametros_mapa) == "string")
-					$scope.mapaObj.parametros_mapa = $scope.parseJson($scope.mapaObj.parametros_mapa);
-
-				// Se houver legendas, acrescenta ao array				
-				if(typeof($scope.mapaObj.parametros_mapa.items_legenda) != "undefined" && $scope.mapaObj.parametros_mapa.items_legenda.length > 0)
-					$scope.mapLegendas = $scope.mapaObj.parametros_mapa.items_legenda;
-				else
-					$scope.mapLegendas = [];
-
-				// customLayer.style = $scope.parseJson($scope.mapa.parametros_mapa);
-				console.log("Parametros mapa");
-				console.log($scope.mapaObj.parametros_mapa);
-				console.log("from kml", $scope.mapaObj.parametros_mapa.style_from_kml);
-				customLayer.style = $scope.mapaObj.parametros_mapa;
-				/*
-				if ($rootScope.firstLoad)
-					$scope.estiloKml = customLayer.style.style_from_kml;
-				else
-					customLayer.style.style_from_kml = $scope.estiloKml;
-
-				$scope.estiloKml = $scope.mapaObj.parametros_mapa.style_from_kml;
-				// Atualiza painel de configurações do mapa
-				$scope.estilo = customLayer.style;
-				if($scope.estilo.stroke_color !== undefined && $scope.estilo.fill_color !== undefined){
-					$scope.estilo.stroke_color_a = $scope.rgbaToHex($scope.estilo.stroke_color).alfa;
-					$scope.estilo.stroke_color = $scope.rgbaToHex($scope.estilo.stroke_color).hex;
-					
-					$scope.estilo.fill_color_a = $scope.rgbaToHex($scope.estilo.fill_color).alfa;
-					$scope.estilo.fill_color = $scope.rgbaToHex($scope.estilo.fill_color).hex;
+				for (var i = $scope.camadasInstrumento.length - 1; i >= 0; i--) {
+					$scope.camadasInstrumento[i].parametros_estilo = JSON.parse($scope.camadasInstrumento[i].parametros_estilo);
 				}
-				else {
-					customLayer.style.style_from_kml = true;
-					$scope.estiloKml = true;
-				}
-				// }
-				*/
-				$scope.addLayers([customLayer]);
-				
-				$scope.renderizandoMapa = false;
-				
-				if($scope.mapaInstrumento.getLayers().getLength() === 1)
-					$scope.addLayers([contornoSP]);
+				$scope.renderizarMapa();
+			}
+			else {
+				console.error("Nenhuma camada obtida", retorno);
+				$scope.camadasInstrumento = [];
+				$scope.renderizarMapa();
+			}
+		},
+		function(erro){
+			console.error(erro)
+		});
+	};
 
-				var cLayers = $scope.mapaInstrumento.getLayers();
-				for(layer in cLayers) {
-					$scope.mapaInstrumento.removeLayer(layer);
-				}
+	$scope.renderizarMapa = function() {
+		$scope.map = $scope.mapaInstrumento;
+		// limpa layers
+		for (var i = $scope.map.getLayers().getArray().length - 1; i > 0; i--) {
+			$scope.map.removeLayer($scope.map.getLayers().getArray()[i]);
+		}
+		console.warn("MAPLAYERS PRE CLEAN:");
+		console.log($rootScope.mapLayers);
+		$rootScope.mapLayers = [$rootScope.mapLayers[0]];
+		
+		var customLayers = [];
 
-				for(layer in $scope.mapLayers){
-					$scope.mapaInstrumento.addLayer($scope.mapLayers[layer]);
+		for (var indiceCamada = 0; indiceCamada < $scope.camadasInstrumento.length; indiceCamada++) {
+			var camada = $scope.camadasInstrumento[indiceCamada];			
+			camada.path = "/app/uploads/instrumentos/" + camada.arquivo_kml;
+
+			// Verifica se não há estilo personalizado				
+			if (typeof(camada.parametros_estilo) == "string"){
+				camada.parametros_estilo = $scope.parseJson(camada.parametros_estilo);					
+			}
+			if(!camada.parametros_estilo) {
+				console.log("SEM PARAMETROS ESTILO", camada);
+				camada.parametros_estilo = {
+					style_from_kml: true,
+					fill_color: "rgba(255,255,255, 0.5)",
+					stroke_color: "rgba(0, 0, 0, 0.9)"
 				}
-				// Recupera informações das features da camada enviada para preencher a legenda
-				var mapLayersSource = $scope.mapLayers[1].getSource();
-				
-				// window.setTimeout(function(){
-				// 	var extent = ol.extent.createEmpty();
-				// 	$scope.mapaInstrumento.getLayers().forEach(function(layer) {
-				// 		if(layer.getSource().getExtent !== undefined)
-				// 	  		ol.extent.extend(extent, layer.getSource().getExtent());
-				// 	});
-				// 	$scope.mapaInstrumento.getView().fit(extent, $scope.mapaInstrumento.getSize());
-				// }, 2000);
+			}
+
+			camada.style = camada.style ? camada.style : camada.parametros_estilo;
+			customLayers.push(camada);
+		}
+		// Ordena camadas conforme propriedade 'ordem'
+		customLayers.sort(function(a,b){return a.ordem-b.ordem});
+		// FIM ITERAÇÃO DE CAMADAS
+		
+		$scope.addLayers(customLayers);
+		
+		if($scope.map.getLayers().getLength() === 1)
+			$scope.addLayers([contornoSP]);
+
+		var cLayers = $scope.map.getLayers();
+		for(layer in cLayers) {
+			$scope.map.removeLayer(layer);
+		}
+
+		for(layer in $scope.mapLayers){
+			$scope.map.addLayer($scope.mapLayers[layer]);
+		}
+		var mapLayersSource = $scope.mapLayers[1].getSource();
+		
+		window.setTimeout(function(){
+			var extent = ol.extent.createEmpty();
+			$scope.map.getLayers().forEach(function(layer) {
+				// Ajusta zoom e centraliza mapa
+				if(layer.getSource().getExtent !== undefined){
+		  		ol.extent.extend(extent, layer.getSource().getExtent());
+		  	}
 			});
-		};
+			$scope.map.getView().fit(extent, $scope.map.getSize());
+		}, 2000);
+	};
+
 	$scope.ocultarMapaIndicador = true;
 	$scope.mostrarMapa = false;
 
-	$scope.estiloLegenda = function(legenda) {
-		var raio = "0";
-		var largura = "20px";
+	$scope.estiloLegenda = function(camada) {
+		// ESTILO DO KML
+		// Se opção "estilo do KML" estiver marcada, pega estilo da primeira feature para desenhar ícone da legenda
+		if (camada.parametros_estilo.style_from_kml && camada.arquivo_kml) {
+			var xhttp = new XMLHttpRequest();
+			let xmlCamada = '';
+			xhttp.onreadystatechange = function() {
+		    if (this.readyState == 4 && this.status == 200) {
+					parser = new DOMParser();
+					xmlCamada = parser.parseFromString(xhttp.responseText,"text/xml");
+					let xmlFillColor = xmlCamada.getElementsByTagName("PolyStyle")[0] ? xmlCamada.getElementsByTagName("PolyStyle")[0].childNodes : [];
+					for (var i = 0; i < xmlFillColor.length - 1; i++){
+						if(xmlFillColor[i].tagName === "color"){
+							camada.style.fill_color = abgrHex2rgba(xmlFillColor[i].innerHTML);
+							// console.log(xmlFillColor[i].innerHTML);
+							break;
+						}
+					}
+					let xmlStrokeColor = xmlCamada.getElementsByTagName("LineStyle")[0] ? xmlCamada.getElementsByTagName("LineStyle")[0].childNodes : [];
+					for (var i = 0; i < xmlStrokeColor.length - 1; i++){
+						if(xmlStrokeColor[i].tagName === "color"){
+							camada.style.stroke_color = abgrHex2rgba(xmlStrokeColor[i].innerHTML);
+							// console.log(xmlStrokeColor[i].innerHTML);
+							break;
+						}
+					}
+		    }
+			};
+			xhttp.open("GET", camada.path, true);
+			xhttp.send();
+		}
+		// FIM ESTILO DO KML
+
+		let raio = "0";
+		let largura = "20px";
 		
-		if (legenda.tipo == "ponto") {
+		if (camada.tipo_feature == "ponto") {
 			raio = "50%";
-			largura = "10px";
+			largura = "12px";
 		}
 
-		var altura = legenda.tipo == "linha" ? "0px" : largura;
-		var borda = "2px "+legenda.tipoBorda+" "+legenda.corBorda;		
+		let altura = camada.tipo_feature == "linha" ? "0px" : largura;
+		let borda = "2px "+camada.style.stroke_dash+" "+camada.style.stroke_color;
 		
-		if (legenda.tipoBorda == "none") {
+		if (camada.style.stroke_dash == "none") {
 			borda = "none";
 		}
 
-		var estilo = {
-			"background-color": legenda.tipo == "linha" ? "unset" : legenda.cor,
+		let estilo = {
+			"background-color": camada.tipo_feature == "linha" ? "unset" : camada.style.fill_color,
 			"width": largura,
 			"height": altura,
 			"display": "inline-block",
-			"margin": legenda.tipo == "ponto" ? "0 10px" : "0 5px",
+			"margin": camada.tipo_feature == "ponto" ? "0 10px" : "0 5px",
 			"border": borda,
 			"border-radius": raio,
-			"border-top": legenda.tipo == "linha" ? "none" : borda,
+			"border-top": camada.tipo_feature == "linha" ? "none" : borda,
 			"vertical-align": "middle"
 		}
+		
 		return estilo;
 	}
 
@@ -2791,10 +2868,10 @@ app.controller("dashboard", function($scope,
 				
 
 				<div id="map-instrumento" class="map"></div>
-				<div id="legenda-mapa" ng-show="mostrarMapa && mapLegendas.length>0">
-					<h5><strong>Legenda</strong></h5>
-					<div ng-repeat="(key, legenda) in mapLegendas">
-						<div ng-style="estiloLegenda(legenda)"></div><span>{{legenda.descricao}}</span>
+				
+				<div id="legenda-mapa" ng-show="camadasInstrumento.length > 0">
+					<div ng-repeat="(key, camada) in camadasInstrumento">
+						<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 					</div>
 				</div>
 				<div class="info-box" ng-show="mostrarMapa">
@@ -2879,7 +2956,7 @@ app.controller("dashboard", function($scope,
     padding: 10px;
     border-radius: 5px;
     min-width: 200px;
-    min-height: 100px;
+    min-height: 50px;
     background-color: rgba(255,255,255,0.95);
     border: 1px solid #cccccc;
     line-height: 2em;
