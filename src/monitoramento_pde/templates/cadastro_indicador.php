@@ -691,7 +691,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<input class="controle-cadastro" type="text" style="max-width:50%;width:50%;" data-ng-model="indicadorAtivo.ordem_instrumento" id="ordem_instrumento"></input>
 			</div>-->
 			<!-- ISSUE MENOR - NOME DO OBJETIVO -->
-			<button ng-click='logcon(indicadorAtivo)'>VER INDICADOR</button>
+			<button ng-click='logcon(indicadorAtivo)' style="display: none">VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
 				<label for="objetivo"> Nome do objetivo </label>

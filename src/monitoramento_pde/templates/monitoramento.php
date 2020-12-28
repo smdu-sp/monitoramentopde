@@ -70,8 +70,67 @@ const contornoSP = {
 	}
 };
 
+var selecionado = null;
+var counter = 0;
 var ultimoSelecionado = false;
 var featureInfo = null;
+/*var instruMap = new ol.Map({
+	target: 'map-instrumento',
+	// layers: $rootScope.mapLayers,
+	view: new ol.View({
+		// center: [-5191207.638373509,-2698731.105121977],
+		center: [-5190000,-2715000],
+		zoom: 9.75,
+		maxZoom: 20
+	})
+});
+*/
+var instruMap = null;
+var mapWatcher = function(highlightStyle) {
+	instruMap.on('pointermove', function (e) {
+		if (selecionado !== null) {
+	    selecionado.setStyle(undefined);
+	    selecionado = null;
+	  }
+	  var isLit = false;
+
+	  async function percorreFeatures(pixel){
+		  instruMap.forEachFeatureAtPixel(pixel, function (f) {
+		  	if (f.get('limite_id') !== "27"){	  	  		
+		  		selecionado = f;
+			    f.setStyle(highlightStyle);
+			    isLit = true;
+		  		return true;
+			  }
+		  });
+	  }
+	  percorreFeatures(e.pixel).then((retorno)=>{
+	  	// Verifica se feature está 'apagada' (sem highlight)
+	  	if(!isLit) {
+	  		featureInfo.style.opacity = '0.75';
+	  	}
+	  	if(selecionado)
+	  	{
+	  		var fProps = {};
+	  		let descricao = "";
+
+	  		for (var prop in selecionado.getProperties())
+	  		{
+	  			if(typeof(selecionado.getProperties()[prop]) === 'string' && prop !== 'styleUrl')
+	  			{
+	  				let valor = selecionado.getProperties()[prop];
+	  				fProps[prop] = valor;
+	  				descricao += '<p><strong>' + prop + ':</strong> ' + valor + '</p>';
+	  			}
+	  		}
+	  		featureInfo.innerHTML = descricao;
+
+	  	  featureInfo.style.opacity = '1';
+	  	}
+	  });	  
+	});
+}
+
 // DEBUG
 var dmap = {};
 
@@ -1099,19 +1158,23 @@ app.controller("dashboard", function($scope,
 			$scope.idIndicadorAnterior = $scope.selecao.idIndicSel;
 			// Verificar aqui para duplicados
 			padrao_encontrado = false;
+			console.warn("TERRITORIOS");
+			console.log($scope.indicador.territorios);
 			angular.forEach($scope.indicador.territorios, function(territorio) {
-			  if($scope.indicador.id_territorio_padrao == territorio.id_territorio){
+				// DEBUG: falha na exibição de alguns indicadores
+				console.log(territorio);
+			  if(territorio && $scope.indicador.id_territorio_padrao == territorio.id_territorio){
 				  padrao_encontrado = true;
 				  $scope.selecao.idTerrSel = $scope.indicador.id_territorio_padrao;
 			  }
 			});
-			if(!padrao_encontrado){
+			if(!padrao_encontrado && $scope.indicador.territorios[0]){
 				$scope.selecao.idTerrSel = $scope.indicador.territorios[0].id_territorio;
 			}			
 			$scope.selecao.idTerrSel = $scope.indicador.id_territorio_padrao;
 		}
-		
-		$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
+		if($scope.indicador.territorios[0])
+			$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
 		
 		$scope.hoverMapa = false;
 		//$scope.clickMapa = false;		
@@ -1885,8 +1948,6 @@ app.controller("dashboard", function($scope,
 		for (var i = $scope.map.getLayers().getArray().length - 1; i > 0; i--) {
 			$scope.map.removeLayer($scope.map.getLayers().getArray()[i]);
 		}
-		console.warn("MAPLAYERS PRE CLEAN:");
-		console.log($rootScope.mapLayers);
 		$rootScope.mapLayers = [$rootScope.mapLayers[0]];
 		
 		var customLayers = [];
@@ -1914,11 +1975,11 @@ app.controller("dashboard", function($scope,
 		// Ordena camadas conforme propriedade 'ordem'
 		customLayers.sort(function(a,b){return a.ordem-b.ordem});
 		// FIM ITERAÇÃO DE CAMADAS
+		if($scope.map.getLayers().getLength() === 1)
+			$scope.addLayers([contornoSP]);
 		
 		$scope.addLayers(customLayers);
 		
-		if($scope.map.getLayers().getLength() === 1)
-			$scope.addLayers([contornoSP]);
 
 		var cLayers = $scope.map.getLayers();
 		for(layer in cLayers) {
@@ -1929,7 +1990,7 @@ app.controller("dashboard", function($scope,
 			$scope.map.addLayer($scope.mapLayers[layer]);
 		}
 		var mapLayersSource = $scope.mapLayers[1].getSource();
-		
+		/*
 		window.setTimeout(function(){
 			var extent = ol.extent.createEmpty();
 			$scope.map.getLayers().forEach(function(layer) {
@@ -1940,6 +2001,7 @@ app.controller("dashboard", function($scope,
 			});
 			$scope.map.getView().fit(extent, $scope.map.getSize());
 		}, 2000);
+		*/
 	};
 
 	$scope.ocultarMapaIndicador = true;
@@ -2086,91 +2148,97 @@ app.controller("dashboard", function($scope,
 				maxZoom: 20
 			})
 		});
+		instruMap = $rootScope.mapaInstrumento;
 		console.log("Mapa carregado");
-		console.log($rootScope.mapaInstrumento);
-
-		const white = [255, 255, 255, 1];
-		const blue = [0, 153, 255, 1];
+		console.log(instruMap);
+		
+		const white = [255, 255, 255, 0.7];
+		const blue = [80, 80, 80, 1];
 		const width = 4;
 
 		var highlightStyle = new ol.style.Style({
 		  fill: new ol.style.Fill({
-		    color: 'rgba(255,255,255,0.7)'
+		    // color: 'rgba(255,255,255,0.7)'
+		    color: white
 		  }),
 		  stroke: new ol.style.Stroke({
-		    color: '#3399CC',
+		    color: blue,
 		    width: 3
 		  }),
 		  image: new ol.style.Circle({
        radius: width * 2,
        fill: new ol.style.Fill({
-         color: blue
+         color: white
        }),
        stroke: new ol.style.Stroke({
-         color: white,
+         color: blue,
          width: width / 2
        })
      })
 		});
 
-		var selecionado = null;
+		mapWatcher(highlightStyle);
+
+		// var selecionado = null;
+		// variavel foi elevada para solucionar problema de highlight (highlight não apagava após desselecionar feature)
 		var ultimoEstilo = null;
 		featureInfo = document.getElementById('feature-info');
-		$rootScope.mapaInstrumento.on('pointermove', function(e) {
-		  if (selecionado !== null) {
-		  	// CASO FEATURE POSSUA ESTILO "FROM KML", RECUPERA ESTILO EM VEZ DE REMOVÊ-LO
-		    if(ultimoEstilo !== null) {
-		    	selecionado.setStyle(ultimoEstilo);
-		    	ultimoEstilo = null;
-		    }
-		    else {
-					selecionado.setStyle(undefined);
-			  }
+		/*
+		$rootScope.mapaInstrumento.on('pointermove', function (e) {
+			if (selecionado !== null) {
+		    selecionado.setStyle(undefined);
 		    selecionado = null;
-		    // featureInfo.style.opacity = '0';
 		  }
-
 		  var isLit = false;
-		  $rootScope.mapaInstrumento.forEachFeatureAtPixel(e.pixel, function(f) {
-		  	// SE LAYER É O CONTORNO DE SP (propriedade 'limite_id' é "27"), IGNORA. DO CONTRÁRIO, ACENDE CAMADA (HIGHLIGHT)
-		  	if (f.getProperties().limite_id === "27")
-		  		return;
-		  	selecionado = f;
-		    ultimoEstilo = f.getStyle();
-		    f.setStyle(highlightStyle);
-		    isLit = true;
+
+		  async function percorreFeatures(pixel){
+	  	  $rootScope.mapaInstrumento.forEachFeatureAtPixel(pixel, function (f) {
+	  	  	if (f.get('limite_id') !== "27"){	  	  		
+	  	  		counter++;
+	  	  		console.log(counter);
+	  		    selecionado = f;
+	  		    f.setStyle(highlightStyle);
+	  		    isLit = true;
+	  	  		// console.log(f.getProperties());	  	  		
+	  		    return true;
+	  		  }
+	  	  });
+		  }
+		  percorreFeatures(e.pixel).then((retorno)=>{
+		  	// Verifica se feature está 'apagada' (sem highlight)
+		  	if(!isLit) {
+		  		featureInfo.style.opacity = '0.75';
+		  	}
+		  	if(selecionado)
+		  	{
+		  		var fProps = {};
+		  		let descricao = "";
+
+		  		for (var prop in selecionado.getProperties())
+		  		{
+		  			if(typeof(selecionado.getProperties()[prop]) === 'string' && prop !== 'styleUrl')
+		  			{
+		  				let valor = selecionado.getProperties()[prop];
+		  				fProps[prop] = valor;
+		  				descricao += '<p><strong>' + prop + ':</strong> ' + valor + '</p>';
+		  			}
+		  		}
+		  		featureInfo.innerHTML = descricao;
+
+		  	  featureInfo.style.opacity = '1';
+		  	}
+		  	console.log("Percorrido: ",retorno);
 		  });
 		  
-		  // Verifica se feature está 'apagada' (sem highlight)
-		  if(!isLit) {
-		  	featureInfo.style.opacity = '0.75';
-		  }
-
-		  if(selecionado)
-		  {
-		  	// Exibe dados da feature na tooltip
-		  	/*
-		  	let descricao = selecionado.get('description') ? "<br>Descrição: " + selecionado.get('description') : "";
-		  	featureInfo.innerHTML = 'Nome: ' + selecionado.get('name') + descricao;
-		  	*/
-
-		  	var fProps = {};
-		  	let descricao = "";
-
-		  	for (var prop in selecionado.getProperties())
-		  	{
-		  		if(typeof(selecionado.getProperties()[prop]) === 'string' && prop !== 'styleUrl')
-		  		{
-		  			let valor = selecionado.getProperties()[prop];
-		  			fProps[prop] = valor;
-		  			descricao += '<p><strong>' + prop + ':</strong> ' + valor + '</p>';
-		  		}
-		  	}
-		  	featureInfo.innerHTML = descricao;
-
-		    featureInfo.style.opacity = '1';
+		  if (selecionado) {
+		    // featureInfo.innerHTML = '&nbsp;Hovering: ' + selecionado.get('name');
+		    console.log(selecionado);
+		  } else {
+		  	// Limpa caixa de informações da Feature (featureInfo)
+		    // featureInfo.innerHTML = '&nbsp;';
 		  }
 		});
+		*/
 	}
 	
 	$scope.parseJson = function(json) {
@@ -2870,6 +2938,7 @@ app.controller("dashboard", function($scope,
 				<div id="map-instrumento" class="map"></div>
 				
 				<div id="legenda-mapa" ng-show="camadasInstrumento.length > 0">
+					<span><strong>Legenda</strong></span>
 					<div ng-repeat="(key, camada) in camadasInstrumento">
 						<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 					</div>

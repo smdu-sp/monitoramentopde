@@ -80,7 +80,7 @@ add_action( 'rest_api_init', function () {
 // INCLUIR CAMADA
 add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
-	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/incluir_camada/(?P<id_grupo_indicador>\d+)', array(
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/camadas/(?P<id_grupo_indicador>\d+)', array(
 		'methods' => 'POST',
 		'callback' => 'incluir_camada'
 	) );
@@ -88,7 +88,7 @@ add_action( 'rest_api_init', function () {
 // APAGAR CAMADA
 add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
-	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/apagar_camada/(?P<id_camada>\d+)', array(
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/camada/(?P<id_camada>\d+)', array(
 		'methods' => WP_REST_Server::DELETABLE,
 		'callback' => 'apagar_camada'
 	) );
@@ -96,7 +96,7 @@ add_action( 'rest_api_init', function () {
 // EDITAR CAMADA
 add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
-	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/gravar_parametros_camada/(?P<id_camada>\d+)', array(
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/instrumentos/camada/(?P<id_camada>\d+)', array(
 		'methods' => 'PUT',
 		'callback' => 'gravar_parametros_camada'
 	) );
@@ -3114,13 +3114,13 @@ function gravar_parametros_camada(WP_REST_Request $request){
 	$comando_string = "
 	update sistema.maplayers_grupo_indicador
 	set parametros_estilo = :parametros_estilo, tipo_feature = :tipo_feature, nome_camada = :nome_camada, ordem = :ordem
-	where id_grupo_indicador = :id_grupo_indicador;
+	where id_camada = :id_camada;
 	";
 
 	$comando = $pdo->prepare($comando_string);
 	 
-	if(array_key_exists('id_grupo_indicador',$parametros))
-			$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
+	if(array_key_exists('id_camada',$parametros))
+			$comando->bindParam(':id_camada',$parametros['id_camada']);
 	if(array_key_exists('parametros_estilo',$parametros))
 			$comando->bindParam(':parametros_estilo',$parametros['parametros_estilo']);
 	if(array_key_exists('tipo_feature',$parametros))

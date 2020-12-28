@@ -1255,6 +1255,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				<div id="map" class="map">
 					<!-- TODO: Referenciar legendas às camadas -->
 					<div id="legenda-mapa">
+						<span><strong>Legenda</strong></span>
 						<div ng-repeat="(key, camada) in camadasInstrumento">
 							<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 						</div>
@@ -1330,7 +1331,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 							</div>
 							<div>
 								<button class="btn btn-primary" ng-click="gravarParametrosCamada(camada.id_camada, key)">Gravar dados</button>
-								<button ng-click="removerCamada(camada.id_camada, key)" class="btn btn-danger">Remover camada</button>
+								<button ng-click="removerCamada(camada.id_camada, key);carregar()" class="btn btn-danger">Remover camada</button>
 							</div>
 						</div>
 					</div>
@@ -1420,9 +1421,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	.caixa-nome-arquivo {
     display: inline-block;
 		margin-right: 2em;
-    max-width: 290px;
     max-height: 2em;
-    overflow: overlay;
 	}
 	.caixa-estilo-kml {
 		position: relative;
