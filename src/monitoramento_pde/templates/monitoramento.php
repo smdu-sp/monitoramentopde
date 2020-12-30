@@ -320,7 +320,7 @@ app.controller("dashboard", function($scope,
 					$scope.indicador.aberto = true;
 					$scope.atualizarAccordion(indicador[0]);
 					document.getElementsByClassName("panel-group")[0].scrollIntoView();
-			}, 1500);
+			}, 100);
 			});
 		}
 	}
@@ -341,7 +341,6 @@ app.controller("dashboard", function($scope,
 
 	angular.element(document).ready(function(){
 		$scope.optInstrumento = "";
-		$scope.urlIndicador();
 	});
 
 	$scope.carregandoIndicador = false;
@@ -2497,8 +2496,12 @@ app.controller("dashboard", function($scope,
 	}
 	
 	$scope.cargaCadastroIndicadores = function(id){
+		$scope.carregandoIndicador = true;
 	  Indicador.query({grupo_indicador:id,somente_ativos:true},function(indicadores) {
 		  $scope.indicadores = indicadores;
+		  $scope.carregandoIndicador = false;
+		  // Após carregar indicadores, verifica se pode carregar indicador do link
+		  $scope.urlIndicador();
 	 });
 	}
 	
@@ -2966,9 +2969,11 @@ app.controller("dashboard", function($scope,
 		</span>		
 		<hr>
 		<h4><strong>Indicadores </strong></h4>
-		
 		<uib-accordion close-others="true">
-
+			<!-- Alerta de carregamento -->
+			<div id="alerta-carregamento" ng-show="carregandoIndicador">
+				Carregando indicadores...
+			</div>
 			<div uib-accordion-group is-open="indicador.aberto" class="panel-default" close-others="true" ng-repeat="indicador in indicadores">
 				<uib-accordion-heading>
 					<span ng-class="indicador.homologacao ? 'header-painel-indicadores-homolog' : 'header-painel-indicadores'" > {{indicador.nome}} <br> <small>Instrumento: {{indicador.instrumento}} </small>
@@ -3057,5 +3062,16 @@ app.controller("dashboard", function($scope,
     padding: 5px 10px;
     border-radius: 1em;
     font-size: .75em;
+	}
+	#alerta-carregamento {
+		display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255,255,255,0.9);
+    text-align: center;
+    padding: calc(100px - 1em);
+    z-index: 9;
+    left: 0;
 	}
 </style>
