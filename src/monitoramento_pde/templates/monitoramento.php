@@ -325,7 +325,6 @@ app.controller("dashboard", function($scope,
 		}
 	}
 
-	// ISSUE #41
 	$scope.textoSelectObjetivo = function(idObjetivo) {
 		switch (idObjetivo) {
 			case 2:
@@ -603,7 +602,7 @@ app.controller("dashboard", function($scope,
 					// TODO: MODULARIZAR FUNCAO SEGUINTE
 					let serieHistorica = $scope.selecao.categorias.length > 1 ? $filter('filter')(todasRegioes, $scope.selecao.categoria.name) : todasRegioes;
 					serieHistorica = $filter('orderBy')(serieHistorica, 'name');
-					// Issue #29
+					
 					// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
 					for (item in serieHistorica) {
 						serieHistorica[item].marker = { symbol: "circle" }
@@ -833,7 +832,6 @@ app.controller("dashboard", function($scope,
 						},
 						legend: {
 							align: 'left',
-							// ISSUE #43
 							enabled: indicadorHistorico.series.length > 1,
 							layout: 'horizontal',
 							itemStyle:{
@@ -911,7 +909,6 @@ app.controller("dashboard", function($scope,
 			} else {
 				$scope.carregandoHistorico = null;
 			}
-			// Issue #29
 			// APLICA MESMO PADRÃO DE MARCADOR A TODOS OS ITENS DO GRÁFICO DE LINHA
 			for (item in indicadorHistorico.series) {
 				indicadorHistorico.series[item].marker = { symbol: "circle" }
@@ -1110,7 +1107,6 @@ app.controller("dashboard", function($scope,
 				},
 				legend: {
 					align: 'left',
-					// ISSUE #43
 					enabled: indicadorHistorico.series.length > 1,
 					layout: 'horizontal',
 					itemStyle:{
@@ -1157,12 +1153,8 @@ app.controller("dashboard", function($scope,
 			$scope.idIndicadorAnterior = $scope.selecao.idIndicSel;
 			// Verificar aqui para duplicados
 			padrao_encontrado = false;
-			console.warn("TERRITORIOS");
-			console.log($scope.indicador.territorios);
 			angular.forEach($scope.indicador.territorios, function(territorio) {
-				// DEBUG: falha na exibição de alguns indicadores
-				console.log(territorio);
-			  if(territorio && $scope.indicador.id_territorio_padrao == territorio.id_territorio){
+				if(territorio && $scope.indicador.id_territorio_padrao == territorio.id_territorio){
 				  padrao_encontrado = true;
 				  $scope.selecao.idTerrSel = $scope.indicador.id_territorio_padrao;
 			  }
@@ -1247,7 +1239,7 @@ app.controller("dashboard", function($scope,
 					}
 				};
 				let labelProps = {};
-				// CONFIGURAÇÕES ESPECÍFICAS PARA QUE CAIBAM TODOS OS DISTRITOS (P3.2 / Issue#20)
+				// CONFIGURAÇÕES ESPECÍFICAS PARA QUE CAIBAM TODOS OS DISTRITOS
 				if(mostrarDistritos){
 					labelProps = {
 						padding: 5,
@@ -1394,7 +1386,7 @@ app.controller("dashboard", function($scope,
 						},
 						legend: {
 							align: 'left',							
-							enabled: !($scope.indicadorValores.series.length === 1 && $scope.indicadorValores.series[0].name === "Não categorizado"), // Issue $43
+							enabled: !($scope.indicadorValores.series.length === 1 && $scope.indicadorValores.series[0].name === "Não categorizado"),
 							layout: 'horizontal',
 							itemStyle:{
 								fontWeight:'normal'
@@ -2506,8 +2498,14 @@ app.controller("dashboard", function($scope,
 	}
 	
 	// Filtros para a visualização de objetivos
+	// pumba - trabalhando na issue 20
 	$scope.filtraObjetivos = function(filtro){
 		$scope.mostraPDE = false;
+		// Não havendo objetivos, escapa função para otimizar performance
+		if($scope.rawObjetivos.length === 0)
+			return;
+		console.log("Objetivos:");
+		console.log($scope.rawObjetivos);
 		if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
 			$scope.objetivos = $scope.rawObjetivos;
 			$scope.cargaCadastroIndicadores(null);
@@ -2515,9 +2513,8 @@ app.controller("dashboard", function($scope,
 		}
 		else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
 			$scope.objetivos = [];
-		// TODO: pumba
-		console.log("idPDE...");
-		console.log($scope.rawObjetivos);
+			console.log("idPDE...");
+			console.log($scope.rawObjetivos);
 			var idPDE = $scope.rawObjetivos.filter(function(obj){
 				console.log("filtraObjetivos obj");
 				console.log(obj);
@@ -2789,7 +2786,8 @@ app.controller("dashboard", function($scope,
 						</div>
 						<div class="col-sm-6">
 							<p>
-								<label for="territorio"> Unidade territorial de análise</label>
+								<label for="territorio">Unidade territorial de análise</label>
+								<!-- UNIDADE TERRITORIAL DE ANÁLISE DO INDICADOR -->
 								<br>
 								<select style="max-width:100%;width:100%;" id="seletor-territorio" data-ng-model="selecao.idTerrSel" data-ng-click="subRegional($event);" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
 							</p>
@@ -2901,7 +2899,7 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" ng-disabled="carregandoIndicador" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
 					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>

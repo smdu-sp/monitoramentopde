@@ -3325,7 +3325,7 @@ select id_territorio,
 			id_territorio_pai,
 			data_referencia,
 			data_carga
-			from fonte_dados.territorio";
+			from fonte_dados.territorio ORDER BY id_territorio";
 
  $comando = $pdo->prepare($comando_string);
  
