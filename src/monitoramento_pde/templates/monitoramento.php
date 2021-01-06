@@ -74,17 +74,7 @@ var selecionado = null;
 var counter = 0;
 var ultimoSelecionado = false;
 var featureInfo = null;
-/*var instruMap = new ol.Map({
-	target: 'map-instrumento',
-	// layers: $rootScope.mapLayers,
-	view: new ol.View({
-		// center: [-5191207.638373509,-2698731.105121977],
-		center: [-5190000,-2715000],
-		zoom: 9.75,
-		maxZoom: 20
-	})
-});
-*/
+var optInstrumentoSup = null; // Variavel armazena instrumento selecionado para garantir persistencia entre abas
 var instruMap = null;
 var mapWatcher = function(highlightStyle) {
 	instruMap.on('pointermove', function (e) {
@@ -246,6 +236,20 @@ app.filter('setDecimal', function ($filter) {
     };
 });
 
+app.directive('checkEnter', function () {
+  return function (scope, element, attrs) {
+    element.bind("keydown keypress", function (event) {
+      if(event.which === 13) {
+        scope.$apply(function (){
+            scope.$eval(attrs.checkEnter);
+        });
+
+        event.preventDefault();
+      }
+    });
+  };
+});
+
 app.config(function($routeProvider) {
   $routeProvider
   .when("/estrategias/:idEstrategia", {
@@ -294,14 +298,15 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.atualizaListaInstrumentos = function(){
-		$scope.atualizarStatusMapa();
+		$scope.atualizarStatusMapa(optInstrumentoSup);
 		// Atualiza lista de instrumentos para evitar listagem incorreta de indicadores quando alternado para 'Instrumentos'
-		if($scope.tabAtivaForma == 2){			
-			// if(typeof(angular.element(document.getElementsByClassName('ng-dirty')[0]).scope()) !== "undefined")
-			if(angular.element(document.getElementsByClassName('ng-dirty')[0]).scope())
-				$scope.cargaCadastroIndicadores(angular.element(document.getElementsByClassName('ng-dirty')[0]).scope().optInstrumento);
-			else
-				$scope.cargaCadastroIndicadores();
+		if($scope.tabAtivaForma == 2){
+			$scope.cargaCadastroIndicadores(optInstrumentoSup);
+		}
+		else if($scope.tabAtivaForma == 4){
+			// Aba de pesquisa de indicadores por texto
+			$scope.termoBuscado = "";
+			$scope.cargaCadastroIndicadores(0);
 		}
 	}
 
@@ -340,6 +345,7 @@ app.controller("dashboard", function($scope,
 
 	angular.element(document).ready(function(){
 		$scope.optInstrumento = "";
+		$scope.termoBuscado = "";
 	});
 
 	$scope.carregandoIndicador = false;
@@ -2072,6 +2078,10 @@ app.controller("dashboard", function($scope,
 		// console.log($rootScope.mapLoaded);
 		// console.log(optInstrumento >= 0);
 		$scope.mostrarMapa = optInstrumento >= 0;
+		if(optInstrumento === null){
+			$scope.mostrarMapa = false;
+		}
+		optInstrumentoSup = optInstrumento;
 		// console.log($scope.tabAtivaForma);
 		return;
 		if ($rootScope.mapLoaded && typeof(optInstrumento) === "number" && tabAtivaForma === 2) {
@@ -2536,6 +2546,16 @@ app.controller("dashboard", function($scope,
 		$scope.objetivos = objetivosFiltrados;
 	}
 
+	$scope.buscaIndicador = function(termo){
+		if(termo.length < 2 || $scope.carregandoIndicador)
+			return;
+		$scope.carregandoIndicador = true;
+		Indicador.query({somente_ativos:true,termo_buscado:termo},function(indicadores){
+			$scope.indicadores = indicadores;
+			$scope.carregandoIndicador = false;
+		});
+	}
+
 	$scope.filtrosObjetivos = {
 		plano_diretor: {
 			id: 1,
@@ -2893,7 +2913,6 @@ app.controller("dashboard", function($scope,
 				<div ng-show="tabAtivaForma==1">
 					<ul class="list-group row">
 						<li class="list-group-item col-sm-3 text-left list-visualizacao" ng-mouseover="this.hover=true" ng-mouseleave="this.hover=false" style="width:20%;" ng-repeat="itemFilho in item.children"><a href=""  ng-click="cargaEstrategia(itemFilho.url.slice(1,itemFilho.url.length))"> <img class="img-responsive icones-visualizacao col-sm-3"  ng-src="/app/themes/monitoramento_pde/images/icones/{{itemFilho.description + ((itemFilho.url.slice(1,itemFilho.url.length) == estrategia.id_grupo_indicador || this.hover)? '_cor' : '_pb')}}.png"><span class="col-sm-12" style="padding:0"><br><strong>{{itemFilho.title}}</strong></span></a> </li>
-							
 					</ul>
 				</div>
 				
@@ -2928,6 +2947,11 @@ app.controller("dashboard", function($scope,
 							{{ descricaoGrupoIndicador }}... <a href='' ng-show="verMais" ng-click='abrirModal("objetivo")'>ver mais</a>
 						</p>
 					</div>
+				</div>
+
+				<div ng-show="tabAtivaForma==4">
+					<input type="text" name="busca-indicador" ng-disabled="carregandoIndicador" ng-model="termoBuscado" placeholder="Buscar por nome ou palavra" class="campo-busca" check-enter="buscaIndicador(termoBuscado)">
+					<button class="campo-busca" ng-disabled="carregandoIndicador" ng-click="buscaIndicador(termoBuscado)">Pesquisar</button>
 				</div>
 			</uib-tab>
 		</uib-tabset>
@@ -3071,5 +3095,17 @@ app.controller("dashboard", function($scope,
     padding: calc(100px - 1em);
     z-index: 9;
     left: 0;
+	}
+	input.campo-busca {
+		height: 2em;
+    width: 50%;
+    border: 1px solid #EEE;
+    border-radius: 15px;
+    padding: 15px;
+	}
+	button.campo-busca {
+		padding: 5px 10px;
+		border-radius: 20px;
+		border: 0;
 	}
 </style>

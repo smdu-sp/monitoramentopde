@@ -3668,6 +3668,11 @@ function indicador_cadastro(WP_REST_Request $request){
 	
 	if(array_key_exists('somente_ativos',$parametros))
 		$comando_where = $comando_where.' and (indic.ativo = true or indic.homologacao = true)';
+
+	if(array_key_exists('termo_buscado', $parametros)){
+		$termo = strip_tags($parametros['termo_buscado']);
+		$comando_where = $comando_where." and (indic.nome ILIKE '%".$termo."%' OR indic.apresentacao ILIKE '%".$termo."%' OR indic.nota_tecnica ILIKE '%".$termo."%')";
+	}
 	
 	if(array_key_exists('indicador',$parametros))
 	{
