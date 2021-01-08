@@ -348,6 +348,8 @@ app.controller("dashboard", function($scope,
 		$scope.termoBuscado = "";
 	});
 
+	// DECLARAÇÃO DE VARIÁVEIS
+	$scope.mostraTabela = false;
 	$scope.carregandoIndicador = false;
 	
 	$scope.tabAtivaForma = 1;
@@ -872,6 +874,7 @@ app.controller("dashboard", function($scope,
 			console.warn("ERRO");
 			return;
 		}
+		$scope.verMemoria(true); // OCULTA TABELA DE VALORES
 		dataHistorica = [];
 		dataHistorica['original'] = [];
 		dataHistorica['formatada'] = [];
@@ -1174,6 +1177,7 @@ app.controller("dashboard", function($scope,
 			$scope.labelTerrSel = $scope.indicador.territorios.filter((territorio) => territorio.id_territorio == $scope.selecao.idTerrSel)[0].nome;
 		
 		$scope.hoverMapa = false;
+		$scope.verMemoria(true); // OCULTA TABELA DE VALORES
 		//$scope.clickMapa = false;		
 		$scope.carregarGraficoLinhas = false;
 		IndicadorValores.get({id:$scope.selecao.idIndicSel,data:$scope.selecao.dataSel,territorio:$scope.selecao.idTerrSel},function(indicadorValores){
@@ -2252,6 +2256,71 @@ app.controller("dashboard", function($scope,
 		return parsed;
 	}
 	
+	$scope.verMemoria = function(ocultarTabela = false){ // VISUALIZAR TABELA DE VALORES DO INDICADOR
+		$scope.mostraTabela = ocultarTabela ? false : !$scope.mostraTabela; // ALTERNA EXIBIÇÃO DA TABELA
+		if (!$scope.mostraTabela)
+			return;
+		$scope.memoriaIndicador = {}; // LIMPA OBJETO PARA EVITAR EXIBIÇÃO INCORRETA DE VALORES NÃO ATUALIZADOS
+		$scope.carregandoMemoriaIndicador = true;
+		if($scope.hoverMapa){
+			dataMemoria = null;
+			dataInicioMemoria = $scope.selecao.dataMin;
+			dataFimMemoria = $scope.selecao.dataMax;
+		}
+		else{
+			dataInicioMemoria = null;
+			dataFimMemoria = null;
+			dataMemoria = $scope.selecao.dataSel;
+		}
+
+		IndicadorMemoria.get({id:$scope.indicador.id_indicador,
+			data_inicio:dataInicioMemoria,
+			data_fim:dataFimMemoria,
+			data:dataMemoria,
+			id_territorio:$scope.selecao.idTerrSel,
+			id_regiao:($scope.regiaoRealcada != null)?$scope.regiaoRealcada.codigo:null},function(memoriaIndicador){
+			$scope.memoriaIndicador = memoriaIndicador;
+
+			// ATRIBUI NOME DAS VARIAVEIS
+			let variavel1 = $scope.variavelHistorico[0].nome;
+			let variavel2 = $scope.variavelHistorico[$scope.variavelHistorico.length-1].nome;
+			let tipoValor = $scope.variavelHistorico[0].tipo_valor.charAt(0).toUpperCase() + $scope.variavelHistorico[0].tipo_valor.slice(1);
+			
+			$scope.memoriaIndicador.dados.forEach(function(dado){
+				// FORMATA ORDEM E NOMENCLATURA DOS CABECALHOS NA TABELA EXPORTADA
+				dado["Data"] = dado.Data.substring(0,4);
+				delete dado.Data;
+				dado["Valor do indicador"] = dado.Valor;
+				delete dado.Valor;
+				dado["Unidade de medida do indicador"] = dado["Unidade de medida"]+" ("+dado["Símbolo de medida"]+")";
+				delete dado["Unidade de medida"];
+				delete dado["Símbolo de medida"];
+				dado["Variável 1: "+variavel1] = dado.Variavel1;
+				delete dado.Variavel1;
+				dado["Variável 1: Unidade de medida"] = tipoValor;
+				dado["Variável 2: "+variavel2] = dado.Variavel2;
+				delete dado.Variavel2;
+				dado["Variável 2: Unidade de medida"] = tipoValor;
+				// REMOVE VARIAVEIS SOBRESSALENTES
+				delete dado.Variavel3;
+				delete dado.Variavel4;
+				delete dado.Variavel5;
+				delete dado.Variavel6;
+				delete dado.Variavel7;
+				delete dado.Variavel8;
+				delete dado.Nome;
+				delete dado.Categoria;
+				delete dado['Unidade Territorial de Análise'];
+
+				// CONVERTE PONTO EM VIRGULA (ISSUE P2.3)
+				for(valor in dado){
+					dado[valor] = $scope.pontoParaVirgula(dado[valor]);
+				}
+				$scope.carregandoMemoriaIndicador = false;
+			});
+		});
+	}
+
 	$scope.exportarMemoria = function(){
 			function datenum(v, date1904) {
 			if(date1904) v+=1462;
@@ -2759,15 +2828,10 @@ app.controller("dashboard", function($scope,
 					
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Tabela de valores do indicador </a>
+					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="verMemoria()">{{ mostraTabela ? 'Ocultar' : 'Visualizar' }} Tabela de valores do indicador </a>
+					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
 				</div>
 				<div class="col-sm-6">
-					<div class="row" style="width:100%;max-height:30px;">
-						<!--<a href="#/compartilhar" class="pull-right"><img class="img-responsive icones-indicador" src="/app/themes/monitoramento_pde/images/icones/compartilhar.png"></a>-->
-						<!--<a href="" ng-click="exportarGrafico('application/pdf')" class="pull-right"><img class="img-responsive icones-indicador" src="/app/themes/monitoramento_pde/images/icones/pdf.png"></a>-->
-						<!--<a href="" ng-click="exportarGrafico('image/jpeg')" class="pull-right"><img class="img-responsive icones-indicador" src="/app/themes/monitoramento_pde/images/icones/jpg.png"></a>-->
-						<!--<a href="" ng-click="exportarMemoria()" class="pull-right"><img class="img-responsive icones-indicador" src="/app/themes/monitoramento_pde/images/icones/odt.png"></a>-->
-					</div>
 					<div class="row">
 						<div class="col-sm-5 col-sm-offset-1 caixa-data">
 						
@@ -2825,7 +2889,20 @@ app.controller("dashboard", function($scope,
 			</div>
 			<div class="row">
 				<div ng-class="(selecao.idTerrSel != 4) ? 'col-sm-9' : 'col-sm-12'">
-					<div class="row" id="divGraficoLinha">
+					<!-- Tabela de Valores -->
+					<div class="row" ng-if="mostraTabela">
+						<div class="tabela-valores-container">
+							<table class="tabela-valores">
+								<tr>
+									<th ng-repeat="(key, valor) in memoriaIndicador.dados[0]">{{key}}</th>
+								</tr>
+								<tr ng-repeat="dado in memoriaIndicador.dados">
+									<td ng-repeat="valor in dado">{{ valor }}</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+					<div class="row" id="divGraficoLinha" ng-show="!mostraTabela">
 					
 						<div id="graficoBarras" ng-show="!hoverMapa" style="min-height:465px;">
 						</div>
@@ -3107,5 +3184,17 @@ app.controller("dashboard", function($scope,
 		padding: 5px 10px;
 		border-radius: 20px;
 		border: 0;
+	}
+	.tabela-valores td, .tabela-valores th {
+		padding: 5px;
+	}
+	.tabela-valores tr:nth-child(even) {
+		background-color: #EEEEEE;
+	}
+	.tabela-valores-container {
+		background-color: white;
+		z-index: 2;
+		padding: 5px;
+		margin: 30px 15px;
 	}
 </style>
