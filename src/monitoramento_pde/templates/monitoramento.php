@@ -2568,7 +2568,7 @@ app.controller("dashboard", function($scope,
 	
 	$scope.cargaCadastroIndicadores = function(id){
 		$scope.carregandoIndicador = true;
-	  Indicador.query({grupo_indicador:id,somente_ativos:true},function(indicadores) {
+		Indicador.query({grupo_indicador:id,somente_ativos:true},function(indicadores) {
 		  $scope.indicadores = indicadores;
 		  $scope.carregandoIndicador = false;
 		  // Após carregar indicadores, verifica se pode carregar indicador do link
@@ -3041,7 +3041,7 @@ app.controller("dashboard", function($scope,
 				
 				<div id="legenda-mapa" ng-show="camadasInstrumento.length > 0">
 					<span><strong>Legenda</strong></span>
-					<div ng-repeat="(key, camada) in camadasInstrumento">
+					<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: '-ordem'">
 						<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 					</div>
 				</div>
