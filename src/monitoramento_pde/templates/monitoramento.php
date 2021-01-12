@@ -135,6 +135,7 @@ app.factory('Indicador',function($resource){
 					}
 		},query:{
 			isArray:true,
+			cancellable: true,
 			headers:{
 				'X-WP-Nonce': '<?php  echo(wp_create_nonce('wp_rest')); ?>'
 			}	
@@ -298,6 +299,7 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.atualizaListaInstrumentos = function(){
+		$scope.abortReqs();
 		$scope.atualizarStatusMapa(optInstrumentoSup);
 		// Atualiza lista de instrumentos para evitar listagem incorreta de indicadores quando alternado para 'Instrumentos'
 		if($scope.tabAtivaForma == 2){
@@ -306,7 +308,7 @@ app.controller("dashboard", function($scope,
 		else if($scope.tabAtivaForma == 4){
 			// Aba de pesquisa de indicadores por texto
 			$scope.termoBuscado = "";
-			$scope.cargaCadastroIndicadores(0);
+			$scope.indicadores = [];
 		}
 	}
 
@@ -327,6 +329,16 @@ app.controller("dashboard", function($scope,
 					document.getElementsByClassName("panel-group")[0].scrollIntoView();
 			}, 100);
 			});
+		}
+	}
+
+	// ABORTAR TODAS AS REQUISIÇÕES EM ANDAMENTO
+	$scope.abortReqs = function() {
+		for (var i = $scope.xhrReqs.length - 1; i >= 0; i--) {
+			if(!$scope.xhrReqs[i].$resolved){
+				$scope.xhrReqs[i].$cancelRequest();
+				$scope.carregandoIndicador = false;
+			}
 		}
 	}
 
@@ -351,6 +363,7 @@ app.controller("dashboard", function($scope,
 	// DECLARAÇÃO DE VARIÁVEIS
 	$scope.mostraTabela = false;
 	$scope.carregandoIndicador = false;
+	$scope.xhrReqs = [];
 	
 	$scope.tabAtivaForma = 1;
 	GrupoIndicador.query({tipo:'instrumento',tipo_retorno:'object',formato_retorno:'array'},function(instrumentos){
@@ -2072,28 +2085,12 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.atualizarStatusMapa = function(optInstrumento) {
-		// var optInstrumento = angular.element(document.getElementsByClassName('ng-dirty')[0]).scope().optInstrumento;
-		// console.log("typeof optInstrumento", typeof(optInstrumento) === "number");
-		// return;
-		// if (document.getElementsByClassName('ng-dirty').length === 0) {
-		// 	return;
-		// }
-		// console.log("mapLoaded, optInstrumento, tabAtivaForma")
-		// console.log($rootScope.mapLoaded);
-		// console.log(optInstrumento >= 0);
 		$scope.mostrarMapa = optInstrumento >= 0;
 		if(optInstrumento === null){
 			$scope.mostrarMapa = false;
 		}
 		optInstrumentoSup = optInstrumento;
-		// console.log($scope.tabAtivaForma);
 		return;
-		if ($rootScope.mapLoaded && typeof(optInstrumento) === "number" && tabAtivaForma === 2) {
-			$scope.ocultarMapaIndicador = false;
-		}
-		else {
-			$scope.ocultarMapaIndicador = true;
-		}
 	}
 	$scope.loadMap = function() {
 		console.log("function loadMap");
@@ -2568,16 +2565,22 @@ app.controller("dashboard", function($scope,
 	
 	$scope.cargaCadastroIndicadores = function(id){
 		$scope.carregandoIndicador = true;
-		Indicador.query({grupo_indicador:id,somente_ativos:true},function(indicadores) {
-		  $scope.indicadores = indicadores;
-		  $scope.carregandoIndicador = false;
-		  // Após carregar indicadores, verifica se pode carregar indicador do link
-		  $scope.urlIndicador();
-	 });
+		// ARMAZENA OBJETO DA REQUISIÇÃO EM UM ARRAY PARA ABOTAR REQUISIÇÕES CONFORME NECESSÁRIO
+	  $scope.xhrReqs.push(Indicador.query(
+	  	{
+	  		grupo_indicador:id,
+	  		somente_ativos:true
+	  	},
+	  	function(indicadores) {
+			  $scope.indicadores = indicadores;
+			  $scope.carregandoIndicador = false;
+			  // Após carregar indicadores, verifica se pode carregar indicador do link
+			  $scope.urlIndicador();
+			}
+		));
 	}
 	
 	// Filtros para a visualização de objetivos
-	// pumba - trabalhando na issue 20
 	$scope.filtraObjetivos = function(filtro){
 		$scope.mostraPDE = false;
 		// Não havendo objetivos, escapa função para otimizar performance
@@ -3067,7 +3070,7 @@ app.controller("dashboard", function($scope,
 			</div>
 		</span>		
 		<hr>
-		<h4><strong>Indicadores </strong></h4>
+		<h4 ng-show="indicadores.length > 0"><strong>Indicadores </strong></h4>
 		<uib-accordion close-others="true">
 			<!-- Alerta de carregamento -->
 			<div id="alerta-carregamento" ng-show="carregandoIndicador">
@@ -3120,6 +3123,8 @@ app.controller("dashboard", function($scope,
 	}
 	.zeroheight {
 		height: 0;
+		z-index: -1;
+		opacity: 0;
 	}
 	#legenda-mapa {
 		position: absolute;
