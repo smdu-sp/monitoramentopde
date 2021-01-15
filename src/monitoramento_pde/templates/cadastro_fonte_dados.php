@@ -65,6 +65,15 @@ var cargaUpdateParams = {
 		,'Content-type': undefined
 	}
 };
+
+function dadoAberto(nome, tipo="fonte de dados", formato="xls", verificado=false, disponivel=true) {
+	this.nome = nome;
+	this.tipo = tipo;
+	this.formato = formato;
+	this.verificado = verificado;
+	this.disponivel = true;
+}
+
 app.factory('FonteDadosCarregar',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar/:id',{id:'@id_fonte_dados'},{
 		update: cargaUpdateParams
@@ -180,6 +189,30 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				$scope.colunas = colunas;
 				$scope.estado = "selecionar";
 			});
+			// Cria objeto a partir da string "dados_disponiveis"
+			$scope.itemAtual.dadosDisponiveisParsed = JSON.parse($scope.itemAtual.dados_disponiveis);
+			if(!Array.isArray($scope.itemAtual.dadosDisponiveisParsed))
+				$scope.itemAtual.dadosDisponiveisParsed = new Array();
+			// Insere item "Fonte de Dados" e atribui nomes dos arquivos de acordo
+			for (var i = $scope.itemAtual.dadosDisponiveisParsed.length - 1; i >= 0; i--) {
+				switch ($scope.itemAtual.dadosDisponiveisParsed[i].tipo) {
+					case "shp":
+						if($scope.itemAtual.arquivo_mapas.length > 0)
+							$scope.itemAtual.dadosDisponiveisParsed[i].nome = $scope.itemAtual.arquivo_mapas;
+						break;
+					case "tabelas":
+						if($scope.itemAtual.arquivo_tabelas.length > 0)
+							$scope.itemAtual.dadosDisponiveisParsed[i].nome = $scope.itemAtual.arquivo_tabelas;
+						break;
+					case "metadados":
+						if($scope.itemAtual.arquivo_metadados.length > 0)
+							$scope.itemAtual.dadosDisponiveisParsed[i].nome = $scope.itemAtual.arquivo_metadados;
+						break;
+					default:
+						break;
+				}
+			}
+			$scope.lerDadosDisponiveis();
 		}else{
 			$scope.colunas = null;
 		}
@@ -241,8 +274,67 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		$scope.carregar();		
 		$scope.estado = "inserir";
 	};
+
+	$scope.lerDadosDisponiveis = function(){
+		let temShp = false, temKmz = false, temTabelas = false, temMetadados = false;
+		let parsed = $scope.itemAtual.dadosDisponiveisParsed;
+		let metadadosObj = null;
+		// Fonte de dados
+		if(parsed.length === 0 || parsed[0].tipo !== "fonte de dados")
+			parsed.unshift(new dadoAberto($scope.itemAtual.nome_arquivo));
+
+		for (var i = parsed.length - 1; i >= 0; i--) {
+			switch (parsed[i].tipo) {
+				case "shapefile":
+					if($scope.itemAtual.arquivo_mapas.length > 0)
+						parsed[i].nome = $scope.itemAtual.arquivo_mapas;
+					temShp = true;
+					break;
+				case "kmz":
+					// parsed[i].nome = $scope.itemAtual.arquivo_kmz;
+					temKmz = true;
+					break;
+				case "tabelas":
+					if($scope.itemAtual.arquivo_tabelas.length > 0)
+						parsed[i].nome = $scope.itemAtual.arquivo_tabelas;
+					temTabelas = true;
+					break;
+				case "metadados":
+					if($scope.itemAtual.arquivo_metadados.length > 0)
+						parsed[i].nome = $scope.itemAtual.arquivo_metadados;
+					metadadosObj = parsed.splice(i, 1)[0];
+					temMetadados = true;
+					break;
+				default:
+					break;
+			}
+		}
+
+		// SHP (Mapas)
+		if(!temShp && $scope.itemAtual.arquivo_mapas && $scope.itemAtual.arquivo_mapas.length > 0)
+			parsed.push(new dadoAberto($scope.itemAtual.arquivo_mapas, "shapefile", "shp"));
+
+		// Tabelas
+		if(!temTabelas && $scope.itemAtual.arquivo_tabelas && $scope.itemAtual.arquivo_tabelas.length > 0)
+			parsed.push(new dadoAberto($scope.itemAtual.arquivo_tabelas, "tabelas", "xls"));
+
+		// Metadados
+		if(temMetadados)
+			parsed.push(metadadosObj);
+		else if($scope.itemAtual.arquivo_metadados && $scope.itemAtual.arquivo_metadados.length > 0)
+			parsed.push(new dadoAberto($scope.itemAtual.arquivo_metadados, "metadados", "xls"));
+	}
+
+	$scope.prepararDadosDisponiveis = function(){
+		let parsed = $scope.itemAtual.dadosDisponiveisParsed;
+		for (var i = parsed.length - 1; i >= 0; i--) {
+			parsed[i].verificado = true;
+		}
+		$scope.itemAtual.dados_disponiveis = JSON.stringify(parsed);
+	}
 	
 	$scope.atualizar = function(){
+		$scope.prepararDadosDisponiveis();
 		$rootScope.itemAtual = $scope.itemAtual;
 		FonteDadosColuna.update({colunas:$scope.colunas,id_fonte_dados:$scope.itemAtual.id_fonte_dados}).$promise.then(
 			function(mensagem){
@@ -707,7 +799,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				
  ?>
 
-<form>
+<form style="margin-bottom: 2em;">
 		
 		<button class="btn-primary" type="button" ng-click="exportarFontesDados()"> Exportar relação de fontes de dados </button>
 		
@@ -733,25 +825,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				<select style="max-width:100%;" data-ng-model="itemAtual.id_usuario_mantenedor" data-ng-options="usuario.id as usuario.name for usuario in usuarios | orderBy: 'name' : true" name="usuario"></select>
 			</p>
 			
-				<!--<p>
-				<label for="delimitador"> Delimitador </label>
-				<br>
-				<input type="text" style="max-width:100%;width:100%;" data-ng-model="itemAtual.delimitador" name="delimitador"></input>
-			</p>-->
-			<!--
 			<p>
-				<label for="diretorio"> Diretorio </label>
-				<br>
-				<input type="text" style="max-width:100%;width:100%;" data-ng-model="itemAtual.diretorio" name="diretorio"></input>
-			</p>
-
-			<p>
-				<label for="diretorio"> Formato de arquivo </label>
-				<br>
-				<input type="text" style="max-width:100%;width:100%;" data-ng-model="itemAtual.formato_arquivo" name="formato_arquivo"></input>
-			</p>
-			-->
-				<p>
 				<label for="nome_tabela"> Nome da tabela </label>
 				<br>
 				<input type="text" style="max-width:100%;width:100%;" data-ng-model="itemAtual.nome_tabela" name="nome_tabela"></input>
@@ -778,23 +852,6 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				</div>
 				
 				</div>
-				<!--<div class="row">
-				
-				<div class="col-md-6">
-				<label for="data_inicial"> Data Inicial </label>
-				<input type="checkbox" data-ng-model="checkDataInicial" data-ng-change="changeDataInicial()">
-				<br>
-				<div uib-datepicker datepicker-options="inicializarDatepicker" data-ng-model="itemAtual.data_inicial" data-ng-show="checkDataInicial" name="data_inicial"></div>
-				</div>
-			
-				<div class="col-md-6">
-				<label for="data_inicial"> Data Final </label>
-				<input type="checkbox" data-ng-model="checkDataFinal" data-ng-change="changeDataFinal()">
-				<br>
-				<div uib-datepicker datepicker-options="inicializarDatepicker" data-ng-model="itemAtual.data_final" data-ng-show="checkDataFinal" name="data_final"></div>
-				</div>
-				
-				</div>-->
 				
 				<label for="script"> Script SQL </label>
 				<textarea rows="5" style="max-width:100%;width:100%;" data-ng-model="itemAtual.script_sql" name="script"></textarea>
@@ -867,46 +924,31 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			</div>
 			<button type="button" style="margin-top:1em;margin-bottom:1em" data-ng-click="adicionarElementoColunaExclusao()">Adicionar coluna a ser excluída</button>
 			</div>
-			
-			
 
 			<input type="submit" data-ng-show="estado!='inserir'" value="Atualizar" data-ng-click="criarModalConfirmacao('Atualizar')">
 			<input type="submit" data-ng-show="estado!='inserir'" value="Remover" data-ng-click="criarModalConfirmacao('Remover')">
 			
 			<?php } ?>
 			
-			<p ng-if="itemAtual.nome_arquivo">
-		
-				Arquivo Fonte de Dados mais recente carregado: 
-				<br>
-				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.nome_arquivo}}"> {{itemAtual.nome}} </a>
-				
-			</p>
-			<p ng-if="itemAtual.arquivo_mapas">
-		
-				Arquivo SHP mais recente: 
-				<br>
-				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_mapas}}"> {{itemAtual.arquivo_mapas}} </a>
-				
-			</p>
-			<p ng-if="itemAtual.arquivo_metadados">
-		
-				Arquivo de metadados mais recente: 
-				<br>
-				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_metadados}}"> {{itemAtual.arquivo_metadados}} </a>
-				
-			</p>
-			<p ng-if="itemAtual.arquivo_tabelas">		
-				Arquivo de tabelas mais recente: 
-				<br>
-				<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{itemAtual.arquivo_tabelas}}"> {{itemAtual.arquivo_tabelas}} </a>				
-			</p>
+			<!-- DADOS ABERTOS -->
+			<div data-ng-repeat="(i, dado) in itemAtual.dadosDisponiveisParsed" class="card" ng-class="dado.verificado ? (dado.disponivel ? 'alert-success' : '') : 'alert-warning'" title="{{dado.verificado ? '' : 'Dado NÃO verificado. Clique no botão Atualizar para gravar as informações.'}}">
+				<p>
+					Arquivo {{dado.tipo}} mais recente carregado: 
+					<br>
+					<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{itemAtual.nome_tabela}}/{{dado.nome}}"> {{dado.nome}} </a>
+				</p>
+				<div>
+					<input type="checkbox" data-ng-model="dado.disponivel" id="disp{{i}}" ng-click="dado.verificado = false">
+					<label for="disp{{i}}">Disponibilizar <strong>{{dado.tipo}}</strong> para download</label>
+				</div>
+			</div>
 
 			<p>
 				Data da última carga de dados:
 				<br>
 				{{itemAtual.data_carga}}
 			</p>
+			<hr>
 				<p>
 				<label for="arquivo"> Selecione o arquivo </label>
 				<br>
@@ -926,13 +968,37 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			<input data-ng-show="estado!='inserir'" type="submit" value="Nova Fonte de dados" data-ng-click="inserirForm()">
 			
 			<br>
-			<!--<div class="alert alert-info" ng-show="carregandoArquivo">{{mensagemArquivo}}</div>-->
 			
 			<input data-ng-show="estado=='inserir'" type="submit" value="Gravar" data-ng-click="criarModalConfirmacao('Inserir')">
 			<input data-ng-show="estado=='inserir'" type="submit" value="Voltar" data-ng-click="voltar()">
 			<?php }?>
 			
 </form>
+<br>
+<style type="text/css">
+	.card {
+		border: 1px solid #dddddd;
+		padding: 10px 20px;
+		margin: 10px 0;
+		border-radius: 10px;
+	}
+	.card input {
+		margin: 10px;
+	}
+	.card > div, .card > p {
+		display: inline-block;
+		width: 50%;
+	}
+	.card > div {
+		position: absolute;
+    margin-top: 1em;
+	}
+	.card.alert-warning::after {
+		content: "Configurações não salvas. Clique no botão Atualizar para gravar as informações.";
+    display: block;
+    text-align: right;
+	}
+</style>
 
 <?php }else{ ?>
 			<h4> Você não possui autorização para visualizar esse conteúdo.</h4>

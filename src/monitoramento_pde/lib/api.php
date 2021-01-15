@@ -1566,7 +1566,8 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 	link = :link,
 	id_usuario_mantenedor = :id_usuario_mantenedor,
 	script_sql = :script_sql,
-	ativa = :ativa
+	ativa = :ativa,
+	dados_disponiveis = :dados_disponiveis
 	where id_fonte_dados = :id_fonte_dados";
 	$comando = $pdo->prepare($comando_string);
 	
@@ -1590,6 +1591,7 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 				$comando->bindParam(':id_usuario_mantenedor',$fonte_dados['id_usuario_mantenedor']);
 				$fonte_dados['ativa'] = ($fonte_dados['ativa'])?'t':'f';
 				$comando->bindParam(':ativa',$fonte_dados['ativa']);
+				$comando->bindParam(':dados_disponiveis',$fonte_dados['dados_disponiveis']);
 				$comando->bindParam(':script_sql',$fonte_dados['script_sql']);
 		}
  

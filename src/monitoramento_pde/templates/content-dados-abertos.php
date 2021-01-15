@@ -55,6 +55,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	//$scope.menuTipoDados[0].dados.push('Ficha Técnica dos Instrumentos');
 	
 	$scope.item = $scope.menuTipoDados[0];
+
+	// DECODE JSON dados_disponiveis
+	for (var i = $scope.item.dados.length - 1; i >= 0; i--) {
+		$scope.item.dados[i].dados_disponiveis = JSON.parse($scope.item.dados[i].dados_disponiveis);
+	}
 	
 	 $scope.estrategias = [
 			{id:1,nome:'Socializar os ganhos da produção na cidade'},
@@ -252,6 +257,21 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		}
 	}
 
+	$scope.capitalize = function(texto) {
+		return texto.charAt(0).toUpperCase() + texto.slice(1);
+	}
+
+	$scope.trataFormatoFonte = function(formato, exibicao = false) {
+		let formatoTratado = formato.toLowerCase().replaceAll(/[^a-z]/g, "");
+		
+		if(exibicao)
+			formatoTratado = formatoTratado.toUpperCase();
+		else if(formatoTratado === "xlsx")
+			formatoTratado = "xls";
+
+		return formatoTratado;
+	}
+
 	$scope.debugLog = function (el) {
 		console.warn("DebugLOG:");
 		console.log(el);
@@ -261,41 +281,78 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 </script>
 
 
-<div class="content-page container text-justify" data-ng-app="monitoramentoPde" data-ng-controller="dadosAbertos">
+<div id="conteudo" class="content-page container text-justify" data-ng-app="monitoramentoPde" data-ng-controller="dadosAbertos">
 <?php the_content(); ?>
+	<p><span ng-bind-html="item.introducao | trustedHtml"></span>
 
-	<!--<uib-tabset active="active" type="pills">
-		<uib-tab index="$index + 1" ng-repeat="item in menuTipoDados" heading="{{item.titulo}}" classes="{{item.classes}}">-->
-			
-			<p><span ng-bind-html="item.introducao | trustedHtml"></span>
-
-			</p>
-		<ul class="list-group">
-			
-			<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
-				<div class="col-sm-8">
-					<span><b>{{!dado.nome? dado : dado.nome}}</b></span>
-					<!-- ISSUE 52 -->
-					<br>
-					<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					
-				</div>
-				<div class="col-sm-4 text-right"> <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
-					<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
-					<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | SHP</strong></a> 
-					<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong><span ng-show="(dado.colunas.length > 1)"> | </span>Tabelas</strong></a>
-				</div>
-
-			</li>
-			
-		</ul>
+	</p>
+	<ul class="list-group">
 		
-			<!--<hr>
-			<ul class="list-group row">
-				<li class="list-group-item col-sm-3 text-left list-visualizacao" ng-repeat="itemFilho in item.children"><a href="{{itemFilho.url}}" class="row"> <img class="img-responsive icones-visualizacao col-sm-3" src="/app/themes/monitoramento_pde/images/icones/{{itemFilho.description}}.png"><span class="col-sm-9"><strong>{{itemFilho.title}}</strong></span></a> </li>
-				
-			</ul>-->
-		<!--</uib-tab>
-	</uib-tabset>-->
-
+		<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
+			<div class="col-sm-8">
+				<span><b>{{!dado.nome? dado : dado.nome}}</b></span>
+				<br>
+				<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					
+			</div>
+			<div class="text-right" ng-if="!dado.dados_disponiveis[0]"> <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
+				<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
+				<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | SHP</strong></a> 
+				<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong><span ng-show="(dado.colunas.length > 1)"> | </span>Tabelas</strong></a>
+			</div>
+			<div class="text-right badge-list">
+				<ul>
+					<li ng-if="dado.colunas.length > 1 && dado.dados_disponiveis[0] && dado.dados_disponiveis[0].disponivel" data-ng-repeat="formato in item.tipoArquivo">
+						<a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-format="{{trataFormatoFonte(formato)}}" class="label">{{trataFormatoFonte(formato, true)}}</a>
+						<!-- <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a> -->
+					</li>
+					<li data-ng-repeat="arquivo in dado.dados_disponiveis" ng-if="arquivo.tipo !== 'fonte de dados'">
+						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{arquivo.nome}}" class="label" data-format="{{arquivo.formato}}">{{capitalize(arquivo.tipo)}}</a> 
+					</li>
+				</ul>
+			</div>
+		</li>
+		
+	</ul>
 </div>
+
+<style type="text/css">
+	ul {
+		list-style: none;
+	}
+	.label {
+		display: inline-block;
+    padding: 2px 4px;
+    font-size: 11.844px;
+    font-weight: bold;
+    line-height: 14px;
+    color: #ffffff;
+    vertical-align: baseline;
+    white-space: nowrap;
+    text-shadow: 0 -1px 0 rgba(0,0,0,0.25);
+    background-color: #999999;
+	}
+	a.label {
+		color: #ffffff;
+	}
+	.label[data-format=zip], .label[data-format*=zip] {
+    background-color: #686868;
+  }
+  .dataset-resources li a {
+    background-color: #aaaaaa;
+  }
+  .label[data-format=xls], .label[data-format*=xls] {
+		background-color: #2db55d;
+  }
+  .label[data-format=csv], .label[data-format*=csv] {
+    background-color: #dfb100;
+  }
+  .label[data-format=pdf], .label[data-format*=pdf] {
+		background-color: #e0051e;
+  }
+  .badge-list li {
+  	display: inline-block;
+  	margin: 3px;
+  }
+</style>
+
 <?php wp_link_pages(['before' => '<nav class="page-nav"><p>' . __('Pages:', 'sage'), 'after' => '</p></nav>']); ?>
