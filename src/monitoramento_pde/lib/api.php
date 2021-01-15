@@ -475,6 +475,14 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
+// Registra rota envio de arquivo generico
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/fontes_dados/carregar_arquivo_raw/(?P<id>\d+)', array(
+		'methods' => 'POST',
+		'callback' => 'carregar_arquivo_raw'
+	) );
+} );
 // Registra rota carga mapas
 add_action( 'rest_api_init', function () {
 	global $ApiConfig;
@@ -1855,6 +1863,17 @@ function carregar_fonte_dados(WP_REST_Request $request){
 	
 	return $response;
 } 
+
+function carregar_arquivo_raw(WP_REST_Request $request){
+	$parametros = $request->get_params();
+	$diretorio = wp_upload_dir()['basedir'].'/'.$parametros['nome_tabela'];
+	$result = wp_mkdir_p($diretorio);
+	$data = date('Ymd');
+	$nome_arquivo = $data.'_'.$_FILES['arquivo']['name'];
+	
+	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$nome_arquivo);
+	return $nome_arquivo;
+}
 
 // INSERIR ARQUIVOS ATRELADOS À FONTE DE DADOS
 function carregar_arquivo_mapas(WP_REST_Request $request){

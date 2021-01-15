@@ -80,6 +80,12 @@ app.factory('FonteDadosCarregar',function($resource){
 	});
 });
 
+app.factory('ArquivoRawCarregar', function($resource){
+	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar_arquivo_raw/:id',{id:'@id_fonte_dados'},{
+		update: cargaUpdateParams
+	});
+});
+
 app.factory('ArquivoMapasCarregar',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados/carregar_arquivo_mapas/:id',{id:'@id_fonte_dados'},{
 		update: cargaUpdateParams
@@ -114,7 +120,7 @@ app.factory('FonteDadosColuna',function($resource){
 	});
 });
 
-app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, ArquivoMapasCarregar, ArquivoMetadadosCarregar, ArquivoTabelasCarregar, Territorios, FonteDadosColuna, uibDateParser) {
+app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter, $uibModal, FonteDados, Usuarios, FonteDadosCarregar, ArquivoRawCarregar, ArquivoMapasCarregar, ArquivoMetadadosCarregar, ArquivoTabelasCarregar, Territorios, FonteDadosColuna, uibDateParser) {
 
 	$scope.lerArquivos = function(element) {
 		
@@ -325,6 +331,17 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			parsed.push(new dadoAberto($scope.itemAtual.arquivo_metadados, "metadados", "xls"));
 	}
 
+	$scope.vincularArquivoDado = function(nome, tipo, formato){
+		// Percorre lista de dados disponíveis antes de criar novo dado
+		let parsed = $scope.itemAtual.dadosDisponiveisParsed;
+		for (var i = parsed.length - 1; i >= 0; i--) {
+			if(parsed[i].tipo === tipo){
+				parsed[i].nome = nome;
+				return;
+			}
+		}
+		parsed.push(new dadoAberto(nome, tipo, formato));
+	}
 	$scope.prepararDadosDisponiveis = function(){
 		let parsed = $scope.itemAtual.dadosDisponiveisParsed;
 		for (var i = parsed.length - 1; i >= 0; i--) {
@@ -408,6 +425,31 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			// TO DO confirmar carregamento
 			// CARGA DB FONTE DE DADOS
 			switch (tipoUpload) {
+				case "kmz":
+					console.log("ArquivoRawCarregar");
+					ArquivoRawCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,nome_tabela:$scope.itemAtual.nome_tabela,arquivos:$scope.arquivos}).$promise.then(
+						function(mensagem){
+							console.log("ARQUIVO ENVIADO!");
+							console.log(mensagem);
+							// Atribui nome ao respectivo objeto
+							$scope.vincularArquivoDado(mensagem.nome,"kmz","kmz");
+							$scope.atualizar();
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';					
+							$rootScope.modalProcessando.close();		
+							$scope.criarModalSucesso();
+						},
+						function(erro){
+							$rootScope.modalConfirmacao.close();						
+							$rootScope.carregandoArquivo = false;
+							$rootScope.mensagemArquivo = '';
+							console.log("PRE ERROR:");
+							console.log(erro);					
+						}
+					).catch(function(err){
+						console.error(err);
+					});
+					break;
 				case "metadados":
 					console.log("METADADOS");
 					ArquivoMetadadosCarregar.update({id_fonte_dados:$scope.itemAtual.id_fonte_dados,arquivos:$scope.arquivos}).$promise.then(
@@ -589,6 +631,11 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 				$scope.acaoExecutando = 'Carregando';
 				$scope.acaoSucesso = 'Carregada';
 				$scope.carregarArquivo();
+				break;
+			case 'Carregar KMZ':
+				$scope.acaoExecutando = 'Carregando';
+				$scope.acaoSucesso = 'Carregado';
+				$scope.carregarArquivo('kmz');
 				break;
 			case 'Carregar Mapas':
 				$scope.acaoExecutando = 'Carregando';
@@ -957,8 +1004,10 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 			</p>
 			
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Arquivo de Fonte de Dados" data-ng-click="criarModalConfirmacao('Carregar')">
-			<!-- Carregar mapas (SHP / Shapefiles / KMZ) -->
+			<!-- Carregar mapas (SHP / Shapefiles) -->
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar SHP" data-ng-click="criarModalConfirmacao('Carregar Mapas')">
+			<!-- Carregar KMZ -->
+			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar KMZ" data-ng-click="criarModalConfirmacao('Carregar KMZ')">
 			<!-- Carregar metadados -->
 			<input type="submit" data-ng-show="estado!='inserir'" value="Carregar Metadados" data-ng-click="criarModalConfirmacao('Carregar Metadados')">
 			<!-- Carregar tabelas -->
