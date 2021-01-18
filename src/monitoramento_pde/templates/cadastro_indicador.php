@@ -80,6 +80,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
  	Indicador.query(function(indicadores) {
 		$rootScope.listaIndicadores = indicadores;
 		$rootScope.indicadores = indicadores;
+		// INDICADORES CARREGADOS. CHAMA FUNÇÃO PARA VERIFICAR SE URL ENCAMINHA PARA UM INDICADOR ESPECÍFICO
+		$scope.urlIndicador();
 	});
 	
 	 Variavel.query(function(variaveis) {
@@ -115,6 +117,34 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	});
 	
 	$scope.estado = "listar";
+	$scope.primeiroRender = true;
+
+	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
+	$scope.urlIndicador = function(){
+		let computedUrl = window.location.href;
+		if($scope.primeiroRender && computedUrl.includes("mostra_indicador")){
+			let indicadorFromUrl = parseInt(computedUrl.split("mostra_indicador/").pop());
+			$scope.idIndicadorAtivo = indicadorFromUrl;
+			$scope.primeiroRender = false;
+			$scope.carregarIndicador();
+		}
+	}
+
+	$scope.geraLink = function() {
+		let link = "<?php echo get_home_url(); ?>"+"/cadastro-de-indicadores/#/mostra_indicador/"+$scope.idIndicadorAtivo;
+		
+		// Copia para o clipboard		
+		const el = document.createElement('textarea');
+		el.value = link;
+		el.setAttribute('readonly', '');
+		el.style.position = 'absolute';
+		el.style.left = '-9999px';
+		document.body.appendChild(el);
+		el.select();
+		document.execCommand('copy');
+		document.body.removeChild(el);
+		window.alert("O link para o Cadastro do Indicador "+$scope.idIndicadorAtivo+" foi copiado para a área de transferência.\n"+link);
+	}
 	
 	$scope.lancarErro = function(erro){
 		alert('Ocorreu um erro ao atualizar o indicador. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
@@ -657,9 +687,20 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<br>
 				<div class="descricao-cadastro"><small> Selecione o indicador </small></div>
 				
-				<select class="controle-cadastro" style="max-width:100%;" data-ng-model="idIndicadorAtivo" data-ng-options="indicador.id_indicador as indicador.nome for indicador in indicadores | orderBy: 'id_indicador' : true" data-ng-change="carregarIndicador()" id="indicador">
+				<select class="controle-cadastro" style="max-width: calc(100% - 220px);" data-ng-model="idIndicadorAtivo" data-ng-options="indicador.id_indicador as indicador.nome for indicador in indicadores | orderBy: 'id_indicador' : true" data-ng-change="carregarIndicador()" id="indicador">
 				<option value=""></option>
 				</select>
+				<div ng-if="idIndicadorAtivo > 0" style="display: inline-flex; margin: 0 10px; width: 190px; cursor: pointer;" ng-click="geraLink()">
+					<span>Link para o indicador</span>
+					<button style="border: none;
+						background: url(../app/themes/monitoramento_pde/images/icon-link.jpg);
+	    			background-repeat: no-repeat;
+						background-size: contain;
+						margin: 0 5px;
+					  width: 30px;
+					  height: 30px;" type="button" title="Gerar link para este indicador">
+					</button>
+				</div>
 			</div>
 			
 			</span>
