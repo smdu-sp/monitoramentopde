@@ -377,20 +377,14 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			if(!camada.parametros_estilo) {
 				camada.parametros_estilo = {
 					style_from_kml: true,
+					ocultar_info: false,
 					fill_color: "rgba(255,255,255, 0.5)",
 					stroke_color: "rgba(0, 0, 0, 0.9)"
 				}
 			}
-			/*
-			if(!ignoraEstiloDB){
-				// se renderização for chamada pela alteração do input estiloKml, ignora valor guardado no banco de dados
-				camada.estiloKml = camada.parametros_estilo ? camada.parametros_estilo.style_from_kml : false;
-			}
-			*/
 
 			// Em features do tipo ponto, prioriza não obter estilo do KML
 			if(camada.tipo_feature === "ponto") {
-				// camada.parametros_estilo.style_from_kml, camada.estiloKml = false;
 				camada.parametros_estilo.style_from_kml = false;
 			}
 
@@ -423,17 +417,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		}
 		var mapLayersSource = $scope.mapLayers[1].getSource();
 
-		// INICIO LEGENDA
-		/*
-		$scope.map.getLayers().forEach(function(layer){
-			if(layer.nome) {
-				console.warn("foreach Layer");
-				console.log(layer);
-			}
-		});
-		*/
-		// FIM LEGENDA
-		
 		window.setTimeout(function(){
 			var extent = ol.extent.createEmpty();
 			$scope.map.getLayers().forEach(function(layer) {
@@ -441,8 +424,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				if(layer.getSource().getExtent !== undefined){
 			  		ol.extent.extend(extent, layer.getSource().getExtent());
 			  	}
-			  // Identifica estilo do KML e grava valores para criação da legenda
-			  // ...INSERIR AQUI CASO NÃO CONSIGA REALIZAR IMEDIATAMENTE 
 			});
 			$scope.map.getView().fit(extent, $scope.map.getSize());
 		}, 2000);
@@ -1253,10 +1234,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 			<div data-ng-show="estado!='inserir' && tipo=='instrumento' && idItemAtual">
 				<h4>Mapa temático</h4>
 				<div id="map" class="map">
-					<!-- TODO: Referenciar legendas às camadas -->
 					<div id="legenda-mapa">
 						<span><strong>Legenda</strong></span>
-						<div ng-repeat="(key, camada) in camadasInstrumento">
+						<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: '-ordem'">
 							<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 						</div>
 					</div>
@@ -1286,6 +1266,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 									<div class="caixa-estilo-kml caixa-ordem" ng-if="camada.tipo_feature !== 'ponto'">
 										<label>Usar estilo do KML</label>
 										<input type="checkbox" ng-change="atualizaEstilo(camada)" ng-model="camada.parametros_estilo.style_from_kml">
+									</div>
+									<div>
+										<label>Ocultar informações da camada</label>
+										<input type="checkbox" ng-change="atualizaEstilo(camada)" ng-model="camada.parametros_estilo.ocultar_info">
 									</div>
 								</div>
 							</div>

@@ -85,8 +85,14 @@ var mapWatcher = function(highlightStyle) {
 	  var isLit = false;
 
 	  async function percorreFeatures(pixel){
-		  instruMap.forEachFeatureAtPixel(pixel, function (f) {
+		  instruMap.forEachFeatureAtPixel(pixel, function (f, layer) {
+		  	if(layer.ocultar_info){
+		  		featureInfo.style.opacity = "0";
+		  		selecionado = null;
+		  		return true;
+		  	}
 		  	if (f.get('limite_id') !== "27"){	  	  		
+		  		// Camada obtida. 
 		  		selecionado = f;
 			    f.setStyle(highlightStyle);
 			    isLit = true;
@@ -103,7 +109,6 @@ var mapWatcher = function(highlightStyle) {
 	  	{
 	  		var fProps = {};
 	  		let descricao = "";
-
 	  		for (var prop in selecionado.getProperties())
 	  		{
 	  			if(typeof(selecionado.getProperties()[prop]) === 'string' && prop !== 'styleUrl')
@@ -1907,6 +1912,7 @@ app.controller("dashboard", function($scope,
 			});
 			kmlLayer.id = index.id_camada;
 			kmlLayer.nome = index.nome_camada;
+			kmlLayer.ocultar_info = index.style.ocultar_info;
 			$scope.mapLayers.push(kmlLayer);			
 		}
 	};
