@@ -76,6 +76,19 @@ var ultimoSelecionado = false;
 var featureInfo = null;
 var optInstrumentoSup = null; // Variavel armazena instrumento selecionado para garantir persistencia entre abas
 var instruMap = null;
+let labelProps = {};
+let exportMargingBot = 0;
+let exportChartOpts = {
+	height:700,
+	width: 1800,
+	marginBottom: exportMargingBot,
+	spacingLeft: 30,
+	spacingRight: 30,
+	spacingBottom: 10,
+	spacingTop: 30,
+	marginLeft: 60
+};
+
 var mapWatcher = function(highlightStyle) {
 	instruMap.on('pointermove', function (e) {
 		if (selecionado !== null) {
@@ -302,6 +315,13 @@ app.controller("dashboard", function($scope,
 		document.body.removeChild(el);
 		window.alert("O link para o indicador foi copiado para a área de transferência.\n"+link);
 	}
+
+	$scope.indicadorValores = {
+		categorias: null
+	};
+
+	$scope.tiposGrafico = ['area','barras','colunas','linhas','pizza'];
+	$scope.tipoGraficoSelecionado = 'linhas';
 
 	$scope.atualizaListaInstrumentos = function(){
 		$scope.abortReqs();
@@ -650,221 +670,17 @@ app.controller("dashboard", function($scope,
 					let ultimoItemVarFiltro = "";
 					
 					subtitulo = "Unidade territorial de análise: " +  "Município" + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
-					$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
-						chart: {
-							type: 'line',
-							marginTop: 25,
-							width:larguraGraficoLinha							
-					        },
-					    colors: app.defaultColors,
-				        xAxis: {
-							type: "category",
-							crosshair: true,
-							categories: dataHistorica['formatada']
-						}, 
-						series: serieHistorica,
-						tooltip: {
-							formatter: function(){									
-								if($scope.selecao.idTerrSel == 4)
-									nomeRegiao = 'Município';
-								else if (isMunicipio)
-									nomeRegiao = serieHistorica[0].categoria;
-								else
-									nomeRegiao = $scope.regiaoRealcada.nome;
-								// Exibe nome da Região somente se houver mais de uma série ou mais de uma categoria
-								if($scope.selecao.categorias.length > 1)
-									textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
-								else
-									textoTooltip = '';
-								
-								textoTooltip = textoTooltip + '<b>' + this.series.name + ':</b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + $scope.indicador.simbolo_valor + '<br>';
-								// Funcao auxiliar para a construcao da label
-								var procuraIdRegiao = function(idRegiao, thisSeriesName){
-									let idRegiaoEncontrado = false;
-									angular.forEach(Object.values($scope.dadosMapa), function(value, key){
-										if(value.codigo == idRegiao && value.nome == thisSeriesName)
-											idRegiaoEncontrado = true;
-									});
-									return idRegiaoEncontrado;
-								}
-								var verificaCategoria = function(a, b){
-									// Verifica se o item é categorizado para exibir o numerador e o denominador.
-									// Se só houver 1 categoria (Não categorizado), retorna true para poder exibir a informação
-									if($scope.selecao.categorias.length == 1)
-										return true;
-									else
-										return a === b;
-								}
-								if(this.series.chart.series.length > 1){
-									varFiltro =	$scope.variavelHistorico.filter((variavel) => 
-										(variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) 
-										&& (procuraIdRegiao(variavel.id_regiao, this.series.name) || variavel.distribuicao == true)
-										&& (verificaCategoria(variavel.dimensao, this.series.options.categoria) || (variavel.distribuicao == true && variavel.dimensao == null))
-										);
-								}else{
-									varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == 1|| variavel.distribuicao == true));
-								}
-								
-								varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
-									(variavel) => variavel.data == null && 
-									(variavel.id_regiao == $scope.regiaoRealcada.codigo || variavel.distribuicao == true) && 
-									variavel.dimensao == null
-									);
-								varFiltro = varFiltro.concat(varFiltroSemDataSemDimensao);
-								// Reduzido numero de itens no array varFiltro para que o indicador mostre o numerador
-								if(varFiltro.length >= 0){
-									angular.forEach(varFiltro, function(val,chave){
-										textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : this.y < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
-									});
-								}
-								return textoTooltip;
-							}
-						},
-						title: null,
-						credits:false,
-						
-						exporting: {
-							enabled:true
-							,chartOptions:{
-								chart: {
-									marginBottom: 160,
-									marginTop: 130,
-									height: 700,
-									spacingLeft: 30,
-									spacingRight: 30,
-									spacingBottom: 10,
-									spacingTop: 30
-								},
-								title:{
-									text:$scope.indicador.nome
-								},
-								credits:{
-									enabled: true,
-									
-									text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + "  <br> _____________________________________________________________________ <br> Atualizado em: "  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
-									style:{
-										fontSize: '8px'
-										,fontWeight: 'normal'
-										,color: '#000000'
-									},
-									position:{
-										y:-55
-										,x: 20
-										,align: 'left'
-									}
-								},
-								xAxis: {
-									labels:{
-										padding:10
-									}
-								},
-								subtitle:{
-									text:subtitulo
-									,align:'left'
-									,x: -5
-								},
-								legend: {
-									layout: 'vertical',
-									align: 'left',
-									floating: true,
-									x: 0,
-									verticalAlign: 'bottom',
-									y:-55,
-									itemStyle: {
-										fontWeight: 'normal',
-										fontSize: '8px'
-									}
-								}
-								,style:{
-									fontFamily: 'museo_slab500'
-								}
-							}
-							,buttons: {
-								contextButton: {
-									menuItems: [{
-										text: 'Exportar para PDF',
-										onclick: function(){
-											$scope.exportarGrafico(this,'application/pdf');
-										}
-									}, {
-										text: 'Exportar para PNG',
-										onclick: function(){
-											$scope.exportarGrafico(this,'image/png')
-										},
-										separator: false
-									}, {
-										text: 'Exportar para JPEG',
-										onclick: function(){
-											$scope.exportarGrafico(this,'image/jpeg')
-										},
-										separator: false
-									},{
-										text: 'Exportar para SVG',
-										onclick: function(){
-											$scope.exportarGrafico(this,'image/svg+xml')
-										},
-										separator: false
-									}]
-								}
-							}
-						},
-						yAxis: {
-							labels:{
-								formatter: function(){
-									result = this.value;
-									if (this.chart.yAxis[0].max >= 1000000000) {
-										if(this.chart.yAxis[0].max/ 1000000000.0 <= 8)
-											result = Math.round((this.value / 1000000000.0) * 10.0)/10.0;
-										else
-											result = Math.round(this.value / 1000000000.0);
-									}
-									else 
-											if (this.chart.yAxis[0].max >= 1000000) { 
-												if(this.chart.yAxis[0].max / 1000000.0 <= 8)
-													result = Math.round((this.value / 1000000.0) * 10.0)/10.0;
-												else
-													result = Math.round(this.value / 1000000.0);
-											}else 
-												if (this.chart.yAxis[0].max >= 1000) {
-													if(this.chart.yAxis[0].max / 1000.0 <= 8)
-														result = Math.round((this.value / 1000.0) * 10.0)/10.0;
-													else
-														result = Math.round(this.value / 1000.0);
-												}
-									return result;
-								}
-							},
-							title: {
-								align:'high',
-								rotation:0,
-								y:-15
-							}
-						},
-						plotOptions: {
-							series: {
-								point: {
-									events: {
-										click: function(e){
-											if($scope.selecao.idTerrSel != 4){
-												$scope.selecao.dataSel = dataHistorica['original'][this.index];
-												// $scope.clickMapa = false;
-												$scope.idPoligonoAnterior = 0;
-												$scope.cargaIndicadorValores(false,true);
-											}
-										}
-									}
-								}
-							}
-						},
-						legend: {
-							align: 'left',
-							enabled: indicadorHistorico.series.length > 1,
-							layout: 'horizontal',
-							itemStyle:{
-								fontWeight:'normal'
-							}
-						}
-					});
+					
+					/** ATUALIZAR GRÁFICOS RELACIONADOS AO DE LINHA 
+					Para os gráficos de linha, as opções alternativas seriam:
+						Gráfico de área; Gráfico de colunas; e Gráfico de pizza (ano a ano)
+					*/
+					$scope.tipoGraficoSelecionado = $scope.mostrarGrafico('linhas') ? 'linhas' : 'colunas';
+					window.setTimeout(function(){$scope.$apply()}, 100);
+					$scope.graficoArea = new Highcharts.chart('graficoArea',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'area', $scope.indicador, $scope.indicadorValores));
+					$scope.graficoColunas = new Highcharts.chart('graficoColunas',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'column', $scope.indicador, $scope.indicadorValores));
+					$scope.graficoLinhas = new Highcharts.chart('graficoLinhas',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'line', $scope.indicador, $scope.indicadorValores));
+					$scope.graficoPizza = new Highcharts.chart('graficoPizza',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'pie', $scope.indicador, $scope.indicadorValores));
 					
 					if ($scope.graficoLinhas.yAxis[0].max >= 1000000000){
 						$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em bilhões de ' + $scope.indicador.simbolo_valor + ')';
@@ -1159,7 +975,218 @@ app.controller("dashboard", function($scope,
 			$scope.graficoLinhas.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
 		});
 	};
-		
+
+	$scope.mostrarGrafico = function(tipoGrafico){
+		// Verifica tipo de gráfico e retorna 'true' se tiver que ser exibido
+		let priorizaBarras = !$scope.hoverMapa;
+		$scope.tipoGraficoSelecionado
+
+		switch (tipoGrafico) {
+			case 'area':
+				if(!priorizaBarras){
+					return true
+				}
+				else { return false }
+			case 'barras':
+				if(priorizaBarras){
+					$scope.tipoGraficoSelecionado = 'colunas';
+					return true
+				}
+				else { return false }
+			case 'colunas':
+				if(true){
+					return true
+				}
+				else { return false }
+			case 'linhas':
+				// if($scope.hoverMapa && $scope.carregarGraficoLinhas){
+				if(!priorizaBarras){
+					$scope.tipoGraficoSelecionado = 'linhas';
+					return true
+				}
+				else { return false }
+			case 'pizza':
+				if(!priorizaBarras){
+					return true
+				}
+				else { return false }
+			default:
+				return false;
+		}
+	}
+	/**
+		GRÁFICOS HIGHCHARTS
+	*/
+	$scope.objGrafico = function(grafBarSub, grafBarLeg, tipoChart = 'line', indicador = $scope.indicador, indicadorValores = $scope.indicadorValores) {
+		let highchartObj = {
+			chart: {
+				type: tipoChart,
+				marginTop: 35,
+				width: document.getElementById("divGraficoLinha").clientWidth
+			},
+			colors: app.defaultColors,
+			title: {
+				text: null
+			},
+			xAxis: {
+				type: "category",
+				crosshair: true,
+				categories: indicadorValores.categorias,
+				labels: labelProps
+			},
+			yAxis: {
+				labels:{
+					formatter: function(){
+						result = this.value;
+						if (this.chart.yAxis[0].max >= 1000000000) {
+							if(this.chart.yAxis[0].max / 1000000000.0 <= 8)
+								result = Math.round((this.value / 1000000000.0) * 10.0)/10.0;
+							else
+								result = Math.round(this.value / 1000000000.0);
+						}
+						else 
+								if (this.chart.yAxis[0].max >= 1000000) { 
+									if(this.chart.yAxis[0].max / 1000000.0 <= 8)
+										result = Math.round((this.value / 1000000.0) * 10.0)/10.0;
+									else
+										result = Math.round(this.value / 1000000.0);
+								}else 
+									if (this.chart.yAxis[0].max >= 1000) {
+										if(this.chart.yAxis[0].max / 1000.0 <= 8)
+											result = Math.round((this.value / 1000.0) * 10.0)/10.0;
+										else
+											result = Math.round(this.value / 1000.0);
+									}
+						return result;
+					}
+				},
+				title: {
+					align:'high',
+					rotation:0,
+					y:-15
+				}
+			},
+			exporting: {
+				chartOptions:{
+					chart: exportChartOpts,
+					colors: app.defaultColors,
+					title:{ text: $scope.indicador.nome },
+					xAxis: {
+						labels: labelProps
+					},
+					credits:{
+						enabled: true,
+						text: "Fórmula de cálculo: <br> " + indicador.formula_calculo + " <br> " +  "  " + ' <br> _____________________________________________________________________ <br>Atualizado em: '  + $filter('date')(indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + indicador.origem,
+						style:{
+							fontSize: '8px'
+							,fontWeight: 'normal'
+							,color: '#000000'
+						},
+						position:{
+							x: 20
+							,y:-55
+							,align: 'left'
+						}
+					},
+					subtitle: grafBarSub,
+					legend: grafBarLeg,
+					style:{
+						fontFamily: 'museo_slab500'
+					}
+				}
+				,buttons:{
+					contextButton: {
+						menuItems: [
+						{text: 'Exportar para PDF', onclick: function(){$scope.exportarGrafico(this,'application/pdf');}},
+						{text: 'Exportar para PNG', onclick: function(){$scope.exportarGrafico(this,'image/png');},separator: false},
+						{text: 'Exportar para JPEG', onclick: function(){$scope.exportarGrafico(this,'image/jpeg');},separator: false},
+						{text: 'Exportar para SVG', onclick: function(){$scope.exportarGrafico(this,'image/svg+xml');},separator: false}
+						]
+					}
+				}
+			},
+			tooltip: {
+				formatter: function(){
+					textoTooltip = '';
+					if(tipoChart === 'pie'){
+						textoTooltip = '<b>' + this.key + '</b><br>';
+					}
+					else {
+						textoTooltip = (this.series.name != 'Não categorizado' ? '<b>' + this.x  + '</b> <br>' : '');
+					}
+					textoTooltip = textoTooltip + '<b>' + (this.series.name == 'Não categorizado' ? this.x : this.series.name) + ': </b> ' + Highcharts.numberFormat(this.y, this.y % 1 == 0 ? 0 : this.y < 100 ? 2 : this.y < 1000 ? 1 : 0,',','.') + ' ' + indicador.simbolo_valor + '<br>';
+					if(this.series.name == 'Não categorizado'){
+						varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.selecao.dataSel || variavel.data == null) && (variavel.id_regiao == indicadorValores.codigos[this.point.x] || variavel.distribuicao == true));
+					}else{
+						varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.selecao.dataSel || variavel.data == null) && (variavel.id_regiao == indicadorValores.codigos[this.point.x] || variavel.distribuicao == true) && (variavel.dimensao == this.series.name || variavel.dimensao == null));
+					}																
+					if(varFiltro.length > 1){
+						angular.forEach(varFiltro, function(val,chave){
+							textoTooltip = textoTooltip + ' ' + val.nome + ': ' + Highcharts.numberFormat(val.valor, val.valor % 1 == 0 ? 0 : val.valor < 100 ? 2 : val.valor < 1000 ? 1 : 0,',','.') + ' ' + (val.tipo_valor ? val.tipo_valor : '') + '<br>'; 
+						});
+					}
+					return textoTooltip;
+				}
+			},
+			plotOptions: {
+				column: {
+					stacking: 'normal',
+					borderWidth: 0
+				},
+				series: {
+					point: {
+						events: {
+							click: function(e){
+								if(tipoChart !== "pie")
+									$scope.fixarMapa($scope.dadosMapa[this.x].codigo);
+							}
+						}
+					}
+				}
+			},
+			legend: {
+				align: 'left',							
+				enabled: !(indicadorValores.series.length === 1 && indicadorValores.series[0].name === "Não categorizado"),
+				layout: 'horizontal',
+				itemStyle:{
+					fontWeight:'normal'
+				}
+				//verticalAlign: 'bottom',							
+			},
+			style:{ fontFamily: 'museo_slab500' },
+			credits:false,
+			series: indicadorValores.series
+		}
+		if(tipoChart === 'pie') {
+			// Gráfico tipo pizza
+			highchartObj.accessibility = {
+				point: {
+					valueSuffix: ''
+				}
+			}
+			highchartObj.plotOptions.pie = {
+				allowPointSelect: true
+			}
+			let pData = [];
+			// Popula dados conforme series do indicadorValores
+			for (var i = indicadorValores.series.length - 1; i >= 0; i--) {
+				if(indicadorValores.series[i].data[0] > 0) {
+					pData.push({
+						name: indicadorValores.series[i].name,
+						y: indicadorValores.series[i].data[0]
+					})
+				}
+			}
+			let pSeries = [{
+				name: indicadorValores.nome,
+				colorByPoint: true,
+				data: pData
+			}];
+			highchartObj.series = pSeries;
+		}
+		return highchartObj;
+	}
+	
 	// VERIFICA SE HA MUNICIPIO DENTRE OS TERRITORIOS DO INDICADOR
 	$scope.semMunicipio = function(){
 		for (var i = 0; i < $scope.indicador.territorios.length; i++) {
@@ -1242,11 +1269,11 @@ app.controller("dashboard", function($scope,
 				trimestre = Math.floor((new Date($scope.selecao.dataSel).getMonth() + 3) / 3);
 				$scope.indicadorValores.series = $filter('orderBy')($scope.indicadorValores.series, 'name');
 				
-				let exportMargingBot = 140+($scope.indicadorValores.series.length*8);
+				exportMargingBot = 140+($scope.indicadorValores.series.length*8);
 				if($scope.labelTerrSel == "Subprefeitura" || mostrarDistritos)
 					exportMargingBot += mostrarDistritos ? 40 : 60;
 
-				let grafBarSub = {
+				$scope.grafBarSub = {
 					margin: 50,
 					text: 'Unidade territorial de análise: ' + $scope.labelTerrSel + " <br> Período: " + $filter('date')($scope.selecao.dataSel, ($scope.indicador.periodicidade == 'mensal') ? 'MMM yyyy' : (($scope.indicador.periodicidade == 'trimestral') ? 'MM/yyyy' : 'yyyy')),
 					align: 'left',
@@ -1255,7 +1282,7 @@ app.controller("dashboard", function($scope,
 						// paddingBottom: 120
 					}
 				};
-				let grafBarLeg = {
+				$scope.grafBarLeg = {
 					layout: 'vertical',
 					align: 'left',
 					x: 0,
@@ -1266,7 +1293,7 @@ app.controller("dashboard", function($scope,
 						fontSize: '8px'
 					}
 				};
-				let labelProps = {};
+				labelProps = {};
 				// CONFIGURAÇÕES ESPECÍFICAS PARA QUE CAIBAM TODOS OS DISTRITOS
 				if(mostrarDistritos){
 					labelProps = {
@@ -1282,18 +1309,9 @@ app.controller("dashboard", function($scope,
 						style: { fontSize: '10px' }
 					};
 				}
-				let exportChartOpts = {
-					height:700,
-					width: 1800,
-					marginBottom: exportMargingBot,
-					spacingLeft: 30,
-					spacingRight: 30,
-					spacingBottom: 10,
-					spacingTop: 30,
-					marginLeft: 60
-				};
 				
 				if(!$scope.semMunicipio() || $scope.selecao.categorias && $scope.selecao.categorias.length != 1){
+					/*
 					$scope.graficoBarras = new Highcharts.chart('graficoBarras',{
 						chart: {
 							type: 'column'
@@ -1363,8 +1381,8 @@ app.controller("dashboard", function($scope,
 										,align: 'left'
 									}
 								},
-								subtitle: grafBarSub,
-								legend: grafBarLeg,
+								subtitle: $scope.grafBarSub,
+								legend: $scope.grafBarLeg,
 								style:{
 									fontFamily: 'museo_slab500'
 								}
@@ -1425,6 +1443,16 @@ app.controller("dashboard", function($scope,
 						credits:false,
 						series: $scope.indicadorValores.series
 					});
+					*/
+					/**
+						Atualiza gráficos relacionados ao gráfico de barras
+						Para os gráficos de barras, as opções alternativas seriam:
+							Gráfico de colunas; Gráfico de barra (ano a ano)
+					*/
+					$scope.graficoBarras = new Highcharts.chart('graficoBarras',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'bar', $scope.indicador, $scope.indicadorValores));
+					$scope.graficoColunas = new Highcharts.chart('graficoColunas',$scope.objGrafico($scope.grafBarSub, $scope.grafBarLeg, 'column', $scope.indicador, $scope.indicadorValores));
+					$scope.tipoGraficoSelecionado = $scope.mostrarGrafico('linhas') ? 'linhas' : 'colunas';
+					window.setTimeout(function(){$scope.$apply()}, 100);
 					
 					if ($scope.graficoBarras.yAxis[0].max >= 1000000000){
 						$scope.textoTitulo = $scope.indicador.tipo_valor + ' (Em bilhões de ' + $scope.indicador.simbolo_valor + ')';
@@ -1445,10 +1473,7 @@ app.controller("dashboard", function($scope,
 						$scope.graficoBarras.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
 					}
 				}
-				
-				// IDENTIFICAÇÃO DO TEXTO DO TÍTULO
-				
-				
+								
 				// CARREGA MAPA DO INDICADOR
 				if(inserirTerritorioMapa){
 					$scope.layerVetor = new ol.layer.Vector({
@@ -2839,9 +2864,17 @@ app.controller("dashboard", function($scope,
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="verMemoria()">{{ mostraTabela ? 'Ocultar' : 'Visualizar' }} Tabela de valores do indicador </a>
 					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
+					<br>
+					<div>
+						<label for="tipoGrafico">Tipo de visualização: </label>
+						<select id="tipoGrafico" data-ng-model="tipoGraficoSelecionado">
+							<option ng-if="mostrarGrafico(tipo)" data-ng-repeat="tipo in tiposGrafico">{{ tipo }}</option>
+						</select>
+					</div>
 				</div>
 				<div class="col-sm-6">
 					<div class="row">
+
 						<div class="col-sm-5 col-sm-offset-1 caixa-data">
 						
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
@@ -2912,14 +2945,16 @@ app.controller("dashboard", function($scope,
 						</div>
 					</div>
 					<div class="row" id="divGraficoLinha" ng-show="!mostraTabela">
-					
-						<div id="graficoBarras" ng-show="!hoverMapa" style="min-height:465px;">
-						</div>
-						<div ng-if="hoverMapa && !carregarGraficoLinhas" style="display:flex;align-items:center;min-height:465px;margin-left:120px;">
+						<div ng-if="hoverMapa && !carregarGraficoLinhas" style="display:flex;align-items:center;margin-left:120px;">
 							<h4 style="font-size:12px;" class="alert alert-danger">{{carregandoHistorico}}</h4>
 						</div>
-						<div  id="graficoLinhas" ng-show="hoverMapa && carregarGraficoLinhas" style="min-height:465px;">
-						</div>
+					
+						<!-- <div id="graficoBarras" ng-show="!hoverMapa"></div> -->
+						
+						<!-- <div  id="graficoLinhas" ng-show="hoverMapa && carregarGraficoLinhas"></div> -->
+						<!-- EXIBE OS 5 TIPOS DE GRÁFICO: area, barras, colunas, linha, pizza -->
+						<div data-ng-repeat="tipo in tiposGrafico" id="{{ 'grafico' + tipo[0].toUpperCase()+tipo.slice(1) }}" ng-show="tipo === tipoGraficoSelecionado"></div>
+						<!-- ng-show="mostrarGrafico(tipo)" -->
 					</div>
 					<div class="row">
 						<div class="col-md-12">
@@ -3207,5 +3242,8 @@ app.controller("dashboard", function($scope,
 		z-index: 2;
 		padding: 5px;
 		margin: 30px 15px;
+	}
+	#divGraficoLinha > div {
+		min-height: 465px;
 	}
 </style>
