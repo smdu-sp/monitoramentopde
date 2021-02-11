@@ -524,6 +524,14 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
+add_action( 'rest_api_init', function () {
+	global $ApiConfig;
+	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/cache_indicadores', array(
+		'methods' => WP_REST_Server::READABLE,
+		'callback' => 'cache_indicadores'
+	) );
+} );
+
 // ISSUE #42
 // function alterLog($acao, $tipoElemento, $idElemento, $usuarioRequest = NULL) {
 function alterLog(array $logParams) {
@@ -1872,7 +1880,10 @@ function carregar_arquivo_raw(WP_REST_Request $request){
 	$nome_arquivo = $data.'_'.$_FILES['arquivo']['name'];
 	
 	move_uploaded_file($_FILES['arquivo']['tmp_name'], $diretorio.'/'.$nome_arquivo);
-	return $nome_arquivo;
+	$resp = new stdClass();
+	$resp->nome = $nome_arquivo;
+	$response = new WP_REST_Response($resp, 200);	
+	return $response;
 }
 
 // INSERIR ARQUIVOS ATRELADOS À FONTE DE DADOS
@@ -3675,6 +3686,14 @@ function variavel_cadastro(WP_REST_Request $request){
 	
 function indicador_cadastro(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	if (sizeof($parametros) == 1 && array_key_exists('somente_ativos',$parametros)) {
+		// RETORNA RESULTADOS DO CACHE
+		$dados = get_cached_indicadores();
+		$response = new WP_REST_Response(
+			$dados
+		);
+		return $response;
+	}
 	
 /*	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" ); */
 	
@@ -3813,10 +3832,6 @@ function indicador_cadastro(WP_REST_Request $request){
 						,fonte_var.data_atualizacao 
 						,fonte_var.formula_calculo".
 	$comando_group;
-	
-error_log( "--->comando_string=[", 0);
-error_log( $comando_string , 0);
-error_log( "]", 0);
 
 	$comando = $pdo->prepare($comando_string);
 	
@@ -3826,14 +3841,19 @@ error_log( "]", 0);
 	if(array_key_exists('grupo_indicador',$parametros))
 		$comando->bindParam(':grupo_indicador',$parametros['grupo_indicador']);
 	
-	
+	// LOG PRÉ-COMANDO
 	if(!$comando->execute()){
-		$erro = $comando->errorInfo();
-		return $erro[2]; 
+		error_log( "--->comando_string=[", 0);
+		error_log( $comando_string , 0);
+		error_log( "]", 0);
+		$dados = '{data: "'.$comando->errorInfo()[2].'"}';
+		$response = new WP_REST_Response($dados);
+		return $response;
+		// $erro = $comando->errorInfo();
+		// return $erro[2]; 
 	} else {
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
-	
 	foreach($dados as &$linha){
 		$linha['datas'] = json_decode($linha['datas']);
 		$linha['territorios'] = json_decode($linha['territorios']);
@@ -3847,7 +3867,7 @@ error_log( "]", 0);
 	);
 	return $response;
 }
- 
+
 function indicador_dados( WP_REST_Request $request ) {
 
 	// You can get the combined, merged set of parameters:
@@ -3998,5 +4018,180 @@ function indicador_dados( WP_REST_Request $request ) {
 		$response = new WP_REST_Response( $dados );
 		return $response;
 		
+	}
+}
+
+/**
+ * Indicador
+ */
+class Indicador
+{	
+	public $id_indicador;
+	public $nome;
+	public $ativo;
+	public $homologacao;
+	public $periodicidade;
+	public $tipo_valor;
+	public $nota_tecnica;
+	public $nota_tecnica_resumida;
+	public $apresentacao;
+	public $origem;
+	public $id_territorio_padrao;
+	public $observacao;
+	public $fonte;
+	public $preencher_zero;
+	public $territorio_exclusao;
+	public $instrumento;
+	public $id_instrumento;
+	public $ordem_instrumento;
+	public $formula_calculo;
+	public $estrategias;
+	public $id_estrategia;
+	public $data_atualizacao;
+	public $datas;
+	public $territorios;
+
+	function __construct($indicador_properties)
+	{
+		foreach ($indicador_properties as $key => $value) {
+			$this->$key = $value;
+		}
+	}
+}
+
+function get_cached_indicadores() {
+	$cache_file = get_template_directory().'/cache_indicadores.txt';
+	$handle = fopen ($cache_file, "r");
+	$cached_indicadores = fread($handle, filesize($cache_file));
+	fclose($handle);
+
+	return json_decode($cached_indicadores);
+}
+
+function cache_indicadores() {
+	$cache_file = get_template_directory().'/cache_indicadores.txt';
+	$file_last_modified = filemtime($cache_file);
+	$server_time = getdate()[0];
+	// Intervalo mínimo entre as atualizações do cache (em horas)
+	$caching_interval = 2;
+
+	$cache_is_recent = ($server_time - $file_last_modified) / 3600 < $caching_interval;
+
+	// Verificar hora da última atualização (para evitar chamadas repetidas);
+	if ($cache_is_recent) {
+		$result = new stdClass();
+		$result->last_modified = $file_last_modified;
+		$result->server_time = $server_time;
+		$result->difference = $server_time - $file_last_modified;
+		$result->diff_date = date("H:i:s", $result->difference);
+		// $response = new WP_REST_Response($result);
+		// return $response;
+		return print("Cache atualizado pela ultima vez ha " . strval(intval($result->difference / 60)) . " minutos.\n");
+	}
+	else {
+		global $DbConfig;
+		try {
+			$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+		} catch (PDOException $e) {
+			die("Conexão ao banco de dados falhou: " . $e->getMessage());
+		}
+		$comando_string = "select indic.id_indicador as id_indicador
+				,indic.nome
+				,indic.ativo
+				,indic.homologacao
+				,indic.periodicidade
+				,indic.tipo_valor
+				,indic.simbolo_valor
+				,indic.nota_tecnica
+				,indic.nota_tecnica_resumida
+				,indic.apresentacao
+				,indic.fonte as origem
+				,indic.id_territorio_padrao
+				,indic.observacao
+				,indic.tipo_valor
+				,indic.fonte
+				,indic.preencher_zero
+				,json_agg(distinct jsonb_build_object('id',exc.id_territorio,'label',exc.nome)) as territorio_exclusao
+				,max(case when grupo.tipo = 'instrumento' then grupo.nome else null end) as instrumento
+				,max(case when grupo.tipo = 'instrumento' then grupo.id_grupo_indicador else null end) as id_instrumento
+				,max(case when grupo.tipo = 'instrumento' then grupo.ordem else null end) as ordem_instrumento
+				,fonte_var.formula_calculo ||  case when indic.tipo_valor = 'Percentual' then ' * 100' else '' end as formula_calculo
+				,json_agg(distinct case when grupo.tipo = 'estrategia' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as estrategias
+				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
+				,fonte_var.data_atualizacao 
+				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
+				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
+		from sistema.indicador indic
+			left join sistema.indicador_calculo calc
+				on indic.id_indicador = calc.id_indicador
+			left join lateral 
+			 (select indic_var.id_indicador
+				,max(fonte.data_atualizacao) as data_atualizacao
+				
+				,string_agg(coalesce(indic_var.aninhamento,'') || coalesce(var.nome,'') || '' || coalesce('\n (' || indic_var.operador || ') \n','') || '', ' ' order by indic_var.ordem) as formula_calculo
+				from sistema.indicador_x_variavel indic_var
+					left join sistema.variavel var 
+						on var.id_variavel = indic_var.id_variavel
+					left join sistema.fonte_dados fonte
+						on var.id_fonte_dados = fonte.id_fonte_dados
+				group by indic_var.id_indicador
+				order by indic_var.id_indicador
+				) fonte_var 
+					on fonte_var.id_indicador = indic.id_indicador
+			left join 
+				(select grp.*,grp_indic.id_indicador,grp_indic.ordem from sistema.indicador_x_grupo grp_indic
+					inner join sistema.grupo_indicador grp
+					on grp.id_grupo_indicador = grp_indic.id_grupo_indicador
+				) grupo 
+				on grupo.id_indicador = indic.id_indicador
+			
+			left join (select id_territorio as id_territorio,
+							nome,ordem from fonte_dados.territorio 
+					   order by ordem) ter
+				on ter.id_territorio = calc.id_territorio
+			left join (select id_indicador, sub_exc.id_territorio, ter_exc.nome from 
+						sistema.indicador_territorio_exclusao sub_exc
+						inner join fonte_dados.territorio ter_exc
+							on ter_exc.id_territorio = sub_exc.id_territorio) exc
+				on exc.id_indicador = indic.id_indicador and ter.id_territorio not in (select exc.id_territorio from sistema.indicador_territorio_exclusao exc where exc.id_indicador = indic.id_indicador and exc.id_territorio is not null)"
+		."WHERE indic.ativo = true and indic.homologacao != true group by indic.id_indicador
+							,indic.nome
+							,indic.periodicidade
+							,indic.tipo_valor
+							,indic.simbolo_valor
+							,indic.nota_tecnica
+							,indic.nota_tecnica_resumida
+							,indic.apresentacao
+							,indic.fonte
+							,indic.preencher_zero
+							,fonte_var.data_atualizacao 
+							,fonte_var.formula_calculo";
+		
+		$comando = $pdo->prepare($comando_string);
+
+		if(!$comando->execute()){
+			$erro = $comando->errorInfo();
+			error_log(json_encode($erro));
+			error_log( "FALHA AO GRAVAR CACHE --->comando_string=[", 0);
+			error_log( $comando_string , 0);
+			error_log( "]", 0);
+			return;
+		} else {
+			$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+		}
+		foreach($dados as &$linha){
+			$linha['datas'] = json_decode($linha['datas']);
+			$linha['territorios'] = json_decode($linha['territorios']);
+			$linha['territorio_exclusao'] = json_decode($linha['territorio_exclusao']);
+			$linha['estrategias'] = json_decode($linha['estrategias']);
+		}
+		
+		$dados = json_encode($dados);
+		
+		$fp = fopen($cache_file, 'w');
+		fwrite($fp, $dados);
+		fclose($fp);
+
+		return print('Cache atualizado com sucesso!');
 	}
 }

@@ -12,3 +12,4 @@ setup.php
 *.bash_history*
 pg_hba.conf
 kettle.properties
+*cache_indicadores.txt
