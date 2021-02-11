@@ -588,12 +588,13 @@ function deletar_variavel(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.variavel where id_variavel = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -617,12 +618,13 @@ function deletar_variavel(WP_REST_Request $request){
  
 function deletar_variavel_filtro(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.variavel_filtro where id_variavel = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -660,12 +662,13 @@ function deletar_fonte_dados(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.fonte_dados where id_fonte_dados = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -699,12 +702,13 @@ function deletar_grupo_indicador(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.grupo_indicador where id_grupo_indicador = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -727,12 +731,13 @@ function deletar_grupo_indicador(WP_REST_Request $request){
 
 function deletar_fonte_dados_coluna(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.coluna where id_fonte_dados = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -755,12 +760,13 @@ function deletar_fonte_dados_coluna(WP_REST_Request $request){
 
 function deletar_indicador_fusao(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.indicador_composicao where id_indicador_pai = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -797,12 +803,13 @@ function deletar_indicador(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "delete from sistema.indicador where id_indicador = :id";
 	$comando = $pdo->prepare($comando_string);
@@ -832,12 +839,13 @@ function atualizar_indicador(WP_REST_Request $request){
 		'nomeElemento'=>$parametros['indicador']['nome']
 	));
 	
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$indicador = $parametros['indicador'];
 	
@@ -1028,12 +1036,13 @@ function atualizar_grupo_indicador(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$grupo = $parametros['grupo'];
 	$indicadores = $parametros['indicadores'];
@@ -1121,12 +1130,13 @@ function inserir_grupo_indicador(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$grupo = $parametros['grupo'];
 	
@@ -1177,12 +1187,13 @@ function inserir_grupo_indicador(WP_REST_Request $request){
  
 function atualizar_indicador_composicao(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	// Corrige erro 'undefined index: composicao'
 	$composicao = [];
@@ -1246,12 +1257,13 @@ function atualizar_indicador_composicao(WP_REST_Request $request){
  
 function atualizar_indicador_fusao(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$composicao = $parametros['composicao'];
 	
@@ -1309,12 +1321,13 @@ function atualizar_indicador_fusao(WP_REST_Request $request){
  
  function atualizar_variavel_filtro(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$variavelFiltro = $parametros['filtro'];
 	
@@ -1365,12 +1378,13 @@ function atualizar_indicador_fusao(WP_REST_Request $request){
  
 function atualizar_fonte_dados_coluna(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$colunas = $parametros['colunas'];
 	
@@ -1427,12 +1441,13 @@ function atualizar_variavel(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$variavel = $parametros['variavel'];
 	
@@ -1555,12 +1570,13 @@ function atualizar_fonte_dados(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$fonte_dados = $parametros['fonte_dados'];
 	
@@ -1697,12 +1713,13 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		'idElemento'=>$parametros['id'],
 		'nomeElemento'=>$nomeElemento
 	));
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 
 	$comando_string = 
 	"select * 
@@ -1865,12 +1882,63 @@ function carregar_fonte_dados(WP_REST_Request $request){
 		$erro = $comando->errorInfo();
 		return $erro[2]; 
 	}
-	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
 	
-	// var_dump(array_reverse($output));
+	atualizar_nome_arquivo_fonte($parametros['id_fonte_dados'], $nome_arquivo);
+
+	atualizar_view_dado_aberto($pdo, $parametros['id_fonte_dados']);
 	
 	return $response;
 } 
+
+function atualizar_nome_arquivo_fonte($id_fonte, $nome_arquivo) {
+	$comando_string = "select dados_disponiveis 
+		from sistema.fonte_dados 
+		where id_fonte_dados = :id_fonte_dados";
+	
+	$pdo = pdo_connect();
+	$comando = $pdo->prepare($comando_string);
+	$comando->bindParam(':id_fonte_dados', $id_fonte);
+	$dados_disponiveis = [];
+	
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	}
+	else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+		if(array_key_exists('dados_disponiveis', $dados[0]))
+			$dados_disponiveis = json_decode($dados[0]['dados_disponiveis']);
+	}
+
+	foreach ($dados_disponiveis as $key => $dado) {
+		if (property_exists($dado, 'tipo') && $dado->tipo == 'fonte de dados') {
+			$dado->nome = $nome_arquivo;
+		}
+	}
+	// Após atualizar, grava dado no banco
+	$comando_string = "UPDATE sistema.fonte_dados 
+										SET dados_disponiveis = :dados_disponiveis
+										WHERE id_fonte_dados = :id_fonte_dados;";
+	$comando = $pdo->prepare($comando_string);
+	$comando->bindParam(':dados_disponiveis', json_encode($dados_disponiveis));
+	$comando->bindParam(':id_fonte_dados', $id_fonte);
+	if(!$comando->execute()){
+		return $comando->errorInfo()[2];
+	}
+	else {
+		return 1;
+	}
+}
+
+function pdo_connect() {
+	global $DbConfig;
+	try {
+		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+		return $pdo;
+	} catch (PDOException $e) {
+		die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	}
+}
 
 function carregar_arquivo_raw(WP_REST_Request $request){
 	$parametros = $request->get_params();
@@ -1889,12 +1957,13 @@ function carregar_arquivo_raw(WP_REST_Request $request){
 // INSERIR ARQUIVOS ATRELADOS À FONTE DE DADOS
 function carregar_arquivo_mapas(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
 	
@@ -1946,12 +2015,13 @@ function carregar_arquivo_mapas(WP_REST_Request $request){
 
 function carregar_arquivo_metadados(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = $pdo_connect();
 	
 	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
 	
@@ -2032,12 +2102,13 @@ function carregar_arquivo_metadados(WP_REST_Request $request){
 
 function carregar_arquivo_tabelas(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
 	
@@ -2125,12 +2196,13 @@ function inserir_indicador(WP_REST_Request $request){
 		'nomeElemento'=>$parametros['indicador']['nome'],
 		'usuario'=>$parametros['usuario']
 	));
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$indicador = $parametros['indicador'];
 	
@@ -2254,12 +2326,13 @@ function inserir_variavel(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 	
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$variavel = $parametros['variavel'];
 	
@@ -2317,12 +2390,13 @@ function inserir_fonte_dados(WP_REST_Request $request){
 		'usuario'=>$parametros['usuario']
 	));
 
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$fonte_dados = $parametros['fonte_dados'];
 	// corrige bug 'UNDEFINED INDEX: ativa'
@@ -2403,12 +2477,13 @@ function inserir_fonte_dados(WP_REST_Request $request){
  
 function ficha_tecnica_instrumento(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "select * from fonte_dados.ficha_tecnica_instrumento where id_instrumento = :instrumento";
  $comando = $pdo->prepare($comando_string);
@@ -2431,12 +2506,13 @@ function ficha_tecnica_instrumento(WP_REST_Request $request){
  
 function indicador_memoria(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_where = '';
 	
@@ -2660,12 +2736,13 @@ order by indic.nome
  
  
 function dado_aberto(WP_REST_Request $request){
-	 global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	//  global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	 
 	 $parametros = $request->get_params();
 	 
@@ -2708,12 +2785,13 @@ function fontes_dados(WP_REST_Request $request){
 	
 	/* wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" ); */
 	
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_where = ' where 1 = 1';
 	
@@ -2820,12 +2898,13 @@ fonte.id_fonte_dados
 
 function instrumentos(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 select id_grupo_indicador, nome from sistema.grupo_indicador where tipo = 'instrumento'";
@@ -2848,12 +2927,13 @@ select id_grupo_indicador, nome from sistema.grupo_indicador where tipo = 'instr
 */
 function carregar_mapa_tematico(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	if(isset($_SERVER['X-WP-Nonce']))
 		wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
@@ -2912,12 +2992,13 @@ function carregar_mapa_tematico(WP_REST_Request $request){
 
 function obter_mapa(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 	select mapa_tematico, parametros_mapa
@@ -2943,12 +3024,13 @@ function obter_mapa(WP_REST_Request $request){
 
 function gravar_parametros_mapa(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 	update sistema.grupo_indicador
@@ -2984,12 +3066,13 @@ function gravar_parametros_mapa(WP_REST_Request $request){
 //  SUPORTE A MULTIPLAS CAMADAS
 function camadas(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "select * from sistema.maplayers_grupo_indicador where id_grupo_indicador = :id_grupo_indicador;";
 
@@ -3011,12 +3094,13 @@ function camadas(WP_REST_Request $request){
 
 function carregar_camada_kml(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	if(isset($_SERVER['X-WP-Nonce']))
 		wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
@@ -3061,12 +3145,13 @@ function carregar_camada_kml(WP_REST_Request $request){
 
 function incluir_camada(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 	insert into sistema.maplayers_grupo_indicador
@@ -3099,13 +3184,14 @@ function incluir_camada(WP_REST_Request $request){
 
 function apagar_camada(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
-	
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
+
 	$comando_string = "
 	delete from sistema.maplayers_grupo_indicador
 	where id_camada = :id_camada;
@@ -3136,12 +3222,13 @@ function apagar_camada(WP_REST_Request $request){
 
 function gravar_parametros_camada(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 	update sistema.maplayers_grupo_indicador
@@ -3184,12 +3271,13 @@ function gravar_parametros_camada(WP_REST_Request $request){
 
 function indicador_fusao(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	if(array_key_exists('id_indicador',$parametros))
 	{
@@ -3234,12 +3322,13 @@ function indicador_fusao(WP_REST_Request $request){
 
 function fonte_dados_coluna(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$fonte_dados = $parametros['id_fonte_dados'];
 	
@@ -3273,12 +3362,13 @@ function fonte_dados_coluna(WP_REST_Request $request){
 
 function variavel_filtro(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$variavel = $parametros['variavel'];
 	
@@ -3313,12 +3403,13 @@ function variavel_filtro(WP_REST_Request $request){
 
 function indicador_composicao(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 	select ind.* from sistema.indicador_x_variavel ind
@@ -3343,12 +3434,13 @@ function indicador_composicao(WP_REST_Request $request){
 
 function territorios(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 select id_territorio, 
@@ -3376,12 +3468,13 @@ select id_territorio,
 // Retorna objetivos do indicador
 function objetivo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "
 		SELECT id_grupo_indicador FROM sistema.indicador_x_grupo WHERE id_indicador=:id AND id_grupo_indicador IN (SELECT id_grupo_indicador FROM sistema.grupo_indicador WHERE tipo='objetivo')";
@@ -3402,12 +3495,13 @@ function objetivo_indicador(WP_REST_Request $request){
 
 function grupo_indicador(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 
 	if(array_key_exists('grupo',$parametros))
 		if($parametros['grupo'] != '')
@@ -3474,12 +3568,13 @@ function grupo_indicador(WP_REST_Request $request){
  
 function acoes_prioritarias(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = "select * from fonte_dados.acoes_prioritarias where 1 = 1";
 	
@@ -3546,12 +3641,13 @@ function acoes_prioritarias(WP_REST_Request $request){
 
 function indicador_historico(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = 
 	"select comb.dimensao as name
@@ -3605,12 +3701,13 @@ function indicador_historico(WP_REST_Request $request){
 
 function variavel_historico(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_string = 
 	"select v.nome, v.coluna_data,v.distribuicao, v.tipo_valor, calc.* 
@@ -3648,12 +3745,13 @@ function variavel_historico(WP_REST_Request $request){
 	
 function variavel_cadastro(WP_REST_Request $request){
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_where = ' where 1 = 1';
 	
@@ -3697,12 +3795,13 @@ function indicador_cadastro(WP_REST_Request $request){
 	
 /*	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" ); */
 	
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage() . "], dados=[" . 'pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password'] . "]");
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage() . "], dados=[" . 'pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password'] . "]");
+	// }
+	$pdo = pdo_connect();
 	
 	$comando_where = ' where 1 = 1 ';
 	
@@ -3872,12 +3971,13 @@ function indicador_dados( WP_REST_Request $request ) {
 
 	// You can get the combined, merged set of parameters:
 	$parametros = $request->get_params();
-	global $DbConfig;
-	try {
-		$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	} catch (PDOException $e) {
-		die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	}
+	// global $DbConfig;
+	// try {
+	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+	// } catch (PDOException $e) {
+	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+	// }
+	$pdo = pdo_connect();
 	
 	if(array_key_exists('indicador',$parametros) && array_key_exists('data', $parametros) && array_key_exists('territorio',$parametros))
 	{
@@ -4089,12 +4189,13 @@ function cache_indicadores() {
 		return print("Cache atualizado pela ultima vez ha " . strval(intval($result->difference / 60)) . " minutos.\n");
 	}
 	else {
-		global $DbConfig;
-		try {
-			$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-		} catch (PDOException $e) {
-			die("Conexão ao banco de dados falhou: " . $e->getMessage());
-		}
+		// global $DbConfig;
+		// try {
+		// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
+		// } catch (PDOException $e) {
+		// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
+		// }
+		$pdo = pdo_connect();
 		$comando_string = "select indic.id_indicador as id_indicador
 				,indic.nome
 				,indic.ativo
