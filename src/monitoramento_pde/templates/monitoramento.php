@@ -320,7 +320,9 @@ app.controller("dashboard", function($scope,
 		categorias: null
 	};
 
-	$scope.tiposGrafico = ['area','barras','colunas','linhas','pizza'];
+	// $scope.tiposGrafico = ['area','barras','colunas','linhas','pizza'];
+	// Oculta tipos adicionais até solucionar bugs de exibição dos novos gráficos
+	$scope.tiposGrafico = ['area','barras','colunas','linhas'];
 	$scope.tipoGraficoSelecionado = 'linhas';
 
 	$scope.atualizaListaInstrumentos = function(){
@@ -2316,19 +2318,25 @@ app.controller("dashboard", function($scope,
 			
 			$scope.memoriaIndicador.dados.forEach(function(dado){
 				// FORMATA ORDEM E NOMENCLATURA DOS CABECALHOS NA TABELA EXPORTADA
-				dado["Data"] = dado.Data.substring(0,4);
-				delete dado.Data;
+				let nCategoria = dado.Categoria;
+				delete dado.Categoria;
+				dado["Categoria"] = nCategoria
+
 				dado["Valor do indicador"] = dado.Valor;
 				delete dado.Valor;
 				dado["Unidade de medida do indicador"] = dado["Unidade de medida"]+" ("+dado["Símbolo de medida"]+")";
 				delete dado["Unidade de medida"];
 				delete dado["Símbolo de medida"];
 				dado["Variável 1: "+variavel1] = dado.Variavel1;
-				delete dado.Variavel1;
 				dado["Variável 1: Unidade de medida"] = tipoValor;
+				delete dado.Variavel1;
 				dado["Variável 2: "+variavel2] = dado.Variavel2;
-				delete dado.Variavel2;
 				dado["Variável 2: Unidade de medida"] = tipoValor;
+				delete dado.Variavel2;
+				let nData = dado.Data.substring(0,4);
+				delete dado.Data;
+				dado["Data"] = nData;
+				
 				// REMOVE VARIAVEIS SOBRESSALENTES
 				delete dado.Variavel3;
 				delete dado.Variavel4;
@@ -2337,7 +2345,6 @@ app.controller("dashboard", function($scope,
 				delete dado.Variavel7;
 				delete dado.Variavel8;
 				delete dado.Nome;
-				delete dado.Categoria;
 				delete dado['Unidade Territorial de Análise'];
 
 				// CONVERTE PONTO EM VIRGULA (ISSUE P2.3)
@@ -2347,6 +2354,44 @@ app.controller("dashboard", function($scope,
 				$scope.carregandoMemoriaIndicador = false;
 			});
 		});
+	}
+
+	// Colunas da Tabela de Valores do Indicador passíveis de mesclagem (para ocultar célular e viabilizar rowspan)
+	$scope.valoresMesclaveis = [
+		// 'Categoria',
+		// 'Região',
+		// 'Unidade de medida do indicador'
+	];
+
+	$scope.deveMostrarCelula = function(arrayDados, key, coluna, valor) {
+		if(!$scope.valoresMesclaveis.includes(coluna) || key === 0)
+			return true;
+
+		let first = arrayDados.find(dado => dado[coluna] === valor)
+		return first == arrayDados[key];
+	}
+
+	$scope.calculaRowspan = function(arrayDados, coluna, valor) {
+		if(!$scope.valoresMesclaveis.includes(coluna))
+			return 1;
+		let rowspan = 0;
+		for (var i = 0; i < arrayDados.length; i++) {
+			if (arrayDados[i][coluna] === valor){
+				rowspan++;
+				continue;
+			}
+		}
+		console.log(rowspan);
+		return rowspan;
+	}
+
+	$scope.insereCategoriaMemoria = function() {
+		// Em "Unidade Territorial de Análise" definida como "Município", relação sequencial simples
+		for (var i = 0; i < $scope.memoriaIndicador.dados.length; i++){
+			let categoria = $scope.indicadorValores.series[Math.floor(i / ($scope.memoriaIndicador.dados.length / $scope.indicadorValores.series.length))].name;
+			$scope.memoriaIndicador.dados[i]['Categoria'] = categoria;
+			// $scope.memoriaIndicador.dados[i].splice(2, $scope.memoriaIndicador.dados[i].pop());
+		}
 	}
 
 	$scope.exportarMemoria = function(){
@@ -2938,8 +2983,12 @@ app.controller("dashboard", function($scope,
 								<tr>
 									<th ng-repeat="(key, valor) in memoriaIndicador.dados[0]">{{key}}</th>
 								</tr>
-								<tr ng-repeat="dado in memoriaIndicador.dados">
-									<td ng-repeat="valor in dado">{{ valor }}</td>
+								<tr ng-repeat="(key, dado) in memoriaIndicador.dados">
+									<td ng-repeat="(coluna, valor) in dado" 
+											ng-if="deveMostrarCelula(memoriaIndicador.dados, key, coluna, valor)"
+											rowspan="{{ calculaRowspan(memoriaIndicador.dados, coluna, valor) }}">
+										{{ valor }}
+									</td>
 								</tr>
 							</table>
 						</div>
@@ -3232,7 +3281,8 @@ app.controller("dashboard", function($scope,
 		border: 0;
 	}
 	.tabela-valores td, .tabela-valores th {
-		padding: 5px;
+		padding: 6px;
+		font-size: 12px;
 	}
 	.tabela-valores tr:nth-child(even) {
 		background-color: #EEEEEE;
@@ -3242,6 +3292,8 @@ app.controller("dashboard", function($scope,
 		z-index: 2;
 		padding: 5px;
 		margin: 30px 15px;
+		max-height: 500px;
+		overflow: auto;
 	}
 	#divGraficoLinha > div {
 		min-height: 465px;
