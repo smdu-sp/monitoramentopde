@@ -308,7 +308,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 						<a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-format="{{trataFormatoFonte(formato)}}" class="label">{{trataFormatoFonte(formato, true)}}</a>
 						<!-- <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a> -->
 					</li>
-					<li data-ng-repeat="arquivo in dado.dados_disponiveis | orderBy: 'tipo.length'" ng-if="arquivo.tipo !== 'fonte de dados'">
+					<li data-ng-repeat="arquivo in dado.dados_disponiveis | orderBy: 'tipo.length'" ng-if="arquivo.tipo !== 'fonte de dados' && arquivo.disponivel">
 						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{arquivo.nome}}" class="label" data-format="{{arquivo.formato}}">{{capitalize(arquivo.tipo)}}</a> 
 					</li>
 				</ul>
