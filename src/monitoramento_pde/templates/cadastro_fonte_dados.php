@@ -72,6 +72,9 @@ function dadoAberto(nome, tipo="fonte de dados", formato="xls", verificado=false
 	this.formato = formato;
 	this.verificado = verificado;
 	this.disponivel = true;
+	if(formato === 'shp') {
+		this.$$hashKey = "object:123"
+	}
 }
 
 app.factory('FonteDadosCarregar',function($resource){

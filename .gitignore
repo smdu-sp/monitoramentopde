@@ -13,3 +13,4 @@ setup.php
 pg_hba.conf
 kettle.properties
 *cache_indicadores.txt
+uploads/
