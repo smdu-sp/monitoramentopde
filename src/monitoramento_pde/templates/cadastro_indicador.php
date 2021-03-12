@@ -159,38 +159,42 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	}
 	
 	$scope.carregarIndicador = function(){
-		if($scope.indicadorComposicao)
-			$scope.indicadorComposicao.id_fonte_dados = null;
-		$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
-		if($scope.indicadorAtivo){
-			$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);		
-			if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
-				$scope.indicadorAtivo.territorio_exclusao = [];
-			}else{
-				if(!$scope.indicadorAtivo.territorio_exclusao[0].id)
-					$scope.indicadorAtivo.territorio_exclusao = [];
-			}
-		}
+		// CARREGA TODOS OS DADOS DO INDICADOR ANTES DE REALIZAR OPERAÇÕES
+		Indicador.query({id:$scope.idIndicadorAtivo}, function(indicadorRetornado){
+			$scope.indicadorAtivo = indicadorRetornado[0];
+			if($scope.indicadorComposicao)
+				$scope.indicadorComposicao.id_fonte_dados = null;
+			$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
+			// if($scope.indicadorAtivo){
+			// 	$scope.indicadorAtivo.territorio_exclusao = $scope.indicadorAtivo.territorio_exclusao.filter((exc) => exc.id);		
+			// 	if(!$scope.indicadorAtivo.territorio_exclusao || $scope.indicadorAtivo.territorio_exclusao.length === 0){
+			// 		$scope.indicadorAtivo.territorio_exclusao = [];
+			// 	}else{
+			// 		if(!$scope.indicadorAtivo.territorio_exclusao[0].id)
+			// 			$scope.indicadorAtivo.territorio_exclusao = [];
+			// 	}
+			// }
 
-		if($scope.indicadorAtivo != null){
-			IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
-				$scope.indicadorComposicao = indicadorComposicao;
-				angular.forEach($scope.indicadorComposicao,function(comp,chave){
-					comp.variaveis = $scope.variaveis;
+			if($scope.indicadorAtivo != null){
+				IndicadorComposicao.query({id:$scope.indicadorAtivo.id_indicador},function(indicadorComposicao){
+					$scope.indicadorComposicao = indicadorComposicao;
+					angular.forEach($scope.indicadorComposicao,function(comp,chave){
+						comp.variaveis = $scope.variaveis;
+					});
+					$scope.estado = "selecionar";
 				});
-				$scope.estado = "selecionar";
-			});
-			// Puxa Objetivos referentes ao indicador
-			// Indicador.query({grupo_indicador:$scope.indicadorAtivo.id_indicador,somente_ativos:true},function(indicadores) {
-			// 	$scope.indicadores = indicadores;
-			// });
-			ObjetivoIndicador.query({id:$scope.indicadorAtivo.id_indicador}, function(objetivoIndicador){
-				$scope.indicadorAtivo.id_objetivo = objetivoIndicador[0].id_grupo_indicador;				
-			});
-
-			console.log($scope);
-		}else
-			$scope.indicadorComposicao = null;		
+				// Puxa Objetivos referentes ao indicador
+				// Indicador.query({grupo_indicador:$scope.indicadorAtivo.id_indicador,somente_ativos:true},function(indicadores) {
+				// 	$scope.indicadores = indicadores;
+				// });
+				ObjetivoIndicador.query({id:$scope.indicadorAtivo.id_indicador}, function(objetivoIndicador){
+					if(objetivoIndicador[0])
+						$scope.indicadorAtivo.id_objetivo = objetivoIndicador[0].id_grupo_indicador;
+				});
+			}
+			else
+				$scope.indicadorComposicao = null;
+		});
 	};
 	
 	$scope.adicionarElemento = function(){

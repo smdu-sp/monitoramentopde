@@ -183,6 +183,7 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
  
+ // RETORNA INDICADOR
  add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/indicador/(?P<indicador>\d+)', array(
@@ -416,6 +417,7 @@ add_action( 'rest_api_init', function () {
 	) );
 } );
 
+// RETORNA INDICADORES / GET INDICADORES
  add_action( 'rest_api_init', function () {
 	 global $ApiConfig;
 	register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/indicador', array(
@@ -3784,8 +3786,9 @@ function variavel_cadastro(WP_REST_Request $request){
 	
 function indicador_cadastro(WP_REST_Request $request){
 	$parametros = $request->get_params();
+	
 	if (sizeof($parametros) == 1 && array_key_exists('somente_ativos',$parametros)) {
-		// RETORNA RESULTADOS DO CACHE
+		// RETORNA RESULTADOS DO CACHE (request realizada por visitante - nao autenticado)
 		$dados = get_cached_indicadores();
 		$response = new WP_REST_Response(
 			$dados
@@ -3857,80 +3860,100 @@ function indicador_cadastro(WP_REST_Request $request){
 	
 	
 	$comando_string = 
-	"select indic.id_indicador as id_indicador
-			,indic.nome
-			,indic.ativo
-			,indic.homologacao
-			,indic.periodicidade
-			,indic.tipo_valor
-			,indic.simbolo_valor
-			,indic.nota_tecnica
-			,indic.nota_tecnica_resumida
-			,indic.apresentacao
-			,indic.fonte as origem
-			,indic.id_territorio_padrao
-			,indic.observacao
-			,indic.tipo_valor
-			,indic.fonte
-			,indic.preencher_zero
-			,json_agg(distinct jsonb_build_object('id',exc.id_territorio,'label',exc.nome)) as territorio_exclusao
-			,max(case when grupo.tipo = 'instrumento' then grupo.nome else null end) as instrumento
-			,max(case when grupo.tipo = 'instrumento' then grupo.id_grupo_indicador else null end) as id_instrumento
-			,max(case when grupo.tipo = 'instrumento' then grupo.ordem else null end) as ordem_instrumento
-			,fonte_var.formula_calculo ||  case when indic.tipo_valor = 'Percentual' then ' * 100' else '' end as formula_calculo
-			,json_agg(distinct case when grupo.tipo = 'estrategia' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as estrategias
-			,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
-			,fonte_var.data_atualizacao 
-			,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
-			,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
-	from sistema.indicador indic
-		left join sistema.indicador_calculo calc
-			on indic.id_indicador = calc.id_indicador
-		left join lateral 
-		 (select indic_var.id_indicador
-			,max(fonte.data_atualizacao) as data_atualizacao
-			
-			,string_agg(coalesce(indic_var.aninhamento,'') || coalesce(var.nome,'') || '' || coalesce('\n (' || indic_var.operador || ') \n','') || '', ' ' order by indic_var.ordem) as formula_calculo
-			from sistema.indicador_x_variavel indic_var
-				left join sistema.variavel var 
-					on var.id_variavel = indic_var.id_variavel
-				left join sistema.fonte_dados fonte
-					on var.id_fonte_dados = fonte.id_fonte_dados
-			group by indic_var.id_indicador
-			order by indic_var.id_indicador
-			) fonte_var 
-				on fonte_var.id_indicador = indic.id_indicador
-		left join 
-			(select grp.*,grp_indic.id_indicador,grp_indic.ordem from sistema.indicador_x_grupo grp_indic
-				inner join sistema.grupo_indicador grp
-				on grp.id_grupo_indicador = grp_indic.id_grupo_indicador
-			) grupo 
-			on grupo.id_indicador = indic.id_indicador
-		".$comando_join."
-		left join (select id_territorio as id_territorio,
-						nome,ordem from fonte_dados.territorio 
-				   order by ordem) ter
-			on ter.id_territorio = calc.id_territorio
-		left join (select id_indicador, sub_exc.id_territorio, ter_exc.nome from 
-					sistema.indicador_territorio_exclusao sub_exc
-					inner join fonte_dados.territorio ter_exc
-						on ter_exc.id_territorio = sub_exc.id_territorio) exc
-			on exc.id_indicador = indic.id_indicador".
-	$comando_where.
-	"	and ter.id_territorio not in (select exc.id_territorio from sistema.indicador_territorio_exclusao exc where exc.id_indicador = indic.id_indicador and exc.id_territorio is not null)"
-	." group by indic.id_indicador
-						,indic.nome
-						,indic.periodicidade
-						,indic.tipo_valor
-						,indic.simbolo_valor
-						,indic.nota_tecnica
-						,indic.nota_tecnica_resumida
-						,indic.apresentacao
-						,indic.fonte
-						,indic.preencher_zero
-						,fonte_var.data_atualizacao 
-						,fonte_var.formula_calculo".
-	$comando_group;
+		"select indic.id_indicador as id_indicador
+				,indic.nome
+				,indic.ativo
+				,indic.homologacao
+				,indic.periodicidade
+				,indic.tipo_valor
+				,indic.simbolo_valor
+				,indic.nota_tecnica
+				,indic.nota_tecnica_resumida
+				,indic.apresentacao
+				,indic.fonte as origem
+				,indic.id_territorio_padrao
+				,indic.observacao
+				,indic.tipo_valor
+				,indic.fonte
+				,indic.preencher_zero
+				,json_agg(distinct jsonb_build_object('id',exc.id_territorio,'label',exc.nome)) as territorio_exclusao
+				,max(case when grupo.tipo = 'instrumento' then grupo.nome else null end) as instrumento
+				,max(case when grupo.tipo = 'instrumento' then grupo.id_grupo_indicador else null end) as id_instrumento
+				,max(case when grupo.tipo = 'instrumento' then grupo.ordem else null end) as ordem_instrumento
+				,fonte_var.formula_calculo ||  case when indic.tipo_valor = 'Percentual' then ' * 100' else '' end as formula_calculo
+				,json_agg(distinct case when grupo.tipo = 'estrategia' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as estrategias
+				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
+				,fonte_var.data_atualizacao 
+				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
+				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
+		from sistema.indicador indic
+			left join sistema.indicador_calculo calc
+				on indic.id_indicador = calc.id_indicador
+			left join lateral 
+			 (select indic_var.id_indicador
+				,max(fonte.data_atualizacao) as data_atualizacao
+				
+				,string_agg(coalesce(indic_var.aninhamento,'') || coalesce(var.nome,'') || '' || coalesce('\n (' || indic_var.operador || ') \n','') || '', ' ' order by indic_var.ordem) as formula_calculo
+				from sistema.indicador_x_variavel indic_var
+					left join sistema.variavel var 
+						on var.id_variavel = indic_var.id_variavel
+					left join sistema.fonte_dados fonte
+						on var.id_fonte_dados = fonte.id_fonte_dados
+				group by indic_var.id_indicador
+				order by indic_var.id_indicador
+				) fonte_var 
+					on fonte_var.id_indicador = indic.id_indicador
+			left join 
+				(select grp.*,grp_indic.id_indicador,grp_indic.ordem from sistema.indicador_x_grupo grp_indic
+					inner join sistema.grupo_indicador grp
+					on grp.id_grupo_indicador = grp_indic.id_grupo_indicador
+				) grupo 
+				on grupo.id_indicador = indic.id_indicador
+			".$comando_join."
+			left join (select id_territorio as id_territorio,
+							nome,ordem from fonte_dados.territorio 
+					   order by ordem) ter
+				on ter.id_territorio = calc.id_territorio
+			left join (select id_indicador, sub_exc.id_territorio, ter_exc.nome from 
+						sistema.indicador_territorio_exclusao sub_exc
+						inner join fonte_dados.territorio ter_exc
+							on ter_exc.id_territorio = sub_exc.id_territorio) exc
+				on exc.id_indicador = indic.id_indicador".
+		$comando_where.
+		"	and ter.id_territorio not in (select exc.id_territorio from sistema.indicador_territorio_exclusao exc where exc.id_indicador = indic.id_indicador and exc.id_territorio is not null)"
+		." group by indic.id_indicador
+							,indic.nome
+							,indic.periodicidade
+							,indic.tipo_valor
+							,indic.simbolo_valor
+							,indic.nota_tecnica
+							,indic.nota_tecnica_resumida
+							,indic.apresentacao
+							,indic.fonte
+							,indic.preencher_zero
+							,fonte_var.data_atualizacao 
+							,fonte_var.formula_calculo".
+		$comando_group;
+	
+
+	// SE REQUEST FOR PARA TODOS OS INDICADORES, RETORNA QUERY SIMPLIFICADA
+	if(sizeof($parametros) === 0) {
+		$comando_string = "SELECT * FROM sistema.indicador AS indicadores
+			INNER JOIN
+			(
+				select * FROM
+				sistema.indicador_x_grupo AS relation
+				INNER JOIN
+				(
+					select id_grupo_indicador AS id_instrumento, nome AS instrumento FROM sistema.grupo_indicador where tipo='instrumento'
+				)
+				AS grupo_indicador
+				ON relation.id_grupo_indicador = grupo_indicador.id_instrumento
+			)
+			AS instrumentos
+			ON indicadores.id_indicador = instrumentos.id_indicador".
+			$comando_where;
+	}
 
 	$comando = $pdo->prepare($comando_string);
 	
