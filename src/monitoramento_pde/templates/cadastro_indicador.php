@@ -74,6 +74,10 @@ app.factory('FontesDados',function($resource){
 	return $resource('/wp-json/monitoramento_pde/v1/fontes_dados');
 });
 
+var escopo = {};
+var primeiroRender = true;
+let estrategiasDoIndicador = [];
+let trocouSegundaEstrategia = false;
 
 app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter, $uibModal, Indicador, Instrumentos, Territorios, IndicadorComposicao, Variavel, IndicadorValores, Estrategias, Objetivos, ObjetivoIndicador, FontesDados) {
  
@@ -117,15 +121,15 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	});
 	
 	$scope.estado = "listar";
-	$scope.primeiroRender = true;
+	escopo = $scope;
 
 	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
 	$scope.urlIndicador = function(){
 		let computedUrl = window.location.href;
-		if($scope.primeiroRender && computedUrl.includes("mostra_indicador")){
+		if(primeiroRender && computedUrl.includes("mostra_indicador")){
 			let indicadorFromUrl = parseInt(computedUrl.split("mostra_indicador/").pop());
 			$scope.idIndicadorAtivo = indicadorFromUrl;
-			$scope.primeiroRender = false;
+			primeiroRender = false;
 			$scope.carregarIndicador();
 		}
 	}
@@ -149,6 +153,15 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.lancarErro = function(erro){
 		alert('Ocorreu um erro ao atualizar o indicador. \n\n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + erro.data + '\n\n Mensagem Interna: ' + erro.data.message);
 	}
+
+	$scope.trocaSegundaEstrategia = function() {
+		trocaSegundaEstrategia = true;
+	}
+
+	$scope.corrigeOrdemEstrategias = function() {
+		if(trocouSegundaEstrategia)
+			$scope.indicadorAtivo.estrategias = [$scope.indicadorAtivo.estrategias[1], $scope.indicadorAtivo.estrategias[0]];
+	}
 	
 	$scope.filtrarInstrumento = function(){
 		if($scope.idInstrumentoAtivo !== null){
@@ -162,6 +175,14 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		// CARREGA TODOS OS DADOS DO INDICADOR ANTES DE REALIZAR OPERAÇÕES
 		Indicador.query({id:$scope.idIndicadorAtivo}, function(indicadorRetornado){
 			$scope.indicadorAtivo = indicadorRetornado[0];
+
+			// estrategiasDoIndicador = $scope.indicadorAtivo.estrategias?.map((valor) => { return valor });
+			estrategiasDoIndicador = $scope.indicadorAtivo.estrategias;
+			window.setTimeout(() => { 
+				$scope.indicadorAtivo.estrategias = estrategiasDoIndicador;
+				$scope.$apply();
+			}, 100);
+			
 			if($scope.indicadorComposicao)
 				$scope.indicadorComposicao.id_fonte_dados = null;
 			$scope.indicadorAtivo = $rootScope.indicadores.filter((indicador) => indicador.id_indicador == $scope.idIndicadorAtivo)[0];
@@ -350,7 +371,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		);
 
 		$scope.$parent.estado = "listar";
-		$scope.carregarIndicador();
+		// $scope.carregarIndicador();
 	};	
 
 	$scope.voltar = function(){
@@ -779,7 +800,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<br>
 				<div class="descricao-cadastro"><small> Selecione a segunda estratégia que o indicador pertencerá </small></div>
 				
-				<select class="controle-cadastro" style="max-width:100%;" data-ng-options="estrategia.id_grupo_indicador as estrategia.nome for estrategia in estrategias | orderBy: 'nome' : true" data-ng-model="indicadorAtivo.estrategias[1].id_grupo_indicador" id="estrategia2">
+				<select class="controle-cadastro" style="max-width:100%;" data-ng-options="estrategia.id_grupo_indicador as estrategia.nome for estrategia in estrategias | orderBy: 'nome' : true" data-ng-model="indicadorAtivo.estrategias[1].id_grupo_indicador" data-ng-change="trocaSegundaEstrategia()" id="estrategia2">
 				<option value=""></option>
 				</select>
 			</div>
@@ -959,7 +980,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				  
 			</div>
 			
-			<input type="button" class="btn-primary" data-ng-show="estado!='inserir'" value="Atualizar" data-ng-click="criarModalConfirmacao('Atualizar')"> 
+			<input type="button" class="btn-primary" data-ng-show="estado!='inserir'" value="Atualizar" data-ng-click="corrigeOrdemEstrategias();criarModalConfirmacao('Atualizar')"> 
 			<input type="button" class="btn-primary" data-ng-show="estado!='inserir'" value="Remover" data-ng-click="criarModalConfirmacao('Remover')"> 
 			<!--<input type="button" class="btn-primary" data-ng-show="estado!='inserir'" value="Calcular" data-ng-click="criarModalConfirmacao('Calcular')"> -->
 			
