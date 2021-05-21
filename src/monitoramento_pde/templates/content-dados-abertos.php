@@ -31,7 +31,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		{	
 			titulo:'Banco de dados',
 			introducao: 'Os indicadores são fruto do cálculo e cruzamento de dados organizados em bancos que alimentam o sistema de monitoramento e avaliação. <br> Veja abaixo a lista de bancos de dados. ',
-			tipoArquivo:['XLSX',' | CSV', ' | TXT'],
+			tipoArquivo:['XLSX', 'CSV', 'TXT'],
 			seletor:'instrumento',
 			dados:$scope.fontesDados
 			//['oodc','tdc','tdc_certidoes','zepam','cota-solidariedade'];
@@ -209,11 +209,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 					extensaoArquivo = 'xlsx';
 					var wbout = XLSX.write(wb, {bookType:'xlsx', bookSST:false, type: 'binary'});
 					break;
-				case ' | CSV':
+				case 'CSV':
 					extensaoArquivo = 'csv';
 					var wbout = XLSX.utils.sheet_to_csv(wsDadoAberto,{FS:";"});
 					break;
-				case ' | TXT':
+				case 'TXT':
 					extensaoArquivo = 'txt';
 					var wbout = XLSX.utils.sheet_to_csv(wsDadoAberto,{FS:"\t"});
 					break;
@@ -297,10 +297,21 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 				<br>
 				<span>{{dado.data_atualizacao ? formataData(dado.data_atualizacao) : ''}}</span>					
 			</div>
-			<div class="text-right" ng-if="!dado.dados_disponiveis[0]"> <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a>
-				<a ng-if="dado.arquivo_metadados" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}"><strong> | Metadados</strong></a> 
-				<a ng-if="dado.arquivo_mapas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}"><strong> | SHP</strong></a> 
-				<a ng-if="dado.arquivo_tabelas" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}"><strong><span ng-show="(dado.colunas.length > 1)"> | </span>Tabelas</strong></a>
+			<div class="text-right badge-list" ng-if="!dado.dados_disponiveis[0]"> 
+				<ul>
+					<li ng-show="(dado.colunas.length > 1)" data-ng-repeat="formato in item.tipoArquivo">
+						<a href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" class="label" data-format="{{formato.toLowerCase()}}"> <strong> {{formato}} </strong></a>
+					</li>
+					<li ng-if="dado.arquivo_metadados">
+						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_metadados}}" class="label" data-format="xls"><strong>Metadados</strong></a> 
+					</li>
+					<li ng-if="dado.arquivo_mapas">
+						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}" class="label"><strong>SHP</strong></a> 
+					</li>
+					<li ng-if="dado.arquivo_tabelas">
+						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}" class="label" data-format="xls"><strong>Tabelas</strong></a>
+					</li>
+				</ul>
 			</div>
 			<div class="text-right badge-list">
 				<ul>
