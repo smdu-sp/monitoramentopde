@@ -621,14 +621,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		console.log(info);
 	}
 
-	$scope.localeSensitiveComparator = function(v1, v2) {
-		// If we don't get strings, just compare by index
-		if (v1.type !== 'string' || v2.type !== 'string') {
-		return (v1.index < v2.index) ? -1 : 1;
-		}
-
-		// Compare strings alphabetically, taking locale into account
-		return v1.value.localeCompare(v2.value);
+	$scope.ordenaPtbr = function(v1, v2) {
+		// Ordena de acordo com as regras de ordenação do português brasileiro
+		return v1.value.localeCompare(v2.value, 'pt-BR');
 	};
 });
 
@@ -722,7 +717,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<br>
 				<div class="descricao-cadastro"><small> Selecione o indicador </small></div>
 				
-				<select class="controle-cadastro" style="max-width: calc(100% - 220px);" data-ng-model="idIndicadorAtivo" data-ng-options="indicador.id_indicador as indicador.nome for indicador in indicadores | orderBy: 'nome' : false : localeSensitiveComparator" data-ng-change="carregarIndicador()" id="indicador">
+				<select class="controle-cadastro" style="max-width: calc(100% - 220px);" data-ng-model="idIndicadorAtivo" data-ng-options="indicador.id_indicador as indicador.nome for indicador in indicadores | orderBy: 'nome' : false : ordenaPtbr" data-ng-change="carregarIndicador()" id="indicador">
 				<option value=""></option>
 				</select>
 				<div ng-if="idIndicadorAtivo > 0" style="display: inline-flex; margin: 0 10px; width: 190px; cursor: pointer;" ng-click="geraLink()">
