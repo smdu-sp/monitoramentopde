@@ -624,8 +624,8 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.ordenaPtbr = function(v1, v2) {
 		// Caso algum dos argumentos não seja string comparar por índice
 		if (v1.type !== 'string' || v2.type !== 'string') {
-  	    return (v1.index < v2.index) ? -1 : 1;
-   		}
+  	    	return (v1.index < v2.index) ? -1 : 1;
+		}
 
 		// Ordena de acordo com as regras de ordenação do português brasileiro
 		return v1.value.localeCompare(v2.value, 'pt-BR');
