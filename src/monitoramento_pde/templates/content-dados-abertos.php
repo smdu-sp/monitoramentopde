@@ -102,15 +102,11 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	}
 	
 	$scope.pontoParaVirgula = function(v){
-		if(v !==null && !isNaN(parseFloat(v))){
-			let vString = v.toString();
-			if(vString.length - vString.indexOf('.') === 3 || vString.length - vString.indexOf('.') === 2){
-				if(vString.charAt(vString.length - 1) === '0' && vString.charAt(vString.length - 2) === '.'){
-					return vString.split('.')[0];
-				}
-				v = vString.replace('.',',');
+		// Realiza a operação somente se TODA a string representa número válido, se o valor não contém whitespace, e se a string não tem um 0 não seguido de ponto à esquerda
+		if(!isNaN(v) && !isNaN(parseFloat(v)) && (!(/^[0]/.test(v)) || (/^[0]\./.test(v)))){
+			let vString = parseFloat(v).toString(); //Remove os zeros finais após a vírgula
+			v = vString.replace('.',',');
 			}
-		}
 		return v;
 	}
 	
