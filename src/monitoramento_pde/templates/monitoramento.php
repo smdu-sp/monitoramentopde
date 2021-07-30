@@ -737,7 +737,7 @@ app.controller("dashboard", function($scope,
 		if(angular.isUndefined($scope.selecao.dataMax)){
 			$scope.selecao.dataMax = $scope.indicador.datas[0] == null ? $scope.indicador.datas[1] : $scope.indicador.datas[0];
 		}
-		
+
 		IndicadorHistorico.get({
 			id:$scope.selecao.idIndicSel,
 			territorio:$scope.selecao.idTerrSel,
@@ -779,6 +779,9 @@ app.controller("dashboard", function($scope,
 				tooltip: {
 					formatter: function(){
 						nomeRegiao = $scope.regiaoRealcada.nome;
+						let listaDeDatas = $scope.indicador.datas.slice().reverse()
+						let dataInicial = $scope.selecao.dataMin
+						let indiceDataInicial = listaDeDatas.indexOf(dataInicial)
 						
 						textoTooltip = (this.series.chart.series.length > 1 ? '<b>' + nomeRegiao + '</b> <br>' : '');
 						
@@ -786,12 +789,12 @@ app.controller("dashboard", function($scope,
 						
 						if(this.series.chart.series.length > 1){
 							varFiltro =	$scope.variavelHistorico.filter(
-								(variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) &&
+								(variavel) => (variavel.data == listaDeDatas[this.point.x + indiceDataInicial] || variavel.data == null) &&
 								(variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true)&& 
 								(variavel.dimensao === this.series.name || (variavel.distribuicao == true && variavel.dimensao == null))
 								);
 						}else if (!angular.isUndefined($scope.variavelHistorico)){
-							varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == $scope.indicador.datas.slice().reverse()[this.point.x] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
+							varFiltro =	$scope.variavelHistorico.filter((variavel) => (variavel.data == listaDeDatas[this.point.x + indiceDataInicial] || variavel.data == null) && (variavel.id_regiao == ($scope.selecao.idTerrSel != 4? $scope.regiaoRealcada.codigo : 1)|| variavel.distribuicao == true));
 						}
 						varFiltroSemDataSemDimensao = $scope.variavelHistorico.filter(
 							(variavel) => variavel.data == null && 
@@ -2923,20 +2926,27 @@ app.controller("dashboard", function($scope,
 						<div class="col-sm-5 col-sm-offset-1 caixa-data">
 						
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
-							
-								<label for="data"> Data inicial:</label>
+								<label for="data">Data inicial:</label>
 								<br>
-								<select style="max-width:100%;" 
+								<select 
+									style="max-width:100%;" 
 									data-ng-model="selecao.dataMin"
 									data-ng-init="selecao.dataMin = razaoOODC(indicador.id_indicador)"
 									data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " 
 									data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo, true);"
-									name="dataInicial"></select>
+									name="dataInicial">
+								</select>
 							</p>
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
-								<label for="data"> Data final: </label>
+								<label for="data">Data final:</label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.dataMax" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' | dataFinal: selecao.dataMin " data-ng-change="carregarGraficoHistorico(regiaoRealcada.codigo, true)" name="dataFinal"></select>
+								<select 
+									style="max-width:100%;" 
+									data-ng-model="selecao.dataMax" 
+									data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' | dataFinal: selecao.dataMin " 
+									data-ng-change="carregarGraficoHistorico(regiaoRealcada.codigo, true)" 
+									name="dataFinal">
+								</select>
 							</p>
 							
 							<p ng-if="!hoverMapa && (indicador.datas.length > 0 && indicador.datas[0]) ">
