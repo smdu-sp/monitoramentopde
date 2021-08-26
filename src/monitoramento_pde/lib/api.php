@@ -2765,12 +2765,29 @@ function dado_aberto(WP_REST_Request $request){
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
 	
-		 $comando_string = 
-	 "select * from fonte_dados.vw_".$dados[0]['nome_tabela'].";";
+	// Retorna query SELECT com todas as colunas da tabela solicitada exceto as definidas a seguir
+	$colunas_excluidas_padrao = "'data_referencia', 'data_carga'";
+	$comando_string = 
+	"select 'select ' || string_agg('tabela' || '.' || colunas.column_name, ', ') || ' from fonte_dados.' || table_name || ' as tabela' as statement 
+	from information_schema.columns as colunas 
+	where table_name = 'vw_".$dados[0]['nome_tabela']."' 
+	and colunas.column_name not in (".$colunas_excluidas_padrao.") 
+	group by colunas.table_name;";
 		
-		$comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comando_string);
 	
-	 if(!$comando->execute()){
+	if(!$comando->execute()){
+		$erro = $comando->errorInfo();
+		return $erro[2]; 
+	} else {
+		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+	}
+
+	$comando_string = $dados[0]['statement'];
+
+	$comando = $pdo->prepare($comando_string);
+
+	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
 		return $erro[2]; 
 	} else {
@@ -2779,8 +2796,7 @@ function dado_aberto(WP_REST_Request $request){
 	
 	$response = new WP_REST_Response( $dados );
 	return $response;
-	
- }
+}
  
 function fontes_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
