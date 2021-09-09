@@ -98,7 +98,7 @@ var mapWatcher = function(highlightStyle) {
 	  var isLit = false;
 
 	  async function percorreFeatures(pixel){
-		  instruMap.forEachFeatureAtPixel(pixel, function (f, layer) {
+		instruMap.forEachFeatureAtPixel(pixel, function (f, layer) {
 		  	if(layer.ocultar_info){
 		  		featureInfo.style.opacity = "0";
 		  		selecionado = null;
@@ -673,6 +673,7 @@ app.controller("dashboard", function($scope,
 					
 					subtitulo = "Unidade territorial de análise: " +  "Município" + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
 					
+					// Issue 10
 					/** ATUALIZAR GRÁFICOS RELACIONADOS AO DE LINHA 
 					Para os gráficos de linha, as opções alternativas seriam:
 						Gráfico de área; Gráfico de colunas; e Gráfico de pizza (ano a ano)
@@ -836,7 +837,7 @@ app.controller("dashboard", function($scope,
 						credits:{
 							enabled: true,
 							
-							text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + "  <br> _____________________________________________________________________ <br> Atualizado em: "  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
+							text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + "  <br> _____________________________________________________________________ <br> Atualizado até: "  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
 							style:{
 								fontSize: '8px'
 								,fontWeight: 'normal'
@@ -981,6 +982,7 @@ app.controller("dashboard", function($scope,
 		});
 	};
 
+	// Issue 10
 	$scope.mostrarGrafico = function(tipoGrafico){
 		// Verifica tipo de gráfico e retorna 'true' se tiver que ser exibido
 		let priorizaBarras = !$scope.hoverMapa;
@@ -1081,7 +1083,7 @@ app.controller("dashboard", function($scope,
 					},
 					credits:{
 						enabled: true,
-						text: "Fórmula de cálculo: <br> " + indicador.formula_calculo + " <br> " +  "  " + ' <br> _____________________________________________________________________ <br>Atualizado em: '  + $filter('date')(indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + indicador.origem,
+						text: "Fórmula de cálculo: <br> " + indicador.formula_calculo + " <br> " +  "  " + ' <br> _____________________________________________________________________ <br>Atualizado até: '  + $filter('date')(indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + indicador.origem,
 						style:{
 							fontSize: '8px'
 							,fontWeight: 'normal'
@@ -1374,7 +1376,7 @@ app.controller("dashboard", function($scope,
 								},
 								credits:{
 									enabled: true,
-									text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + " <br> " +  "  " + ' <br> _____________________________________________________________________ <br>Atualizado em: '  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
+									text: "Fórmula de cálculo: <br> " + $scope.indicador.formula_calculo + " <br> " +  "  " + ' <br> _____________________________________________________________________ <br>Atualizado até: '  + $filter('date')($scope.indicador.data_atualizacao, 'MMMM yyyy') + "<br>Fonte:" + $scope.indicador.origem,
 									style:{
 										fontSize: '8px'
 										,fontWeight: 'normal'
@@ -3027,7 +3029,7 @@ app.controller("dashboard", function($scope,
 					</div>
 					<div class="row" ng-if="indicador.data_atualizacao">
 						<div class="col-md-12">
-							<small ng-if="indicador.data_atualizacao != null">Atualizado em: <span style="text-transform:capitalize">{{indicador.data_atualizacao | date: 'MMMM yyyy'}}</span> </small>
+							<small ng-if="indicador.data_atualizacao != null">Atualizado até: <span style="text-transform:capitalize">{{indicador.data_atualizacao | date: 'MMMM yyyy'}}</span> </small>
 						</div>
 					</div>
 				</div>

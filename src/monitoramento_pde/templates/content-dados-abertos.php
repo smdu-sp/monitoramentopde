@@ -98,7 +98,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	$scope.formataData = function(rawDate) {
 		let dataFinal = $filter('date')(rawDate, 'MMMM yyyy');
 		dataFinal = dataFinal.charAt(0).toUpperCase() + dataFinal.slice(1); // Torna primeira letra maiúscula
-		return "Atualizado em: "+dataFinal;
+		return "Atualizado até: "+dataFinal;
 	}
 	
 	$scope.pontoParaVirgula = function(v){
