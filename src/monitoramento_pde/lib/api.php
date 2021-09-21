@@ -2793,6 +2793,62 @@ function dado_aberto(WP_REST_Request $request){
 	} else {
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
+
+	// Remove o horário nulo ao final das timestamps
+	foreach($dados as $index => $array) {
+		foreach($array as $key => $value) {
+			$removerString = ' 00:00:00.000';
+			if(strpos($array[$key], $removerString) !== false) {
+				$dados[$index][$key] = preg_replace('/' . $removerString . '$/', '', $array[$key]);
+			}
+		}
+	}
+
+	$padraoData1 = '/^([1-2]\d\d\d)-([0-1]\d)-([0-3]\d)$/';
+	$padraoData2 = '/^([1-2]\d\d\d)\/([0-1]\d)\/([0-3]\d)$/';
+	$substituirData = '${3}/${2}/${1}';
+	$padraoAno1 = '/^([1-2]\d\d\d)-01-01$/';
+	$padraoAno2 = '/^([1-2]\d\d\d)\/01\/01$/';
+	$substituirAno = '${1}';
+
+	// Verifica todos os valores e caso algum tenha formato data ou ano, preinicializa coluna no array como "ano"
+	$formatoData = array();
+
+	foreach($dados[0] as $key => $value) {
+		foreach($dados as $index => $array) {
+			if(strlen($array[$key]) === 10) {
+				if(preg_match($padraoData1, $array[$key]) || preg_match($padraoData2, $array[$key])) {
+					$formatoData[$key] = "ano";
+					break;
+				}
+			}
+		}
+	}
+
+	// Decide se os dados da coluna são data ou ano
+	foreach($formatoData as $key => $value) {
+		foreach($dados as $index => $array) {
+			$condData = preg_match($padraoData1, $array[$key]) || preg_match($padraoData2, $array[$key]);
+			$condAno = preg_match($padraoAno1, $array[$key]) || preg_match($padraoAno2, $array[$key]);
+			if($condData && !$condAno) {
+				$formatoData[$key] = "data";
+				break;
+			}
+		}
+	}
+
+	foreach($formatoData as $key => $value) {
+		foreach($dados as $index => $array) {
+			if ($formatoData[$key] === "ano") {
+				$dados[$index][$key] = preg_replace($padraoAno1, $substituirAno, $dados[$index][$key]);
+				$dados[$index][$key] = preg_replace($padraoAno2, $substituirAno, $dados[$index][$key]);
+			}
+			if ($formatoData[$key] === "data") {
+				$dados[$index][$key] = preg_replace($padraoData1, $substituirData, $dados[$index][$key]);
+				$dados[$index][$key] = preg_replace($padraoData2, $substituirData, $dados[$index][$key]);
+			}
+		}
+	}
 	
 	$response = new WP_REST_Response( $dados );
 	return $response;
