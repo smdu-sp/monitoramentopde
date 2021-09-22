@@ -2745,20 +2745,19 @@ function dado_aberto(WP_REST_Request $request){
 	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	// }
 	$pdo = pdo_connect();
-	 
-	 $parametros = $request->get_params();
-	 
-	 $comando_string = 
-	 "select * from sistema.fonte_dados where id_fonte_dados = :fonte_dados;";
-		
-		$comando = $pdo->prepare($comando_string);
+	$parametros = $request->get_params();
+
+	$comandoString = 
+	"select fonte.nome_tabela from sistema.fonte_dados fonte where id_fonte_dados = :fonte_dados;";
+
+	$comando = $pdo->prepare($comandoString);
 		
 	if(array_key_exists('fonte_dados',$parametros))
 	{
 		$comando->bindParam(':fonte_dados',$parametros['fonte_dados']);
 	}
 	
-	 if(!$comando->execute()){
+	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
 		return $erro[2]; 
 	} else {
@@ -2766,15 +2765,16 @@ function dado_aberto(WP_REST_Request $request){
 	}
 	
 	// Retorna query SELECT com todas as colunas da tabela solicitada exceto as definidas a seguir
-	$colunas_excluidas_padrao = "'data_referencia', 'data_carga'";
-	$comando_string = 
+	$nomeTabela = $dados[0]['nome_tabela'];
+	$colunasExcluidasPadrao = "'data_referencia', 'data_carga'";
+	$comandoString = 
 	"select 'select ' || string_agg('tabela' || '.' || colunas.column_name, ', ') || ' from fonte_dados.' || table_name || ' as tabela' as statement 
 	from information_schema.columns as colunas 
-	where table_name = 'vw_".$dados[0]['nome_tabela']."' 
-	and colunas.column_name not in (".$colunas_excluidas_padrao.") 
+	where table_name = 'vw_{$nomeTabela}' 
+	and colunas.column_name not in ({$colunasExcluidasPadrao}) 
 	group by colunas.table_name;";
 		
-	$comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comandoString);
 	
 	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
@@ -2783,9 +2783,9 @@ function dado_aberto(WP_REST_Request $request){
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
 
-	$comando_string = $dados[0]['statement'];
+	$comandoString = $dados[0]['statement'];
 
-	$comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comandoString);
 
 	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
@@ -2795,14 +2795,18 @@ function dado_aberto(WP_REST_Request $request){
 	}
 
 	// Remove o horário nulo ao final das timestamps
+	$removerString = ' 00:00:00.000';
+
 	foreach($dados as $index => $array) {
 		foreach($array as $key => $value) {
-			$removerString = ' 00:00:00.000';
 			if(strpos($array[$key], $removerString) !== false) {
 				$dados[$index][$key] = preg_replace('/' . $removerString . '$/', '', $array[$key]);
 			}
 		}
 	}
+
+	// Verifica todos os valores e caso algum tenha formato data ou ano, preinicializa coluna no array como "ano"
+	$formatoData = array();
 
 	$padraoData1 = '/^([1-2]\d\d\d)-([0-1]\d)-([0-3]\d)$/';
 	$padraoData2 = '/^([1-2]\d\d\d)\/([0-1]\d)\/([0-3]\d)$/';
@@ -2810,10 +2814,6 @@ function dado_aberto(WP_REST_Request $request){
 	$padraoAno1 = '/^([1-2]\d\d\d)-01-01$/';
 	$padraoAno2 = '/^([1-2]\d\d\d)\/01\/01$/';
 	$substituirAno = '${1}';
-
-	// Verifica todos os valores e caso algum tenha formato data ou ano, preinicializa coluna no array como "ano"
-	$formatoData = array();
-
 	foreach($dados[0] as $key => $value) {
 		foreach($dados as $index => $array) {
 			if(strlen($array[$key]) === 10) {
