@@ -959,7 +959,7 @@ function atualizar_indicador(WP_REST_Request $request){
 			
 			$comando->bindParam(':id_grupo_indicador',$indicador['id_instrumento']);
 			$comando->bindParam(':id_indicador',$indicador['id_indicador']);
-			$comando->bindParam(':ordem',$indicador['ordem_instrumento']);
+			$comando->bindParam(':ordem',$indicador['ordem']);
 			 
 			if(!$comando->execute()){
 				$erro = $comando->errorInfo();
