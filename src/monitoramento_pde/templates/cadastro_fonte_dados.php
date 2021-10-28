@@ -264,12 +264,22 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		}
 		// TRATA ERROS COMUNS PARA FACILITAR INTERPRETAÇÃO DO USUÁRIO
 		// Diferentes tipos de valor na mesma coluna (normalmente strings em colunas numéricas)
+		var msgSimples = '';
 		if(errorData.indexOf('invalid input syntax for type') >= 0) {
-			var msgSimples = 'Tipos diferentes de valor: ' + errorData.split('invalid input syntax for type')[1].split('"')[1];
-			erro.data = {message: msgSimples};
+			if (errorData.indexOf(",sum(cast(replace(") >= 0) {
+				if(errorData.indexOf('invalid input syntax for type numeric') >= 0) {
+					msgSimples = 'Os valores da coluna "' + errorData.split('replace(')[1].split(',')[0] + '" são usados para cálculo e só podem conter números.';
+				}
+				else {
+					msgSimples = 'O valor "' + errorData.split('invalid input syntax for type')[1].split('"')[1] + '" na coluna "' + errorData.split('replace(')[1].split(',')[0] + '" é de tipo diferente do esperado nessa coluna.' ;
+				}
+			} else {
+				msgSimples = 'O valor "' + errorData.split('invalid input syntax for type')[1].split('"')[1] + '" é de tipo diferente do esperado na coluna.' ;
+			}
 		}
-		
-		alert('Ocorreu um erro ao modificar a fonte de dados. \n\n Mensagem Interna: ' + erro.data.message + '\n\n\n ---------- \n Detalhes técnicos \n ---------- \n Código: ' + erro.data.code + '\n\n Status: ' + erro.statusText + '\n\n Mensagem: ' + errorData);
+
+		erro.data = {message: msgSimples, fullMessage: errorData};		
+		alert('Ocorreu um erro ao modificar a fonte de dados: \n\n' + erro.data.message + '\n\n ---------- \nDetalhes técnicos \n ---------- \nCódigo: ' + erro.data.code + '\n\nStatus: ' + erro.statusText + '\n\nMensagem: ' + errorData);
 	}
 	/*
 	$scope.lancarErro = function(erro){
