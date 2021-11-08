@@ -617,12 +617,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					// $scope.camadasInstrumento = retorno;
 					$scope.camadasInstrumento = [];
 					// Adiciona itens obtidos ao array camadasInstrumento
-					for (var i = retorno.length - 1; i >= 0; i--) {
+					for (var i = 0; i <= retorno.length - 1; i++) {
 						$scope.camadasInstrumento.push(retorno[i]);
 					}
 					console.log($scope.camadasInstrumento);
 					// Fim da conversão (obj to arr)
-					for (var i = $scope.camadasInstrumento.length - 1; i >= 0; i--) {
+					for (var i = 0; i <= $scope.camadasInstrumento.length - 1; i++) {
 						$scope.camadasInstrumento[i].parametros_estilo = JSON.parse($scope.camadasInstrumento[i].parametros_estilo);
 					}
 					$scope.renderizarMapa();
@@ -649,7 +649,21 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		$scope.idCamadaAtual = idCamada;
 		$scope.camadaAtual = camada;
 		console.log('Camada Atual: '+$scope.idCamadaAtual);
-	}
+	};
+
+	$scope.alertaAlteracoes = function(indice, gravado = false) {
+		let idGrupo = "grupo-camada-" + indice;
+		let idAlteracoes = "alteracoes-" + indice;
+
+		if (!gravado) {
+			document.getElementById(idGrupo).style.border = "2px solid red";
+			document.getElementById(idAlteracoes).style.visibility = "visible";
+			return;
+		};
+
+		document.getElementById(idGrupo).style.border = "2px solid #f3f3f3";
+		document.getElementById(idAlteracoes).style.visibility = "hidden";
+	};
 /*
 	$scope.aplicarHex = function(camada){
 		console.warn("aplicarHex");
@@ -698,10 +712,12 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		let tipoFeature = $scope.camadasInstrumento[indice].tipo_feature;
 		let nomeCamada = $scope.camadasInstrumento[indice].nome_camada;
 		let ordem = $scope.camadasInstrumento[indice].ordem;
+		let ordemLegenda = $scope.camadasInstrumento[indice].ordem_legenda;
 
-		Camada.update({id_camada:idCamada, parametros_estilo:parametrosTratados, tipo_feature:tipoFeature, nome_camada:nomeCamada, ordem:ordem}).$promise.then(
+		Camada.update({id_camada:idCamada, parametros_estilo:parametrosTratados, tipo_feature:tipoFeature, nome_camada:nomeCamada, ordem:ordem, ordem_legenda:ordemLegenda}).$promise.then(
 				function(mensagem){
 					console.log(mensagem);
+					$scope.alertaAlteracoes(indice, true);
 				},
 				function(erro){
 					console.error(erro);
@@ -1236,7 +1252,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				<div id="map" class="map">
 					<div id="legenda-mapa">
 						<span><strong>Legenda</strong></span>
-						<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: '-ordem'">
+						<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: ['+dimensao_feature', '+ordem_legenda']">
 							<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 						</div>
 					</div>
@@ -1245,40 +1261,49 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					<h3>Camadas</h3>
 					<div style="margin: 1em 0"><button ng-click="incluirCamada()" class="btn btn-success">+ Adicionar camada</button></div>
 					<div class="layer-containers">
-						<div ng-repeat="(key, camada) in camadasInstrumento" class="legenda-input">
+						<div ng-repeat="(key, camada) in camadasInstrumento" class="legenda-input" id="grupo-camada-{{key}}" style="border: 2px solid #f3f3f3">
+							<p id="alteracoes-{{key}}" style="color: #f00; visibility: hidden">Existem alterações não salvas nesta camada</p>
 							<div class="form-inline">
 								<div class="form-group">
-									<input class="form-control" type="text" ng-model="camada.nome_camada" data-ng-model-instant placeholder="Nome">
-									<select class="form-control" ng-model="camada.tipo_feature">
-										<option value="poligono">Polígono</option>
-										<option value="linha">Linha</option>
-										<option value="ponto">Ponto</option>
-									</select>
+									<div class="caixa-nome">
+										<input class="form-control camada-nome" type="text" ng-model="camada.nome_camada" data-ng-model-instant placeholder="Nome" ng-change="alertaAlteracoes(key)">
+										<select class="form-control camada-feature" ng-model="camada.tipo_feature" ng-change="alertaAlteracoes(key)">
+											<option value="poligono">Polígono</option>
+											<option value="linha">Linha</option>
+											<option value="ponto">Ponto</option>
+										</select>
+									</div>
 									<div class="caixa-ordem">
-										<label>Ordem</label>
-										<input class="form-control" type="number" ng-model="camada.ordem" data-ng-model-instant ng-change="gravarParametrosCamada(camada.id_camada, key);alterarCor(camada)">
+										<div>
+											<label>Ordem da camada</label>
+											<input class="form-control" type="number" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" ng-model="camada.ordem" data-ng-model-instant ng-change="alertaAlteracoes(key);alterarCor(camada)">
+										</div>
+										<div>
+											<label>Ordem da legenda</label>
+											<input class="form-control" type="number" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" ng-model="camada.ordem_legenda" data-ng-model-instant ng-change="alertaAlteracoes(key);alterarCor(camada)">
+										</div>
 									</div>
 								</div>
 							</div>
 							<div class="form-inline">
 								<div class="form-group">
 									<span class="caixa-nome-arquivo" ng-attr-title="{{camada.arquivo_kml}}"><strong>Arquivo:</strong> {{camada.arquivo_kml}}</span>
-									<div class="caixa-estilo-kml caixa-ordem" ng-if="camada.tipo_feature !== 'ponto'">
+									<div class="caixa-estilo-kml" ng-if="camada.tipo_feature !== 'ponto'">
 										<label>Usar estilo do KML</label>
-										<input type="checkbox" ng-change="atualizaEstilo(camada)" ng-model="camada.parametros_estilo.style_from_kml">
+										<input type="checkbox" ng-change="alertaAlteracoes(key);atualizaEstilo(camada)" ng-model="camada.parametros_estilo.style_from_kml">
 									</div>
 									<div>
 										<label>Ocultar informações da camada</label>
-										<input type="checkbox" ng-change="atualizaEstilo(camada)" ng-model="camada.parametros_estilo.ocultar_info">
+										<input type="checkbox" ng-change="alertaAlteracoes(key);atualizaEstilo(camada)" ng-model="camada.parametros_estilo.ocultar_info">
 									</div>
 								</div>
 							</div>
 							<div class="form-inline">
 								<div class="form-group" ng-class="camada.parametros_estilo.style_from_kml ? 'inativo' : ''">
 									<span>Cor do preenchimento</span>
-									<input type="color" value="#FFFFFF" ng-model="camada.hexStyle.fill_color" ng-change="alterarCor(camada)" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
+									<input type="color" value="#FFFFFF" ng-model="camada.hexStyle.fill_color" ng-change="alertaAlteracoes(key);alterarCor(camada)" data-ng-model-instant class="colpick" ng-style="estiloLegenda(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
 									<span>Opacidade</span>
-									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camada.hexStyle.fill_color_a" ng-change="alterarCor(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
+									<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-model="camada.hexStyle.fill_color_a" ng-change="alertaAlteracoes(key);alterarCor(camada)" ng-disabled="camada.parametros_estilo.style_from_kml">
 
 									<br>									
 								 
@@ -1291,11 +1316,11 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 											class="colpick"
 											ng-disabled="camada.parametros_estilo.stroke_dash === 'none'"
 											ng-model="camada.hexStyle.stroke_color"
-											ng-change="alterarCor(camada)">
+											ng-change="alertaAlteracoes(key);alterarCor(camada)">
 										<span>Opacidade</span>
-										<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-disabled="camada.parametros_estilo.stroke_dash === 'none'" ng-model="camada.hexStyle.stroke_color_a" ng-change="alterarCor(camada)">
+										<input type="range" class="alfa-slider" min="0" max="1" step="0.1" value="1" ng-disabled="camada.parametros_estilo.stroke_dash === 'none'" ng-model="camada.hexStyle.stroke_color_a" ng-change="alertaAlteracoes(key);alterarCor(camada)">
 									</div>
-									<select title="Linha de contorno" ng-model="camada.parametros_estilo.stroke_dash" ng-change="verificarBorda(camada);alterarCor(camada)">
+									<select title="Linha de contorno" ng-model="camada.parametros_estilo.stroke_dash" ng-change="alertaAlteracoes(key);verificarBorda(camada);alterarCor(camada)">
 										<option value="solid">Sólida</option>
 										<option value="dotted" ng-if="camada.tipo_feature !== 'ponto'">Pontilhada</option>
 										<option value="dashed" ng-if="camada.tipo_feature !== 'ponto'">Tracejada</option>
@@ -1367,7 +1392,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	.legenda-input {
 		border-bottom: 1px solid #aaaaaa;
 		margin: 0;
-		padding: 30px 0;
+		padding: 10px 0 5px 0;
 	}
 	.colpick {
 		padding: 0;
@@ -1392,15 +1417,26 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		width: 20% !important;
 	}
 	/*.ordem-spinner {*/
+
+	.caixa-nome {
+		display: flex;
+	}
+
+	.camada-nome {
+		flex-grow: 1;
+		margin-right: 1em;
+	}
+
 	.caixa-ordem {
-		display: inline-block;
-    position: absolute;
-    right: 0;
-    margin: 0 1em;
+		display: flex;
+    	margin: 1em 0;
+		justify-content: space-between;
+		width: 420px;
 	}
 	.caixa-ordem input {
 		width: 4em !important;
 		font-weight: bold;
+		margin-left: 0.25em;
 	}
 	.caixa-nome-arquivo {
     display: inline-block;
@@ -1417,5 +1453,3 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 <?php } ?>
 
 </div>
-
-

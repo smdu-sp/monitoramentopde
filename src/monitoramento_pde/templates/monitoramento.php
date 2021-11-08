@@ -3146,7 +3146,7 @@ app.controller("dashboard", function($scope,
 				
 				<div id="legenda-mapa" ng-show="camadasInstrumento.length > 0">
 					<span><strong>Legenda</strong></span>
-					<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: '-ordem'">
+					<div ng-repeat="(key, camada) in camadasInstrumento | orderBy: ['+dimensao_feature', '+ordem_legenda']">
 						<div ng-style="estiloLegenda(camada)"></div><span>{{camada.nome_camada}}</span>
 					</div>
 				</div>

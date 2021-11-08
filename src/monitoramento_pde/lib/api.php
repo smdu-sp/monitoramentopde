@@ -2853,7 +2853,7 @@ function dado_aberto(WP_REST_Request $request){
 	$response = new WP_REST_Response( $dados );
 	return $response;
 }
- 
+
 function fontes_dados(WP_REST_Request $request){
 	$parametros = $request->get_params();
 	
@@ -3149,8 +3149,7 @@ function camadas(WP_REST_Request $request){
 	$pdo = pdo_connect();
 	
 	$comando_string = "select * from sistema.maplayers_grupo_indicador where id_grupo_indicador = :id_grupo_indicador;";
-
- $comando = $pdo->prepare($comando_string);
+	$comando = $pdo->prepare($comando_string);
 
  	if(array_key_exists('id_grupo_indicador',$parametros))
 		$comando->bindParam(':id_grupo_indicador',$parametros['id_grupo_indicador']);
@@ -3161,7 +3160,26 @@ function camadas(WP_REST_Request $request){
 	} else {
 		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
 	}
-	
+
+	// Ordena os resultados da API para agrupar os elementos de feature de mesmo tipo na interface de cadastro
+	foreach($dados as $index => $array) {
+		switch($dados[$index]['tipo_feature']) {
+			case 'ponto':
+				$dados[$index]['dimensao_feature'] = 0;
+				break;
+			case 'linha':
+				$dados[$index]['dimensao_feature'] = 1;
+				break;
+			case 'poligono':
+				$dados[$index]['dimensao_feature'] = 2;
+				break;
+		}
+	}
+
+	usort($dados, function ($a, $b) {
+		return $a['dimensao_feature'] <=> $b['dimensao_feature'];
+	});
+
 	$response = new WP_REST_Response( $dados );
 	return $response;
 }
@@ -3229,8 +3247,8 @@ function incluir_camada(WP_REST_Request $request){
 	
 	$comando_string = "
 	insert into sistema.maplayers_grupo_indicador
-	(nome_camada, id_grupo_indicador, ordem)
-	values ('Camada 1', :id_grupo_indicador, 0);
+	(nome_camada, id_grupo_indicador, ordem, ordem_legenda)
+	values ('Camada 1', :id_grupo_indicador, 0, 0);
 	";
 
 	$comando = $pdo->prepare($comando_string);
@@ -3306,7 +3324,7 @@ function gravar_parametros_camada(WP_REST_Request $request){
 	
 	$comando_string = "
 	update sistema.maplayers_grupo_indicador
-	set parametros_estilo = :parametros_estilo, tipo_feature = :tipo_feature, nome_camada = :nome_camada, ordem = :ordem
+	set parametros_estilo = :parametros_estilo, tipo_feature = :tipo_feature, nome_camada = :nome_camada, ordem = :ordem, ordem_legenda = :ordem_legenda
 	where id_camada = :id_camada;
 	";
 
@@ -3322,6 +3340,8 @@ function gravar_parametros_camada(WP_REST_Request $request){
 			$comando->bindParam(':nome_camada',$parametros['nome_camada']);
 	if(array_key_exists('ordem',$parametros))
 			$comando->bindParam(':ordem',$parametros['ordem']);
+	if(array_key_exists('ordem_legenda',$parametros))
+			$comando->bindParam(':ordem_legenda',$parametros['ordem_legenda']);
  
  	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
