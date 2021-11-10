@@ -74,7 +74,10 @@ var selecionado = null;
 var counter = 0;
 var ultimoSelecionado = false;
 var featureInfo = null;
-var optInstrumentoSup = null; // Variavel armazena instrumento selecionado para garantir persistencia entre abas
+// Persistência das opções selecionadas após mudança de aba
+var optEstrategiaSup = null;
+var optInstrumentoSup = null;
+var optObjetivoSup = null;
 var instruMap = null;
 let labelProps = {};
 let exportMargingBot = 0;
@@ -325,19 +328,26 @@ app.controller("dashboard", function($scope,
 	$scope.tiposGrafico = ['area','barras','colunas','linhas'];
 	$scope.tipoGraficoSelecionado = 'linhas';
 
-	$scope.atualizaListaInstrumentos = function(){
+	$scope.atualizaListaIndicadores = function(){
 		$scope.abortReqs();
-		$scope.atualizarStatusMapa(optInstrumentoSup);
-		// Atualiza lista de instrumentos para evitar listagem incorreta de indicadores quando alternado para 'Instrumentos'
-		if($scope.tabAtivaForma == 2){
-			$scope.cargaCadastroIndicadores(optInstrumentoSup);
-		}
-		else if($scope.tabAtivaForma == 4){
-			// Aba de pesquisa de indicadores por texto
-			$scope.termoBuscado = "";
-			$scope.indicadores = [];
-		}
-	}
+		switch ($scope.tabAtivaForma) {
+			case 1:
+				$scope.cargaCadastroIndicadores(optEstrategiaSup);
+				break;
+			case 2: 
+				$scope.atualizarStatusMapa(optInstrumentoSup);
+				$scope.cargaCadastroIndicadores(optInstrumentoSup);
+				$scope.atualizaFicha(optInstrumentoSup);
+				break;
+			case 3:
+				$scope.cargaCadastroIndicadores(optObjetivoSup);
+				break;
+			case 4:
+				// Aba de pesquisa de indicadores por texto
+				$scope.termoBuscado = "";
+				$scope.indicadores = [];
+		};
+	};
 
 	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
 	$scope.urlIndicador = function(){
@@ -1798,6 +1808,7 @@ app.controller("dashboard", function($scope,
 	};
 	
 	$scope.cargaEstrategia = function(id){
+		optEstrategiaSup = id;
 		GrupoIndicador.get({id:id,tipo:'estrategia',tipo_retorno:'object'},function(estrategia){
 			$scope.estrategia = estrategia.propriedades;
 			$scope.estrategia.nome = estrategia.nome;
@@ -2122,14 +2133,11 @@ app.controller("dashboard", function($scope,
 		return estilo;
 	}
 
-	$scope.atualizarStatusMapa = function(optInstrumento) {
-		$scope.mostrarMapa = optInstrumento >= 0;
-		if(optInstrumento === null){
-			$scope.mostrarMapa = false;
-		}
-		optInstrumentoSup = optInstrumento;
-		return;
+	$scope.atualizarStatusMapa = function(opcao) {
+		optInstrumentoSup = opcao;
+		$scope.mostrarMapa = typeof opcao === "number" ? opcao >= 0 : false;
 	}
+	
 	$scope.loadMap = function() {
 		console.log("function loadMap");
 
@@ -3089,7 +3097,7 @@ app.controller("dashboard", function($scope,
 		<hr>
 
 		<uib-tabset active="tabAtivaForma" type="pills">
-			<uib-tab index="$index + 1" ng-click="atualizaListaInstrumentos()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
+			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
 				<hr>
 				
 				<div ng-show="tabAtivaForma==1">
