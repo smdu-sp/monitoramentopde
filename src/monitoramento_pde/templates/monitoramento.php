@@ -968,7 +968,7 @@ app.controller("dashboard", function($scope,
 				},
 				legend: {
 					align: 'left',
-					enabled: indicadorHistorico.series.length > 1,
+					enabled: serieHistorica.length > 1,
 					layout: 'horizontal',
 					itemStyle:{
 						fontWeight:'normal'
