@@ -340,13 +340,15 @@ app.controller("dashboard", function($scope,
 				$scope.atualizaFicha(optInstrumentoSup);
 				break;
 			case 3:
+				$scope.atualizarStatusMapa(optObjetivoSup);
 				$scope.cargaCadastroIndicadores(optObjetivoSup);
+				$scope.atualizaFicha(optObjetivoSup);
 				break;
 			case 4:
 				// Aba de pesquisa de indicadores por texto
 				$scope.termoBuscado = "";
 				$scope.indicadores = [];
-		};
+		}
 	};
 
 	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
@@ -2134,10 +2136,16 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.atualizarStatusMapa = function(opcao) {
-		optInstrumentoSup = opcao;
 		$scope.mostrarMapa = typeof opcao === "number" ? opcao >= 0 : false;
-	}
-	
+		switch ($scope.tabAtivaForma) {
+			case 2:
+				optInstrumentoSup = opcao;
+				break;
+			case 3:
+				optObjetivoSup = opcao;
+		}
+	};
+
 	$scope.loadMap = function() {
 		console.log("function loadMap");
 
@@ -2668,44 +2676,54 @@ app.controller("dashboard", function($scope,
 			}
 		));
 	}
+
+	/**** 
+	** TODO: REESCREVER FUNCAO DE FILTRO DE OBJETIVOS QUANDO A NOVA ESTRUTURA FOR DEFINIDA
+	** NO MOMENTO O FILTRO ESTA PRE-DEFINIDO NO CODIGO
+	****/
 	
 	// Filtros para a visualização de objetivos
 	$scope.filtraObjetivos = function(filtro){
-		$scope.mostraPDE = false;
-		// Não havendo objetivos, escapa função para otimizar performance
-		if($scope.rawObjetivos.length === 0)
-			return;
-		console.log("Objetivos:");
-		console.log($scope.rawObjetivos);
-		if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
-			$scope.objetivos = $scope.rawObjetivos;
-			$scope.cargaCadastroIndicadores(null);
-			return;
-		}
-		else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
-			$scope.objetivos = [];
-			console.log("idPDE...");
-			console.log($scope.rawObjetivos);
-			var idPDE = $scope.rawObjetivos.filter(function(obj){
-				console.log("filtraObjetivos obj");
-				console.log(obj);
-				return obj.nome === "Plano Diretor Estratégico"
-			})[0].id_grupo_indicador;
-			$scope.cargaCadastroIndicadores(idPDE);
-			$scope.atualizaFicha(idPDE, true)
-			$scope.mostraPDE = true;
-			return;
-		}
-		let checkObjetivos = function(ob){			
-			for (i in filtro.objetivos) {
-				if (ob.nome === filtro.objetivos[i])
-					return true;
-			}
-			return false;
-		}
-		let objetivosFiltrados = $scope.rawObjetivos.filter(checkObjetivos);
-		$scope.objetivos = objetivosFiltrados;
-	}
+		// console.log($scope.filtrosObjetivos.zonas_especiais.objetivos)
+		return;
+	};
+
+	// $scope.filtraObjetivos = function(filtro){
+	// 	$scope.mostraPDE = false;
+	// 	// Não havendo objetivos, escapa função para otimizar performance
+	// 	if($scope.rawObjetivos.length === 0)
+	// 		return;
+	// 	console.log("Objetivos:");
+	// 	console.log($scope.rawObjetivos);
+	// 	if (filtro === null){ // Se não selecionar filtro, mostra todos os indicadores
+	// 		$scope.objetivos = $scope.rawObjetivos;
+	// 		$scope.cargaCadastroIndicadores(null);
+	// 		return;
+	// 	}
+	// 	else if (filtro.id === 1) { // Se filtro selecionado for 'Plano Diretor Estratégico (ID 1), carrega os indicadores relativos'
+	// 		$scope.objetivos = [];
+	// 		console.log("idPDE...");
+	// 		console.log($scope.rawObjetivos);
+	// 		var idPDE = $scope.rawObjetivos.filter(function(obj){
+	// 			console.log("filtraObjetivos obj");
+	// 			console.log(obj);
+	// 			return obj.nome === "Plano Diretor Estratégico"
+	// 		})[0].id_grupo_indicador;
+	// 		$scope.cargaCadastroIndicadores(idPDE);
+	// 		$scope.atualizaFicha(idPDE, true)
+	// 		$scope.mostraPDE = true;
+	// 		return;
+	// 	}
+	// 	let checkObjetivos = function(ob){			
+	// 		for (i in filtro.objetivos) {
+	// 			if (ob.nome === filtro.objetivos[i])
+	// 				return true;
+	// 		}
+	// 		return false;
+	// 	}
+	// 	let objetivosFiltrados = $scope.rawObjetivos.filter(checkObjetivos);
+	// 	$scope.objetivos = objetivosFiltrados;
+	// };
 
 	$scope.buscaIndicador = function(termo){
 		if(termo.length < 2 || $scope.carregandoIndicador)
@@ -2718,33 +2736,41 @@ app.controller("dashboard", function($scope,
 	}
 
 	$scope.filtrosObjetivos = {
-		plano_diretor: {
-			id: 1,
-			nome: "Plano Diretor Estratégico",
-			objetivos: []
-		},
-		macroareas: {
-			id: 2,
-			nome: "Macroáreas",
-			objetivos: [
-				"Macroárea de Estruturação Urbana",
-				"Macroárea de Urbanização Consolidada",
-				"Macroárea de Qualificação da Urbanização",
-				"Macroárea de Redução da Vulnerabilidade Urbana",
-				"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
-				"Macroárea de Controle e Qualificação Urbana e Ambiental",
-				"Macroárea de Contenção Urbana e Uso Sustentável",
-				"Macroárea de Preservação dos Ecossistemas Naturais"
-			]
-		},
+		// plano_diretor: {
+		// 	id: 1,
+		// 	nome: "Plano Diretor Estratégico",
+		// 	objetivos: []
+		// },
+		// macroareas: {
+		// 	id: 2,
+		// 	nome: "Macroáreas",
+		// 	objetivos: [
+		// 		"Macroárea de Estruturação Urbana",
+		// 		"Macroárea de Urbanização Consolidada",
+		// 		"Macroárea de Qualificação da Urbanização",
+		// 		"Macroárea de Redução da Vulnerabilidade Urbana",
+		// 		"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
+		// 		"Macroárea de Controle e Qualificação Urbana e Ambiental",
+		// 		"Macroárea de Contenção Urbana e Uso Sustentável",
+		// 		"Macroárea de Preservação dos Ecossistemas Naturais"
+		// 	]
+		// },
 		zonas_especiais: {
 			id: 3,
 			nome: "Zonas Especiais",
-			objetivos: [
-				// "Zonas Especiais de Interesse Social (ZEIS)",
-				"Zonas Especiais de Preservação (ZEP)"
-				// "Zonas Especiais de Preservação Cultural (ZEPEC)",
-				// "Zonas Especiais de Proteção Ambiental (ZEPAM)"
+			objetivos: [{
+					id: 22,
+					nome: "Zonas Especiais de Interesse Social (ZEIS)"
+				},
+				{
+				// "Zonas Especiais de Preservação (ZEP)",
+					id: 21,
+					nome: "Zonas Especiais de Preservação Cultural (ZEPEC)"
+				},
+				{
+					id: 19,
+					nome: "Zonas Especiais de Proteção Ambiental (ZEPAM)"
+				}
 			]
 		}
 		// "Macroáreas": ["A","B"],
@@ -3108,7 +3134,11 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-show="tabAtivaForma==2">	
 					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
-					<select style="min-width:250px;max-width:400px;" ng-disabled="carregandoIndicador" data-ng-model="optInstrumento" data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
+					<select style="min-width:250px;max-width:400px;" 
+						ng-disabled="carregandoIndicador" 
+						data-ng-model="optInstrumento" 
+						data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" 
+						ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
 					<br />
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
@@ -3128,15 +3158,35 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-show="tabAtivaForma==3">	
 					Para garantir um desenvolvimento urbano sustentável e equilibrado, o Plano Diretor definiu em sua estratégia de ordenamento territorial um conjunto de objetivos a serem atingidos.<br><br>Veja abaixo os avanços realizados em relação aos objetivos do Plano Diretor Estratégico, das Macroáreas e das Zonas Especiais:<br><br>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
-					<select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo); atualizaFicha(optObjetivo, true)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select>
+					<select style="min-width:250px;max-width:400px;" ng-disabled="carregandoIndicador" data-ng-model="fltrObjetivo" data-ng-options="filtro.nome for filtro in filtrosObjetivos" ng-change="filtraObjetivos(fltrObjetivo)"><option value="">Todos</option></select>
+					<!-- <select style="min-width:250px;max-width:400px;" data-ng-model="optObjetivo" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: '-id_grupo_indicador' : true" ng-change="cargaCadastroIndicadores(optObjetivo); atualizaFicha(optObjetivo, true)" ng-show="objetivos.length > 0 && objetivos.length !== rawObjetivos.length"><option value="">{{ textoSelectObjetivo(fltrObjetivo.id) }}</option></select> -->
+					<select style="min-width:250px;max-width:400px;" 
+						ng-disabled="carregandoIndicador"
+						data-ng-model="optObjetivo" 
+						data-ng-options="objetivo.nome for objetivo in fltrObjetivo.objetivos | orderBy: '-nome' : true" 
+						ng-change="cargaCadastroIndicadores(optObjetivo.id); atualizaFicha(optObjetivo.id); loadMap(); atualizarStatusMapa(optObjetivo.id)" 
+						ng-show="fltrObjetivo.objetivos"><option value="" disabled selected hidden>Selecione...</option></select>
 					<br />
-					<div ng-show="optObjetivo || mostraPDE">
+					<div ng-show="optObjetivo">
+						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<p>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+						</p>
+						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
+						<!-- DADOS ABERTOS -->
+						<div class="download-dados-abertos">
+							<p>Download do banco de dados:
+								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
+							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
+							</p>
+						</div>
+					</div>					
+					<!-- <div ng-show="optObjetivo || mostraPDE">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' ng-show="verMais" ng-click='abrirModal("objetivo")'>ver mais</a>
 						</p>
-					</div>
+					</div> -->
 				</div>
 
 				<div ng-show="tabAtivaForma==4">
@@ -3147,7 +3197,7 @@ app.controller("dashboard", function($scope,
 		</uib-tabset>
 
 		<!-- Mapa dos instrumentos -->
-			<div id="mapcontainer" ng-show="tabAtivaForma==2" ng-class="{'zeroheight': !mostrarMapa}">
+			<div id="mapcontainer" ng-show="tabAtivaForma==2 || tabAtivaForma==3" ng-class="{'zeroheight': !mostrarMapa}">
 				
 
 				<div id="map-instrumento" class="map"></div>
