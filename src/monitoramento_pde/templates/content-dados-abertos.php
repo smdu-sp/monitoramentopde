@@ -305,7 +305,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_mapas}}" class="label"><strong>SHP</strong></a> 
 					</li>
 					<li ng-if="dado.arquivo_tabelas">
-						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}" class="label" data-format="xls"><strong>Tabelas</strong></a>
+						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{dado.arquivo_tabelas}}" class="label" data-format="tbl"><strong>Tabelas</strong></a>
 					</li>
 				</ul>
 			</div>
@@ -316,7 +316,8 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 						<!-- <a ng-show="(dado.colunas.length > 1)" href="" ng-click="exportarDadoAberto(dado.id_fonte_dados,formato)" data-ng-repeat="formato in item.tipoArquivo"> <strong> {{formato}} </strong></a> -->
 					</li>
 					<li data-ng-repeat="arquivo in dado.dados_disponiveis | orderBy: 'tipo.length'" ng-if="arquivo.tipo !== 'fonte de dados' && arquivo.disponivel">
-						<a href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{arquivo.nome}}" class="label" data-format="{{arquivo.formato}}">{{capitalize(arquivo.tipo)}}</a> 
+						<a ng-if="arquivo.tipo === 'tabelas'" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{arquivo.nome}}" class="label" data-format="tbl">{{capitalize(arquivo.tipo)}}</a> 
+						<a ng-if="arquivo.tipo !== 'tabelas'" href="<?php echo bloginfo('url'); ?>/app/uploads/{{dado.nome_tabela}}/{{arquivo.nome}}" class="label" data-format="{{arquivo.formato}}">{{capitalize(arquivo.tipo)}}</a> 
 					</li>
 				</ul>
 			</div>
@@ -358,6 +359,18 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
   }
   .label[data-format=pdf], .label[data-format*=pdf] {
 		background-color: #e0051e;
+  }
+  .label[data-format=txt], .label[data-format*=txt] {
+		background-color: #e25a10;
+  }
+  .label[data-format=kmz], .label[data-format*=kmz] {
+		background-color: #1464a4;
+  }
+  .label[data-format=shp], .label[data-format*=shp] {
+		background-color: #951b81;
+  }
+  .label[data-format=tbl], .label[data-format*=tbl] {
+		background-color: #0099da;
   }
   .badge-list li {
   	display: inline-block;
