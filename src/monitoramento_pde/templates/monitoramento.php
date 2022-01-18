@@ -459,6 +459,8 @@ app.controller("dashboard", function($scope,
 		// 	document.getElementsByClassName('ol-viewport')[0].remove();
 		
 		$scope.cargaIndicadorValores(true,true);
+		// semDados precisa ser inicializada neste ponto para evitar que ela seja reescrita antes de ser checada no timeout
+		$scope.semDados = false;
 		window.setTimeout(function(){			
 			if($scope.semDados && $scope.selecao.categorias && $scope.selecao.categorias.length == 1){
 				$scope.filtraCategoria();
