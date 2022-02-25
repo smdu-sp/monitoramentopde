@@ -366,9 +366,22 @@ app.controller("dashboard", function($scope,
 					$scope.indicador.aberto = true;
 					$scope.atualizarAccordion(indicador[0]);
 					document.getElementsByClassName("panel-group")[0].scrollIntoView();
-			}, 100);
+				}, 100);
 			});
 		}
+	}
+
+	// Verifica se obteve URL de um instrumento e carrega na tela 
+	$scope.urlInstrumento = function(computedUrl){		
+		let instrumentoFromUrl = parseInt(computedUrl.split("mostra_instrumento/").pop());
+		$scope.tabAtivaForma = 2;
+		$scope.optInstrumento = instrumentoFromUrl;
+		$scope.cargaCadastroIndicadores(instrumentoFromUrl);
+		window.setTimeout(function() {
+			$scope.atualizaFicha(instrumentoFromUrl);
+			$scope.loadMap(); 
+			$scope.atualizarStatusMapa(instrumentoFromUrl);
+		}, 1000);
 	}
 
 	// ABORTAR TODAS AS REQUISIÇÕES EM ANDAMENTO
@@ -397,6 +410,8 @@ app.controller("dashboard", function($scope,
 	angular.element(document).ready(function(){
 		$scope.optInstrumento = "";
 		$scope.termoBuscado = "";
+		let computedUrl = window.location.href;
+		if(computedUrl.includes("mostra_instrumento")) $scope.urlInstrumento(computedUrl);
 	});
 
 	// DECLARAÇÃO DE VARIÁVEIS
