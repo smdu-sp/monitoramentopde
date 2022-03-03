@@ -374,7 +374,6 @@ app.controller("dashboard", function($scope,
 	// Verifica se obteve URL de um instrumento e carrega na tela 
 	$scope.urlInstrumento = function(computedUrl){		
 		let instrumentoFromUrl = parseInt(computedUrl.split("mostra_instrumento/").pop());
-		$scope.tabAtivaForma = 2;
 		$scope.optInstrumento = instrumentoFromUrl;
 		$scope.cargaCadastroIndicadores(instrumentoFromUrl);
 		window.setTimeout(function() {
@@ -412,6 +411,7 @@ app.controller("dashboard", function($scope,
 		$scope.termoBuscado = "";
 		let computedUrl = window.location.href;
 		if(computedUrl.includes("mostra_instrumento")) $scope.urlInstrumento(computedUrl);
+		if(computedUrl.includes("mostra_indicador")) $scope.tabAtivaForma = 2;
 	});
 
 	// DECLARAÇÃO DE VARIÁVEIS
