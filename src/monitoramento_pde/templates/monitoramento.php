@@ -356,7 +356,6 @@ app.controller("dashboard", function($scope,
 		var computedUrl = window.location.href;
 		if(computedUrl.includes("mostra_indicador")){
 			let indicadorFromUrl = parseInt(computedUrl.split("mostra_indicador/").pop());
-			$scope.tabAtivaForma = 2;
 			Indicador.query({indicador:indicadorFromUrl},function(indicador) {
 				window.setTimeout(function(){
 					$scope.indicadores = indicador;
@@ -372,16 +371,21 @@ app.controller("dashboard", function($scope,
 	}
 
 	// Verifica se obteve URL de um instrumento e carrega na tela 
-	$scope.urlInstrumento = function(computedUrl){		
+	$scope.urlInstrumento = function(computedUrl){
 		let instrumentoFromUrl = parseInt(computedUrl.split("mostra_instrumento/").pop());
-		$scope.optInstrumento = instrumentoFromUrl;
-		$scope.cargaCadastroIndicadores(instrumentoFromUrl);
-		window.setTimeout(function() {
-			$scope.atualizaFicha(instrumentoFromUrl);
-			$scope.loadMap(); 
-			$scope.atualizarStatusMapa(instrumentoFromUrl);
-		}, 1000);
-	}
+		GrupoIndicador.query({id:instrumentoFromUrl,tipo:'instrumento',tipo_retorno:'object',formato_retorno:'array'}, function(instrumento) {
+			let existeInstrumento = instrumento.length;
+			if (existeInstrumento) {
+				$scope.optInstrumento = instrumentoFromUrl;
+				$scope.cargaCadastroIndicadores(instrumentoFromUrl);
+				window.setTimeout(function() {
+					$scope.atualizaFicha(instrumentoFromUrl);
+					$scope.loadMap();
+					$scope.atualizarStatusMapa(instrumentoFromUrl);
+				}, 1000);
+			}
+		});
+	};
 
 	// ABORTAR TODAS AS REQUISIÇÕES EM ANDAMENTO
 	$scope.abortReqs = function() {
@@ -410,8 +414,8 @@ app.controller("dashboard", function($scope,
 		$scope.optInstrumento = "";
 		$scope.termoBuscado = "";
 		let computedUrl = window.location.href;
+		if(computedUrl.includes("mostra_")) $scope.tabAtivaForma = 2;
 		if(computedUrl.includes("mostra_instrumento")) $scope.urlInstrumento(computedUrl);
-		if(computedUrl.includes("mostra_indicador")) $scope.tabAtivaForma = 2;
 	});
 
 	// DECLARAÇÃO DE VARIÁVEIS
