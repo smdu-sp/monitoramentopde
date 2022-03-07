@@ -70,6 +70,7 @@ const contornoSP = {
 	}
 };
 
+var computedUrl = window.location.href;
 var selecionado = null;
 var counter = 0;
 var ultimoSelecionado = false;
@@ -352,23 +353,25 @@ app.controller("dashboard", function($scope,
 	};
 
 	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
-	$scope.urlIndicador = function(){
-		var computedUrl = window.location.href;
+	$scope.urlIndicador = function(computedUrl){
 		if(computedUrl.includes("mostra_indicador")){
 			let indicadorFromUrl = parseInt(computedUrl.split("mostra_indicador/").pop());
 			Indicador.query({indicador:indicadorFromUrl},function(indicador) {
-				window.setTimeout(function(){
-					$scope.indicadores = indicador;
-					$scope.indicador = indicador[0];
-					console.log("Indicador:");
-					console.log($scope.indicador);
-					$scope.indicador.aberto = true;
-					$scope.atualizarAccordion(indicador[0]);
-					document.getElementsByClassName("panel-group")[0].scrollIntoView();
-				}, 100);
+				let existeIndicador = indicador.length;
+				if(existeIndicador) {
+					window.setTimeout(function(){
+						$scope.indicadores = indicador;
+						$scope.indicador = indicador[0];
+						console.log("Indicador:");
+						console.log($scope.indicador);
+						$scope.indicador.aberto = true;
+						$scope.atualizarAccordion(indicador[0]);
+						document.getElementsByClassName("panel-group")[0].scrollIntoView();
+					}, 100);
+				}
 			});
 		}
-	}
+	};
 
 	// Verifica se obteve URL de um instrumento e carrega na tela 
 	$scope.urlInstrumento = function(computedUrl){
@@ -413,7 +416,6 @@ app.controller("dashboard", function($scope,
 	angular.element(document).ready(function(){
 		$scope.optInstrumento = "";
 		$scope.termoBuscado = "";
-		let computedUrl = window.location.href;
 		if(computedUrl.includes("mostra_")) $scope.tabAtivaForma = 2;
 		if(computedUrl.includes("mostra_instrumento")) $scope.urlInstrumento(computedUrl);
 	});
@@ -2693,7 +2695,7 @@ app.controller("dashboard", function($scope,
 			  $scope.indicadores = indicadores;
 			  $scope.carregandoIndicador = false;
 			  // Após carregar indicadores, verifica se pode carregar indicador do link
-			  $scope.urlIndicador();
+			  $scope.urlIndicador(computedUrl);
 			}
 		));
 	}
