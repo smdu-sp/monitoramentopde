@@ -380,6 +380,7 @@ app.controller("dashboard", function($scope,
 			let existeInstrumento = instrumento.length;
 			if (existeInstrumento) {
 				$scope.optInstrumento = instrumentoFromUrl;
+				$scope.abortReqs();
 				$scope.cargaCadastroIndicadores(instrumentoFromUrl);
 				window.setTimeout(function() {
 					$scope.atualizaFicha(instrumentoFromUrl);
