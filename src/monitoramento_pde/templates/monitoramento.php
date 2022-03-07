@@ -304,8 +304,12 @@ app.controller("dashboard", function($scope,
 									FichaTecnicaInstrumento, 
 									IndicadorMemoria, 
 									VariavelHistorico) {
-	$scope.geraLink = function() {
-		let link = "<?php echo get_home_url(); ?>"+"/#/mostra_indicador/"+$scope.indicador.id_indicador;
+	$scope.geraLink = function(tipo) {
+		let idTipo = {
+			indicador: $scope.indicador.id_indicador,
+			instrumento: $scope.indicador.id_instrumento,
+		};
+		let link = "<?php echo get_home_url(); ?>" + "/#/mostra_" + tipo + "/" + idTipo[tipo];
 		
 		// Copia para o clipboard		
 		const el = document.createElement('textarea');
@@ -3237,6 +3241,10 @@ app.controller("dashboard", function($scope,
 					<br>
 					<div id="feature-info">&nbsp;</div>
 				</div>
+				<div id="botoes-mapa" data-html2canvas-ignore>
+					<button class="gera-link-botao" ng-click="geraLink('instrumento')" type="button" title="Gerar link para este instrumento" ng-show="mostrarMapa">
+					</button>
+				</div>
 			</div>			
 		</div>		
 
@@ -3270,13 +3278,7 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
 				<div style="text-align: right; width: 100%; margin-top: -30px;" data-html2canvas-ignore>
-				<button style="border: none;
-					background: url(./app/themes/monitoramento_pde/images/icon-link.jpg);
-    				background-repeat: no-repeat;
-					background-size: contain;
-					margin: 0 5px;
-				    width: 30px;
-				    height: 30px;" ng-click="geraLink()" type="button" title="Gerar link para este indicador">
+				<button class="gera-link-botao" ng-click="geraLink('indicador')" type="button" title="Gerar link para este indicador">
 				</button>
 				<button style="border: none;
 					background: url(./app/themes/monitoramento_pde/images/icon-image-save.jpg);
@@ -3325,6 +3327,33 @@ app.controller("dashboard", function($scope,
     overflow: auto;
     z-index: 1;
 	}
+
+	#botoes-mapa {
+		margin: 10px;
+		padding: 10px;
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		min-width: 50px;
+		min-height: 50px;
+		background-color: rgba(255,255,255,0.95);
+		border: 1px solid #cccccc;
+		border-radius: 5px;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.gera-link-botao {
+		border: none;
+		background: url(./app/themes/monitoramento_pde/images/icon-link.jpg);
+		background-repeat: no-repeat;
+		background-size: contain;
+		margin: 0 5px;
+		width: 30px;
+		height: 30px;
+	}
+
 	#feature-info {
 		/*background-color: rgba(255,255,255,0.8);*/
 		opacity: 0;
