@@ -2190,7 +2190,8 @@ app.controller("dashboard", function($scope,
 		let mbMonoblue = 'https://api.mapbox.com/styles/v1/rmgomes/ck1v65hgy0fgf1drt97mjreic/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1Ijoicm1nb21lcyIsImEiOiJjazF1eTA2MXcwMWlkM2dwNXJ1ZmZmOXdlIn0.hLv8SFtndRaKPtx2fPrEnQ';
 		$rootScope.mbLayer = new ol.layer.Tile({
 			source: new ol.source.XYZ({
-				url: mbLight
+				url: mbLight,
+				crossOrigin: 'anonymous',
 			})
 		});
 
@@ -2878,9 +2879,20 @@ app.controller("dashboard", function($scope,
     	}
 	}
 
-	$scope.printScreen = function() {
-		html2canvas(document.getElementsByClassName('panel-open')[0], {scale: 2}).then(function(canvas) {
-		    $scope.salvarComo(canvas.toDataURL('image/png'), $scope.indicador.nome+'.png');
+	$scope.printScreen = function(tipo) {
+		tipoParams = {
+			instrumento: {
+				nome: $scope.indicador.instrumento,
+				classe: 'abas-container'
+			},
+			indicador: {
+				nome: $scope.indicador.nome,
+				classe: 'panel-open'
+			}
+		}
+
+		html2canvas(document.getElementsByClassName(tipoParams[tipo].classe)[0], {allowTaint: true, scale: 2}).then(function(canvas) {
+			$scope.salvarComo(canvas.toDataURL('image/png'), tipoParams[tipo].nome + '.png');
 		});
 	};
 
@@ -3137,22 +3149,20 @@ app.controller("dashboard", function($scope,
 		</div>
 	</div>
 	
-	<div class="container">
-
-	<p> 
-			<!--<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;"> A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
-				</div>-->
-		 
-	</p>
-		
-		<hr>
-		
-		<p> Escolha a forma como deseja visualizar os indicadores </p>
-		<hr>
-
+	<div class="container abas-container">
+		<!-- <p> 
+			<div class="well" style="background-color:rgb(91,192,222);color:white;font-weight:bold;text-align:center;">
+			A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
+			</div>		 
+		</p> -->
+		<span data-html2canvas-ignore>
+			<hr>
+			<p>Escolha a forma como deseja visualizar os indicadores</p>
+			<hr>
+		</span>
 		<uib-tabset active="tabAtivaForma" type="pills">
-			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}">
-				<hr>
+			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}" data-html2canvas-ignore>
+				<hr data-html2canvas-ignore>
 				
 				<div ng-show="tabAtivaForma==1">
 					<ul class="list-group row">
@@ -3161,21 +3171,21 @@ app.controller("dashboard", function($scope,
 				</div>
 				
 				<div ng-show="tabAtivaForma==2">	
-					Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br>
+					<span data-html2canvas-ignore>Os Instrumentos de Política Urbana e Gestão Ambiental são meios para viabilizar a efetivação dos princípios e objetivos do Plano Diretor. <br><br> Veja abaixo a lista dos instrumentos:<br><br></span>
 					<select style="min-width:250px;max-width:400px;" 
 						ng-disabled="carregandoIndicador" 
 						data-ng-model="optInstrumento" 
 						data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" 
-						ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)"><option value="">Todos</option></select>
-					<br />
+						ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)" data-html2canvas-ignore><option value="">Todos</option>
+					</select>
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
-							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")' data-html2canvas-ignore>ver mais</a>
 						</p>
 						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
 						<!-- DADOS ABERTOS -->
-						<div class="download-dados-abertos">
+						<div class="download-dados-abertos" data-html2canvas-ignore>
 							<p>Download do banco de dados:
 								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
 							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
@@ -3244,6 +3254,8 @@ app.controller("dashboard", function($scope,
 				<div id="botoes-mapa" data-html2canvas-ignore>
 					<button class="gera-link-botao" ng-click="geraLink('instrumento')" type="button" title="Gerar link para este instrumento" ng-show="mostrarMapa">
 					</button>
+					<button class="print-screen-botao" ng-click="printScreen('instrumento')" type="button" title="Salvar instrumento como imagem">	
+					</button>
 				</div>
 			</div>			
 		</div>		
@@ -3280,13 +3292,7 @@ app.controller("dashboard", function($scope,
 				<div style="text-align: right; width: 100%; margin-top: -30px;" data-html2canvas-ignore>
 				<button class="gera-link-botao" ng-click="geraLink('indicador')" type="button" title="Gerar link para este indicador">
 				</button>
-				<button style="border: none;
-					background: url(./app/themes/monitoramento_pde/images/icon-image-save.jpg);
-    				background-repeat: no-repeat;
-					background-size: contain;
-				    margin: 0 5px;
-				    width: 30px;
-				    height: 30px;" ng-click="printScreen()" type="button" title="Salvar indicador como imagem">	
+				<button class="print-screen-botao" ng-click="printScreen('indicador')" type="button" title="Salvar indicador como imagem">	
 				</button>
 				</div>			
 			</div>
@@ -3295,6 +3301,9 @@ app.controller("dashboard", function($scope,
 </div>
 
 <style type="text/css">
+	.abas-container {
+		padding-bottom: 15px;
+	}
 	#map-instrumento {
 		display: block;
 		position: relative;
@@ -3347,6 +3356,16 @@ app.controller("dashboard", function($scope,
 	.gera-link-botao {
 		border: none;
 		background: url(./app/themes/monitoramento_pde/images/icon-link.jpg);
+		background-repeat: no-repeat;
+		background-size: contain;
+		margin: 0 5px;
+		width: 30px;
+		height: 30px;
+	}
+
+	.print-screen-botao {
+		border: none;
+		background: url(./app/themes/monitoramento_pde/images/icon-image-save.jpg);
 		background-repeat: no-repeat;
 		background-size: contain;
 		margin: 0 5px;
