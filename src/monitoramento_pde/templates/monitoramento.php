@@ -308,8 +308,9 @@ app.controller("dashboard", function($scope,
 		let idTipo = {
 			indicador: $scope.indicador.id_indicador,
 			instrumento: $scope.indicador.id_instrumento,
+			mapa: $scope.indicador.id_instrumento,
 		};
-		let link = "<?php echo get_home_url(); ?>" + "/#/mostra_" + tipo + "/" + idTipo[tipo];
+		let link = `<?php echo get_home_url(); ?>/#/mostra_${tipo}/${idTipo[tipo]}`;
 		
 		// Copia para o clipboard		
 		const el = document.createElement('textarea');
@@ -321,7 +322,7 @@ app.controller("dashboard", function($scope,
 		el.select();
 		document.execCommand('copy');
 		document.body.removeChild(el);
-		window.alert("O link para o indicador foi copiado para a área de transferência.\n"+link);
+		window.alert(`O link do ${tipo} foi copiado para a área de transferência.\n\n${link}`);
 	}
 
 	$scope.indicadorValores = {
@@ -356,41 +357,49 @@ app.controller("dashboard", function($scope,
 		}
 	};
 
-	// Verifica se obteve URL de um indicador específico e carrega o indicador na tela
-	$scope.urlIndicador = function(computedUrl){
-		if(computedUrl.includes("mostra_indicador")){
-			let indicadorFromUrl = parseInt(computedUrl.split("mostra_indicador/").pop());
-			Indicador.query({indicador:indicadorFromUrl},function(indicador) {
-				let existeIndicador = indicador.length;
-				if(existeIndicador) {
-					window.setTimeout(function(){
-						$scope.indicadores = indicador;
-						$scope.indicador = indicador[0];
-						console.log("Indicador:");
-						console.log($scope.indicador);
-						$scope.indicador.aberto = true;
-						$scope.atualizarAccordion(indicador[0]);
-						document.getElementsByClassName("panel-group")[0].scrollIntoView();
-					}, 100);
-				}
-			});
+	// Verifica se URL aponta para conteúdo válido e exibe esse conteúdo
+	$scope.urlConteudo = function(computedUrl) {
+		// Padrão da URL: #/mostra_${tipoConteudo}/${idConteudo}
+		const tipoConteudo = computedUrl.split('#/mostra_').pop().split('/')[0];
+		let idConteudo = parseInt(computedUrl.split(tipoConteudo + '/').pop());
+		let query = {
+			indicador: {indicador: idConteudo},
+			instrumento: {grupo_indicador: idConteudo},
+			mapa: {grupo_indicador: idConteudo},
 		}
-	};
-
-	// Verifica se obteve URL de um instrumento e carrega na tela 
-	$scope.urlInstrumento = function(computedUrl){
-		let instrumentoFromUrl = parseInt(computedUrl.split("mostra_instrumento/").pop());
-		GrupoIndicador.query({id:instrumentoFromUrl,tipo:'instrumento',tipo_retorno:'object',formato_retorno:'array'}, function(instrumento) {
-			let existeInstrumento = instrumento.length;
-			if (existeInstrumento) {
-				$scope.optInstrumento = instrumentoFromUrl;
-				$scope.abortReqs();
-				$scope.cargaCadastroIndicadores(instrumentoFromUrl);
-				window.setTimeout(function() {
-					$scope.atualizaFicha(instrumentoFromUrl);
-					$scope.loadMap();
-					$scope.atualizarStatusMapa(instrumentoFromUrl);
-				}, 1000);
+		Indicador.query(query[tipoConteudo], function(indicador) {
+			let existeIndicador = indicador.length;
+			if (existeIndicador) {
+				window.setTimeout(function(){
+					switch (tipoConteudo) {
+						case 'indicador':
+							$scope.indicadores = indicador;
+							$scope.indicador = indicador[0];
+							console.log('Indicador:');
+							console.log($scope.indicador);
+							$scope.indicador.aberto = true;
+							$scope.atualizarAccordion(indicador[0]);
+							document.getElementsByClassName('panel-group')[0].scrollIntoView();
+							break;
+						case 'instrumento':
+						case 'mapa':
+							$scope.optInstrumento = idConteudo;
+							if (tipoConteudo === 'instrumento') $scope.cargaCadastroIndicadores(idConteudo, true);
+							$scope.atualizaFicha(idConteudo);
+							$scope.loadMap();
+							$scope.atualizarStatusMapa(idConteudo);
+							document.getElementsByClassName('abas-container')[0].scrollIntoView();
+							if (tipoConteudo === 'mapa') {
+								ignorarElementos = document.querySelectorAll(':not(br, #botoes-mapa, #ver-mais)[data-html2canvas-ignore]');
+								ignorarElementos.forEach(el => {
+									el.style.display = 'none'
+								});
+							}
+							break;
+						default: 
+							window.alert('Tipo de conteúdo da URL inválido');
+					}
+				}, 500);
 			}
 		});
 	};
@@ -422,7 +431,6 @@ app.controller("dashboard", function($scope,
 		$scope.optInstrumento = "";
 		$scope.termoBuscado = "";
 		if(computedUrl.includes("mostra_")) $scope.tabAtivaForma = 2;
-		if(computedUrl.includes("mostra_instrumento")) $scope.urlInstrumento(computedUrl);
 	});
 
 	// DECLARAÇÃO DE VARIÁVEIS
@@ -2689,19 +2697,23 @@ app.controller("dashboard", function($scope,
 		});
 	}
 	
-	$scope.cargaCadastroIndicadores = function(id){
+	$scope.cargaCadastroIndicadores = function(id, url = false){
+		if (computedUrl.includes("mostra_") && !computedUrl.includes("indicador") && !url) {
+			return $scope.urlConteudo(computedUrl);
+		}
+
 		$scope.carregandoIndicador = true;
-		// ARMAZENA OBJETO DA REQUISIÇÃO EM UM ARRAY PARA ABOTAR REQUISIÇÕES CONFORME NECESSÁRIO
-	  $scope.xhrReqs.push(Indicador.query(
-	  	{
-	  		grupo_indicador:id,
-	  		somente_ativos:true
-	  	},
-	  	function(indicadores) {
-			  $scope.indicadores = indicadores;
-			  $scope.carregandoIndicador = false;
-			  // Após carregar indicadores, verifica se pode carregar indicador do link
-			  $scope.urlIndicador(computedUrl);
+		// ARMAZENA OBJETO DA REQUISIÇÃO EM UM ARRAY PARA ABORTAR REQUISIÇÕES CONFORME NECESSÁRIO
+		$scope.xhrReqs.push(Indicador.query(
+			{
+				grupo_indicador:id,
+				somente_ativos:true
+			},
+			function(indicadores) {
+				$scope.indicadores = indicadores;
+				$scope.carregandoIndicador = false;
+			    // Após carregar indicadores, verifica se pode carregar indicador do link
+				if (computedUrl.includes("mostra_") && !url) $scope.urlConteudo(computedUrl);
 			}
 		));
 	}
@@ -2881,7 +2893,7 @@ app.controller("dashboard", function($scope,
 
 	$scope.printScreen = function(tipo) {
 		tipoParams = {
-			instrumento: {
+			mapa: {
 				nome: $scope.indicador.instrumento,
 				classe: 'abas-container'
 			},
@@ -2983,11 +2995,12 @@ app.controller("dashboard", function($scope,
 	<div class="row">
 				<div class="col-sm-6"> 
 					<p class="quebra-linha" ng-bind-html="indicador.apresentacao"></p>
-					
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="verMemoria()">{{ mostraTabela ? 'Ocultar' : 'Visualizar' }} Tabela de valores do indicador </a>
-					<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
+					<div data-html2canvas-ignore>
+						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
+						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
+						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="verMemoria()">{{ mostraTabela ? 'Ocultar' : 'Visualizar' }} Tabela de valores do indicador </a>
+						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
+					</div>
 					<br>
 					<div>
 						<label for="tipoGrafico">Tipo de visualização: </label>
@@ -3178,10 +3191,12 @@ app.controller("dashboard", function($scope,
 						data-ng-options="instrumento.id_grupo_indicador as instrumento.nome for instrumento in instrumentos | orderBy: '-nome' : true" 
 						ng-change="cargaCadastroIndicadores(optInstrumento); atualizaFicha(optInstrumento); loadMap(); atualizarStatusMapa(optInstrumento)" data-html2canvas-ignore><option value="">Todos</option>
 					</select>
+					<br data-html2canvas-ignore>
+					<br data-html2canvas-ignore>
 					<div ng-show="optInstrumento">
 						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
 						<p>
-							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")' data-html2canvas-ignore>ver mais</a>
+							{{ descricaoGrupoIndicador }}... <a href='' id='ver-mais' ng-click='abrirModal("instrumento")' data-html2canvas-ignore>ver mais</a>
 						</p>
 						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
 						<!-- DADOS ABERTOS -->
@@ -3252,9 +3267,9 @@ app.controller("dashboard", function($scope,
 					<div id="feature-info">&nbsp;</div>
 				</div>
 				<div id="botoes-mapa" data-html2canvas-ignore>
-					<button class="gera-link-botao" ng-click="geraLink('instrumento')" type="button" title="Gerar link para este instrumento" ng-show="mostrarMapa">
+					<button class="gera-link-botao" ng-click="geraLink('mapa')" type="button" title="Gerar link para este mapa" ng-show="mostrarMapa">
 					</button>
-					<button class="print-screen-botao" ng-click="printScreen('instrumento')" type="button" title="Salvar instrumento como imagem">	
+					<button class="print-screen-botao" ng-click="printScreen('mapa')" type="button" title="Salvar mapa do instrumento como imagem">	
 					</button>
 				</div>
 			</div>			
