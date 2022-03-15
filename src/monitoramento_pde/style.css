@@ -358,6 +358,28 @@ footer{
 	border-style:solid;
 }
 
+.rodape-topo {
+	margin-bottom: 15px;
+	min-height: 40px;
+}
+
+.rodape-topo ul {
+	list-style-type: none;
+	padding-left: 0;
+}
+
+.rodape-topo a {
+	color: #db2c30;
+}
+
+.redes-sociais a {
+	margin-right: 0.75rem;
+}
+
+.redes-sociais a:first-child {
+	margin-left: 0.75rem;
+}
+
 #conteudo{
 	margin-bottom:15px;
 }
