@@ -1937,6 +1937,17 @@ app.controller("dashboard", function($scope,
 						scope:$scope,
 						size: 'lg'
 					});
+				} else {
+					if (tipo == 'reportarIndicador') {
+						$rootScope.modalReportarIndicador = $uibModal.open({
+							ariaLabelledBy: 'modal-titulo-reportar-problema',
+							ariaDescribedBy: 'modal-corpo-reportar-problema',
+							templateUrl: 'ModalReportarIndicador.html',
+							controller: function($scope){},
+							scope: $scope,
+							size: 'lg'
+						})
+					}
 				}
 			};
 		};
@@ -1950,6 +1961,10 @@ app.controller("dashboard", function($scope,
 			}else{
 				if(tipo=='estrategia'){
 					$rootScope.modalFichaEstrategia.close();
+				} else {
+					if (tipo=='reportarIndicador') {
+						$rootScope.modalReportarIndicador.close();
+					}
 				}
 			}
 		}
@@ -2908,6 +2923,13 @@ app.controller("dashboard", function($scope,
 		});
 	};
 
+	$scope.reportarProblema = function(tipo) {
+		if(tipo == 'indicador') {
+			var formulario = document.getElementById("reportar-problema-indicador");
+			var fd = new FormData(formulario);
+		} 
+	}
+
 	$scope.debugLog = function(el) {
 		console.warn("DEBUG LOG:");
 		console.log(el);
@@ -2988,6 +3010,30 @@ app.controller("dashboard", function($scope,
 		<div class="modal-footer">	
 			<button class="btn btn-danger" type="button" ng-click="fecharModal('estrategia')">	Fechar</button>
 		</div>
+	</div>
+</script>	
+
+<script type="text/ng-template" id="ModalReportarIndicador.html">
+	<div class="modal-reportar-problema">
+		<div class="modal-header">
+	    	<h3 class="modal-title" id="modal-titulo-reportar-problema">Reportar problema em "{{indicador.nome}}"</h3> 
+		</div>
+		<form id="reportar-problema-indicador">
+			<div class="modal-body content-page" id="modal-corpo-reportar-problema" style="text-align:justify">
+				<p class="quebra-linha">Preencha os campos para contato e as informações sobre o problema:</p>
+				<input type="text" style="max-width: 100%; width: 100%;" name="id_indicador" ng-model="indicador.id_indicador" hidden>
+				<label for="nome">Nome</label>
+				<input type="text" style="max-width: 100%; width: 100%;" name="nome">
+				<label for="email">E-mail</label>
+				<input type="email" style="max-width: 100%; width: 100%;" name="email">
+				<label for="mensagem">Descreva o problema</label>
+				<textarea name="mensagem" style="max-width: 100%; height: 300px; width: 100%;"></textarea>
+			</div>
+			<div class="modal-footer">	
+				<button class="btn btn-success" type="button" ng-click="reportarProblema('indicador')">Enviar</button>
+				<button class="btn btn-danger" type="button" ng-click="fecharModal('reportarIndicador')">Fechar</button>
+			</div>
+		</form>
 	</div>
 </script>	
 
@@ -3305,6 +3351,8 @@ app.controller("dashboard", function($scope,
 				
 				<div ng-include onload="atualizarAccordion(indicador);atribuirRegiaoSemSelecao();" src="indicador.aberto ? 'indicador.html' : ''"></div>
 				<div style="text-align: right; width: 100%; margin-top: -30px;" data-html2canvas-ignore>
+				<button class="reportar-problema-botao" ng-click="abrirModal('reportarIndicador')" type="button" title="Gerar link para este indicador">Reportar problema
+				</button>
 				<button class="gera-link-botao" ng-click="geraLink('indicador')" type="button" title="Gerar link para este indicador">
 				</button>
 				<button class="print-screen-botao" ng-click="printScreen('indicador')" type="button" title="Salvar indicador como imagem">	
