@@ -1947,6 +1947,19 @@ app.controller("dashboard", function($scope,
 							scope: $scope,
 							size: 'lg'
 						})
+					} else {
+						if (tipo == 'enviarFormulario') {
+							$rootScope.modalEnviarFormulario = $uibModal.open({
+								animation: true,
+								ariaLabelledBy: 'modal-titulo-enviar-formulario',
+								ariaDescribedBy: 'modal-corpo-enviar-formulario',
+								templateUrl: 'ModalEnviarFormulario.html',
+								controller: function($scope){},
+								scope: $scope,
+								size: 'md',
+							});
+
+						}
 					}
 				}
 			};
@@ -1962,9 +1975,13 @@ app.controller("dashboard", function($scope,
 				if(tipo=='estrategia'){
 					$rootScope.modalFichaEstrategia.close();
 				} else {
-					if (tipo=='reportarIndicador') {
+					if (tipo == 'reportarIndicador') {
 						$rootScope.modalReportarIndicador.close();
-					}
+					} else {
+					if (tipo == 'enviarFormulario') {
+						$rootScope.modalEnviarFormulario.close();
+						}
+					} 
 				}
 			}
 		}
@@ -2924,10 +2941,33 @@ app.controller("dashboard", function($scope,
 	};
 
 	$scope.reportarProblema = function(tipo) {
-		if(tipo == 'indicador') {
-			var formulario = document.getElementById("reportar-problema-indicador");
-			var fd = new FormData(formulario);
-		} 
+		const idFormulario = `reportar-problema-${tipo}`;
+		var formulario = document.getElementById(idFormulario);
+		var formData = new FormData(formulario);
+		var xhr = new XMLHttpRequest();
+		xhr.onreadystatechange = function() {
+			$scope.enviarFormulario = {};
+			if (xhr.readyState === 1) {
+				$scope.enviarFormulario.mensagem = 'Enviando o formulário';
+				$scope.abrirModal('enviarFormulario');
+			}
+			if (xhr.readyState === 4) {
+				$scope.$apply(function() {
+					var resposta = xhr.response.getElementById('resposta');
+					if (resposta == null) {
+						mensagem = 'Houve um erro no envio, verifique as informações e tente novamente';
+						$scope.enviarFormulario.sucesso = 0;
+					} else if (resposta.innerText == 'sucesso') {
+						mensagem = 'Enviado com sucesso';
+						$scope.enviarFormulario.sucesso = 1;
+					}
+						$scope.enviarFormulario.mensagem = mensagem;
+				});				
+			}
+		}
+		xhr.open('POST', '/reportar-problema', true);
+		xhr.responseType = 'document';
+		xhr.send(formData);
 	}
 
 	$scope.debugLog = function(el) {
@@ -3036,6 +3076,15 @@ app.controller("dashboard", function($scope,
 		</form>
 	</div>
 </script>	
+
+<script type="text/ng-template" id="ModalEnviarFormulario.html">
+	<div class="modal-enviar-formulario">
+		<div class="modal-header">
+			<h3 class="modal-title" id="modal-titulo-enviar-formulario">Reportar problema <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('enviarFormulario'); enviarFormulario.sucesso && fecharModal('reportarIndicador')">X</button></h3> 
+		</div>
+		<div class="modal-body" id="modal-corpo-enviar-formulario" ng-bind-html="enviarFormulario.mensagem"></div>
+	</div>
+</script>
 
 <script type="text/ng-template" id="indicador.html">
 	<div class="row">
