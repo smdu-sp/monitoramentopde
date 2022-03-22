@@ -332,7 +332,7 @@ header .navbar a:hover, .navbar a:focus{
 	height:30px;
 	text-align:center;
 	padding:7px;
-	background-color:#db2c30;
+	background-color:#d6342a;
 	margin-right:4px;
 	margin-left:4px;
 }
@@ -345,11 +345,11 @@ header .navbar a:hover, .navbar a:focus{
 .link-rodape{
 	padding-bottom:8px;
 	display:block;
-	color:#db2c30;
+	color:#d6342a;
 }
 
 .link-rodape:hover{
-	color:#db2c30;
+	color:#d6342a;
 }
 
 footer{
@@ -369,7 +369,7 @@ footer{
 }
 
 .rodape-topo a {
-	color: #db2c30;
+	color: #d6342a;
 }
 
 .redes-sociais a {
@@ -439,11 +439,11 @@ footer{
 }
 
 .link-pagina{
-	color:#db2c30;
+	color:#d6342a;
 }
 
 .link-pagina:hover{
-	color:#db2c30;
+	color:#d6342a;
 }
 
 .subtitulo-instrumento p{

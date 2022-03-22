@@ -59,7 +59,7 @@
 			<div class="col-sm-4">
 				<div class="row">
 					<div class="col-sm-12">
-						<p>Todo o conteúdo do site está disponível sob a licença Creative Commons. Acesse a página <a href="https://gestaourbana.prefeitura.sp.gov.br/desenvolvimento/" style="color:#db2c30">Desenvolvimento</a> e saiba mais.
+						<p>Todo o conteúdo do site está disponível sob a licença Creative Commons. Acesse a página <a href="https://gestaourbana.prefeitura.sp.gov.br/desenvolvimento/" style="color:#d6342a">Desenvolvimento</a> e saiba mais.
 						</p>
 					</div>
 				</div>
