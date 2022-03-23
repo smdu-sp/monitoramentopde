@@ -2,6 +2,12 @@
 /**
  * Template Name: Monitoramento
  */
+
+// Notificações
+$queryNotif = "	SELECT  COUNT(*)
+				FROM mpde_problema_indicador
+				WHERE resolvido = 0;";
+$contadorNotif = $wpdb->get_var($queryNotif);
 ?>
 
 <!-- <script src="./wp/wp-includes/js/html2canvas.min.js"></script> -->
@@ -304,6 +310,18 @@ app.controller("dashboard", function($scope,
 									FichaTecnicaInstrumento, 
 									IndicadorMemoria, 
 									VariavelHistorico) {
+	
+	$scope.mostrarNotificacoes = function() {
+		$scope.notificacoes = {};
+		contador = <?=$contadorNotif?>;
+		if(contador > 9) {
+			contador = '9+';
+		};
+		$scope.notificacoes.contador = contador;
+	};
+
+	$scope.mostrarNotificacoes();
+										
 	$scope.geraLink = function(tipo) {
 		let idTipo = {
 			indicador: $scope.indicador.id_indicador,
@@ -3247,6 +3265,10 @@ app.controller("dashboard", function($scope,
 				</div>
 			</div>
 </script>
+
+	<div id="notif-box" ng-show="notificacoes.contador > 0">
+		<div class="notif-container"><span ng-bind-html="notificacoes.contador"></span></div>
+	</div>
 	
 	<div uib-carousel active="0" interval="0" no-wrap="false">
 		<div uib-slide data-ng-repeat="noticia in noticias track by $index" index="$index" class="slide-carrosel container-fluid">
@@ -3551,5 +3573,36 @@ app.controller("dashboard", function($scope,
 	}
 	#divGraficoLinha > div {
 		min-height: 465px;
+	}
+	/* Notificações */
+	#notif-box {
+		position: fixed;
+		right: 0;
+		z-index: 1;
+		top: 24%;
+		background-color: #e5e5e5;
+		border: 1px solid #bbb;
+		border-right: none;
+		border-top-left-radius: 10px;
+		border-bottom-left-radius: 10px;
+		width: 40px;
+		height: 40px;
+	}
+
+	.notif-container span {
+		position: absolute;
+		right: 8px;
+		top: 8px;
+		display: flex;
+		background-color: #d6342a;
+		border-radius: 100%;
+		height: 24px;
+		width: 24px;
+		align-items: center;
+		justify-content: center;
+		color: #fff;
+		font-size: 1.2rem;
+		letter-spacing: 1px;
+		line-height: 0;
 	}
 </style>
