@@ -2,12 +2,6 @@
 /**
  * Template Name: Monitoramento
  */
-
-// Notificações
-$queryNotif = "	SELECT  COUNT(*)
-				FROM mpde_problema_indicador
-				WHERE resolvido = 0;";
-$contadorNotif = $wpdb->get_var($queryNotif);
 ?>
 
 <!-- <script src="./wp/wp-includes/js/html2canvas.min.js"></script> -->
@@ -310,17 +304,25 @@ app.controller("dashboard", function($scope,
 									FichaTecnicaInstrumento, 
 									IndicadorMemoria, 
 									VariavelHistorico) {
+
+										
+	// Notificações
+	<?php
+		if(is_user_logged_in()){
+		$queryNotif = "	SELECT  COUNT(*)
+						FROM mpde_problema_indicador
+						WHERE resolvido = 0;";
+		$contadorNotif = $wpdb->get_var($queryNotif);
+	?>
 	
-	$scope.mostrarNotificacoes = function() {
 		$scope.notificacoes = {};
 		contador = <?=$contadorNotif?>;
 		if(contador > 9) {
 			contador = '9+';
 		};
 		$scope.notificacoes.contador = contador;
-	};
 
-	$scope.mostrarNotificacoes();
+	<?php } ?>
 										
 	$scope.geraLink = function(tipo) {
 		let idTipo = {
@@ -3266,7 +3268,7 @@ app.controller("dashboard", function($scope,
 			</div>
 </script>
 
-	<div id="notif-box" ng-show="notificacoes.contador > 0">
+	<div id="notif-box" ng-show="notificacoes">
 		<div class="notif-container"><span ng-bind-html="notificacoes.contador"></span></div>
 	</div>
 	
