@@ -398,7 +398,7 @@ app.controller("dashboard", function($scope,
 							console.log('Indicador:');
 							console.log($scope.indicador);
 							$scope.indicador.aberto = true;
-							$scope.atualizarAccordion(indicador[0]);
+							$scope.$apply();
 							document.getElementsByClassName('panel-group')[0].scrollIntoView();
 							break;
 						case 'instrumento':
