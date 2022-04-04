@@ -72,6 +72,8 @@ if ($autorizado) {
 			
 			// Atribuição dos nomes aos indicadores
 			$scope.resgatarNomes = estado => {
+				$scope.carregandoProblemas = true;
+
 				let arrayIds = [];
 				const filtroProblemas = $scope.problemas.filter(obj => {
 					return obj.resolvido == estado;
@@ -94,7 +96,6 @@ if ($autorizado) {
 				}
 
 				if (arrayIds.length > 0) {
-					$scope.carregandoProblemas = true;
 					const contagemNomes = arrayIds.length + $scope.arrayNomes.length;
 					arrayIds.forEach(ele => {
 						Indicador.query({indicador: ele}, indicador =>{
@@ -107,6 +108,8 @@ if ($autorizado) {
 							}
 						})
 					});
+				} else {
+					$scope.carregandoProblemas = false;
 				}
 			};
 
@@ -161,12 +164,15 @@ if ($autorizado) {
 			<div id="alerta-carregamento" ng-show="carregandoProblemas">
 				Carregando problemas...
 			</div>
-			<uib-accordion close-others="true">
-				<div uib-accordion-group is-open="problema.aberto" class="panel-default" close-others="true" ng-repeat="problema in problemas | filter: {resolvido: tabAtivaProblemas - 1}" ng-show="!carregandoProblemas">
+			<uib-accordion close-others="true" ng-show="!carregandoProblemas">
+				<div uib-accordion-group is-open="problema.aberto" class="panel-default" close-others="true" ng-repeat="problema in problemas | filter: {resolvido: tabAtivaProblemas - 1} as filtroProblemas">
 					<uib-accordion-heading>
 						<span>#{{problema.id}} - Indicador "{{problema.nome_indicador}}"</span><br><small class="novo-problema" ng-show="problema.novo == 1">Novo problema</small>
 					</uib-accordion-heading>
 					<div ng-include src="problema.aberto ? 'problema.html' : ''"></div>
+				</div>
+				<div id="sem-problemas" ng-if="!filtroProblemas.length">
+					Não existem problemas a serem exibidos nesta categoria 
 				</div>
 			</uib-accordion>
 		</div>
