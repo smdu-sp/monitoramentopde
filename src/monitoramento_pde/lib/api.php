@@ -2023,7 +2023,7 @@ function carregar_arquivo_metadados(WP_REST_Request $request){
 	// } catch (PDOException $e) {
 	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
 	// }
-	$pdo = $pdo_connect();
+	$pdo = pdo_connect();
 	
 	wp_verify_nonce( $_SERVER['X-WP-Nonce'], "wp_rest" );
 	
