@@ -1551,6 +1551,10 @@ app.controller("dashboard", function($scope,
 								
 				// CARREGA MAPA DO INDICADOR
 				if(inserirTerritorioMapa){
+					let territorioSelecionado = $scope.labelTerrSel;
+					if (territorioSelecionado == 'Subprefeitura') {
+						territorioSelecionado = 'Prefeitura Regional';
+					}
 					$scope.layerVetor = new ol.layer.Vector({
 						source: new ol.source.Vector({
 							loader: function (extent) {
@@ -1559,7 +1563,7 @@ app.controller("dashboard", function($scope,
 										service: 'WFS',
 										version: '1.1.0',
 										request: 'GetFeature',
-										typename: 'Monitoramento_PDE:' + $scope.labelTerrSel,
+										typename: 'Monitoramento_PDE:' + territorioSelecionado,
 										outputFormat: 'text/javascript',
 										format_options: 'callback: JSON_CALLBACK',
 										bbox: extent.join(',') + ',EPSG:3857'
