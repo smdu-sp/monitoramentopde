@@ -375,7 +375,7 @@ app.controller("dashboard", function($scope,
 				$scope.termoBuscado = "";
 				$scope.indicadores = [];
 		}
-	};
+	}
 
 	// Verifica se URL aponta para conteúdo válido e exibe esse conteúdo
 	$scope.urlConteudo = function(computedUrl) {
@@ -1548,7 +1548,7 @@ app.controller("dashboard", function($scope,
 						$scope.graficoBarras.yAxis[0].setTitle({text: $scope.textoTitulo, margin: margemTitulo});
 					}
 				}
-								
+				
 				// CARREGA MAPA DO INDICADOR
 				if(inserirTerritorioMapa){
 					let territorioSelecionado = $scope.labelTerrSel;
@@ -3007,7 +3007,7 @@ app.controller("dashboard", function($scope,
 <script type="text/ng-template" id="ModalFichaInstrumento.html">
 	<div class="modal-instrumento">
 		<div class="modal-header">
-	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')" style="font-family: sans-serif, cursive; font-weight: bold;">X</button></h3> 
+	    <h2 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.instrumento}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('instrumento')" style="font-family: sans-serif, cursive; font-weight: bold;">X</button></h2> 
 		</div>
 		<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">			
 			<p ng-repeat="(chave, valor) in fichaInstrumento.propriedades" >
@@ -3026,7 +3026,7 @@ app.controller("dashboard", function($scope,
 <script type="text/ng-template" id="ModalFichaIndicador.html">
 	<div class="modal-instrumento">
 		<div class="modal-header">
-	    <h3 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('indicador')">X</button> </h3> 
+	    <h2 class="modal-title" id="modal-titulo-ficha-instrumento">{{indicador.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('indicador')">X</button> </h2> 
 		</div>
 		<div class="modal-body" id="modal-corpo-ficha-instrumento" style="text-align:justify">
 				<p class="quebra-linha" ng-bind-html="indicador.nota_tecnica_resumida"> </p>
@@ -3058,7 +3058,7 @@ app.controller("dashboard", function($scope,
 <script type="text/ng-template" id="ModalFichaEstrategia.html">
 	<div class="modal-estrategia">
 		<div class="modal-header">
-	    <h3 class="modal-title" id="modal-titulo-ficha-estrategia">{{estrategia.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('estrategia')">X</button> </h3> 
+	    <h2 class="modal-title" id="modal-titulo-ficha-estrategia">{{estrategia.nome}} <button class="btn btn-danger pull-right" type="button" ng-click="fecharModal('estrategia')">X</button> </h2> 
 		</div>
 		<div class="modal-body" id="modal-corpo-ficha-estrategia" style="text-align:justify">
 				<p class="quebra-linha"> <a href="{{estrategia.link_infografico}}" target="_blank"><img class="img-responsive" src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a> </p>
@@ -3213,7 +3213,7 @@ app.controller("dashboard", function($scope,
 					</div>
 					<div class="row" id="divGraficoLinha" ng-show="!mostraTabela">
 						<div ng-if="hoverMapa && !carregarGraficoLinhas" style="display:flex;align-items:center;margin-left:120px;">
-							<h4 style="font-size:12px;" class="alert alert-danger">{{carregandoHistorico}}</h4>
+							<span style="font-size:12px;" class="alert alert-danger">{{carregandoHistorico}}</span>
 						</div>
 					
 						<!-- <div id="graficoBarras" ng-show="!hoverMapa"></div> -->
@@ -3264,7 +3264,7 @@ app.controller("dashboard", function($scope,
 					<div class="row">
 						<div class="col-md-12" style="padding-left:5px;padding-right:5px;">
 
-							<small><small>Base cartográfica: Mapa Digital de São Paulo, 2004. <div style="margin-top:-0.5em">Projeção Datum UTM/23S. Datum horizontal SAD69.</span></small></small>
+							<small><small>Base cartográfica: Mapa Digital de São Paulo, 2004. <div style="margin-top:-0.5em">Projeção Datum UTM/23S. Datum horizontal SAD69.</div></small></small>
 						</div>
 						<!--<button class="btn btn-default" type="button" ng-click="exportarMapa()">	<small>Exportar Mapa</small></button>-->
 					</div>
@@ -3279,8 +3279,8 @@ app.controller("dashboard", function($scope,
 	<div uib-carousel active="0" interval="0" no-wrap="false">
 		<div uib-slide data-ng-repeat="noticia in noticias track by $index" index="$index" class="slide-carrosel container-fluid">
 			<div class="carousel-caption">
-				<h4 class="text-uppercase" ng-bind-html="noticia.title.rendered | trustedHtml"></h4>
-				<p ng-bind-html="noticia.content.rendered | trustedHtml"></p>
+				<h1 class="text-uppercase titulo-home" ng-bind-html="noticia.title.rendered | trustedHtml"></h1>
+				<div ng-bind-html="noticia.content.rendered | trustedHtml"></div>
 			</div>
 		</div>
 	</div>
@@ -3317,7 +3317,7 @@ app.controller("dashboard", function($scope,
 					<br data-html2canvas-ignore>
 					<br data-html2canvas-ignore>
 					<div ng-show="optInstrumento">
-						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<h2 class="titulo-instrumento"><strong>{{ fichaInstrumento.nome }}</strong></h2>
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' id='ver-mais' ng-click='abrirModal("instrumento")' data-html2canvas-ignore>ver mais</a>
 						</p>
@@ -3344,7 +3344,7 @@ app.controller("dashboard", function($scope,
 						ng-show="fltrObjetivo.objetivos"><option value="" disabled selected hidden>Selecione...</option></select>
 					<br />
 					<div ng-show="optObjetivo">
-						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<h2 class="titulo-objetivo"><strong>{{ fichaInstrumento.nome }}</strong></h2>
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
@@ -3358,7 +3358,7 @@ app.controller("dashboard", function($scope,
 						</div>
 					</div>					
 					<!-- <div ng-show="optObjetivo || mostraPDE">
-						<h4><strong>{{ fichaInstrumento.nome }}</strong></h4>
+						<h2 class="titulo-objetivo"><strong>{{ fichaInstrumento.nome }}</strong></h2>
 						<p>
 							{{ descricaoGrupoIndicador }}... <a href='' ng-show="verMais" ng-click='abrirModal("objetivo")'>ver mais</a>
 						</p>
@@ -3385,7 +3385,7 @@ app.controller("dashboard", function($scope,
 					</div>
 				</div>
 				<div class="info-box" ng-show="mostrarMapa">
-					<h5>Informações do item</h5>
+					<span>Informações do item</span>
 					<br>
 					<div id="feature-info">&nbsp;</div>
 				</div>
@@ -3400,11 +3400,11 @@ app.controller("dashboard", function($scope,
 
 		<span ng-show="tabAtivaForma==1">
 			<hr>
-			<h4 class="titulo-forma-visu">{{estrategia.nome}}</h4>
+			<h2 class="titulo-forma-visu">{{estrategia.nome}}</h2>
 			<div class="row" >
 				<div class="col-sm-6 col-xs-12" >  
 				<p >{{estrategia.descricao}} </p>
-				<h4 id="saiba-mais"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')"> Saiba mais sobre essa estratégia </a></h4>
+				<p id="saiba-mais"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')"> Saiba mais sobre essa estratégia </a></p>
 				</div>
 				<div class="col-sm-6 col-xs-12" >
 					<div><a href="" ng-click="abrirModal('estrategia')"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a></div>
@@ -3412,7 +3412,7 @@ app.controller("dashboard", function($scope,
 			</div>
 		</span>		
 		<hr>
-		<h4 ng-show="indicadores.length > 0"><strong>Indicadores </strong></h4>
+		<h3 class="titulo-indicadores" ng-show="indicadores.length > 0"><strong>Indicadores </strong></h3>
 		<uib-accordion close-others="true">
 			<!-- Alerta de carregamento -->
 			<div id="alerta-carregamento" ng-show="carregandoIndicador">
@@ -3579,6 +3579,21 @@ app.controller("dashboard", function($scope,
 	}
 	#divGraficoLinha > div {
 		min-height: 465px;
+	}
+	/* Títulos */
+	.titulo-home {
+		font-size: 21px;
+	}
+
+	.titulo-forma-visu,
+	.titulo-instrumento,
+	.titulo-objetivo,
+	.titulo-indicadores {
+		font-size: 18px;
+	}
+
+	.modal-title {
+		font-size: 24px;
 	}
 	/* Notificações */
 	#notif-box {
