@@ -3404,10 +3404,10 @@ app.controller("dashboard", function($scope,
 			<div class="row" >
 				<div class="col-sm-6 col-xs-12" >  
 				<p ng-show="estrategia">{{estrategia.descricao ? estrategia.descricao : 'Descrição da estratégia'}} </p>
-				<p id="saiba-mais" ng-show="estrategia"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')" aria-label="Saiba mais sobre a estratégia {{estrategia.nome}} (abre box com informações)"> Saiba mais sobre essa estratégia </a></p>
+				<p id="saiba-mais" ng-show="estrategia"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')" aria-label="Saiba mais sobre a estratégia {{estrategia.nome}} (abrir box com informações)"> Saiba mais sobre essa estratégia </a></p>
 				</div>
 				<div class="col-sm-6 col-xs-12" >
-					<div><a href="" ng-click="abrirModal('estrategia')" ng-show="estrategia"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="Saiba mais sobre a estratégia {{estrategia.nome}} (abre box com informações)"></a></div>
+					<div><a href="" ng-click="abrirModal('estrategia')" ng-show="estrategia"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="Miniatura do documento ilustrado sobre a estratégia {{estrategia.nome}} (abrir box com informações)"></a></div>
 				</div>
 			</div>
 		</div>		
