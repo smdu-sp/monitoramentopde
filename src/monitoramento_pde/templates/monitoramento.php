@@ -3291,11 +3291,11 @@ app.controller("dashboard", function($scope,
 			A plataforma de Monitoramento e Avaliação da Implementação do Plano Diretor Estratégico está em processo de desenvolvimento e pode apresentar instabilidades de navegação durante este período
 			</div>		 
 		</p> -->
-		<span data-html2canvas-ignore>
+		<div data-html2canvas-ignore>
 			<hr>
 			<p>Escolha a forma como deseja visualizar os indicadores</p>
 			<hr>
-		</span>
+		</div>
 		<uib-tabset active="tabAtivaForma" type="pills">
 			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}" data-html2canvas-ignore>
 				<hr data-html2canvas-ignore>
@@ -3317,13 +3317,13 @@ app.controller("dashboard", function($scope,
 					<br data-html2canvas-ignore>
 					<br data-html2canvas-ignore>
 					<div ng-show="optInstrumento">
-						<h2 class="titulo-instrumento"><strong>{{ fichaInstrumento.nome }}</strong></h2>
-						<p>
+						<h2 class="titulo-instrumento" ng-show="fichaInstrumento.nome"><strong>{{ fichaInstrumento.nome ? fichaInstrumento.nome : 'Nome do instrumento' }}</strong></h2>
+						<p ng-show="descricaoGrupoIndicador">
 							{{ descricaoGrupoIndicador }}... <a href='' id='ver-mais' ng-click='abrirModal("instrumento")' data-html2canvas-ignore>ver mais</a>
 						</p>
 						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
 						<!-- DADOS ABERTOS -->
-						<div class="download-dados-abertos" data-html2canvas-ignore>
+						<div class="download-dados-abertos" ng-show="descricaoGrupoIndicador" data-html2canvas-ignore>
 							<p>Download do banco de dados:
 								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
 							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
@@ -3344,13 +3344,13 @@ app.controller("dashboard", function($scope,
 						ng-show="fltrObjetivo.objetivos"><option value="" disabled selected hidden>Selecione...</option></select>
 					<br />
 					<div ng-show="optObjetivo">
-						<h2 class="titulo-objetivo"><strong>{{ fichaInstrumento.nome }}</strong></h2>
-						<p>
+						<h2 class="titulo-objetivo" ng-show="fichaInstrumento.nome"><strong>{{ fichaInstrumento.nome ? fichaInstrumento.nome : 'Nome do instrumento'}}</strong></h2>
+						<p ng-show="descricaoGrupoIndicador">
 							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
 						</p>
 						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
 						<!-- DADOS ABERTOS -->
-						<div class="download-dados-abertos">
+						<div ng-show="descricaoGrupoIndicador" class="download-dados-abertos">
 							<p>Download do banco de dados:
 								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
 							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
@@ -3398,19 +3398,19 @@ app.controller("dashboard", function($scope,
 			</div>			
 		</div>		
 
-		<span ng-show="tabAtivaForma==1">
+		<div ng-show="tabAtivaForma==1">
 			<hr>
-			<h2 class="titulo-forma-visu">{{estrategia.nome}}</h2>
+			<h2 class="titulo-forma-visu" ng-show="estrategia.nome">{{estrategia.nome ? estrategia.nome : 'Nome da estratégia'}}</h2>
 			<div class="row" >
 				<div class="col-sm-6 col-xs-12" >  
-				<p >{{estrategia.descricao}} </p>
-				<p id="saiba-mais"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')"> Saiba mais sobre essa estratégia </a></p>
+				<p ng-show="estrategia">{{estrategia.descricao ? estrategia.descricao : 'Descrição da estratégia'}} </p>
+				<p id="saiba-mais" ng-show="estrategia"><a href="" class="link-saiba-mais" ng-click="abrirModal('estrategia')" aria-label="Saiba mais sobre a estratégia {{estrategia.nome}} (abre box com informações)"> Saiba mais sobre essa estratégia </a></p>
 				</div>
 				<div class="col-sm-6 col-xs-12" >
-					<div><a href="" ng-click="abrirModal('estrategia')"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="{{estrategia.nome}}"></a></div>
+					<div><a href="" ng-click="abrirModal('estrategia')" ng-show="estrategia"><img class="img-responsive" ng-src="{{estrategia.link_imagem}}" alt="Saiba mais sobre a estratégia {{estrategia.nome}} (abre box com informações)"></a></div>
 				</div>
 			</div>
-		</span>		
+		</div>		
 		<hr>
 		<h3 class="titulo-indicadores" ng-show="indicadores.length > 0"><strong>Indicadores </strong></h3>
 		<uib-accordion close-others="true">
