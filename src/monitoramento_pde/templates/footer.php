@@ -1,6 +1,6 @@
 </div>
 
-<footer  id="rodape" class="content-info" style="width:100%;background-color:#f8f8f8">
+<footer id="rodape" class="content-info" style="width:100%;background-color:#f8f8f8">
   	<div class="container" style="padding-top:15px;padding-bottom:15px;">
 		<div class="row rodape-topo">
 			<div class="col-sm-3 text-center">
@@ -27,11 +27,11 @@
 					<div class="col-sm-12">
 						<p class="redes-sociais">
 							Redes Sociais:
-							<a href="https://www.facebook.com/smulsp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-facebook-27x27.png" /></a>
-							<a href="https://twitter.com/smul_sp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-twitter-27x27.png" /></a>
-							<a href="https://www.instagram.com/smul_sp/" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-instagram-27x27.png" /></a>
-							<a href="https://www.youtube.com/user/pmspsmdu" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/icon-youtube.png" /></a>
-							<a href="https://www.linkedin.com/company/smulsp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/icon-linkedin.png" /></a>
+							<a href="https://www.facebook.com/smulsp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-facebook-27x27.png" alt="Facebook da SMUL" /></a>
+							<a href="https://twitter.com/smul_sp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-twitter-27x27.png" alt="Twitter da SMUL" /></a>
+							<a href="https://www.instagram.com/smul_sp/" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/btn-instagram-27x27.png" alt="Instagram da SMUL" /></a>
+							<a href="https://www.youtube.com/user/pmspsmdu" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/icon-youtube.png" alt="Canal do YouTube da SMUL" /></a>
+							<a href="https://www.linkedin.com/company/smulsp" target="_blank" rel="noopener"><img src="<?php echo bloginfo('template_url'); ?>/images/icon-linkedin.png" alt="LinkedIn da SMUL" /></a>
 						</p>
 					</div>
 				</div>
