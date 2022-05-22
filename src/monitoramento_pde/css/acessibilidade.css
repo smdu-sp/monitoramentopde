@@ -1,13 +1,28 @@
-.noscript {
-	text-align: center;
+noscript {
+	margin: auto;
 }
 
-.noscript div {
-	display: inline-block;
-	margin: auto;
+noscript.app-obrigatorio {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	padding-top: 160px;
 	padding-bottom: 140px;
-	font-size: 24px;
+	width: 960px;
+}
+
+noscript.app-obrigatorio p {
+	display: inline-block;
+	text-align: center;
+	margin-bottom: 40px;
+	font-size: 23px;
+}
+
+noscript.app-opcional p {
+	display: block;
+	margin: auto;
+	margin-bottom: 10px;
+	width: 1140px;
 }
 
 .esconder-conteudo {

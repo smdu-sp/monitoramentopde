@@ -45,4 +45,9 @@
 	</script>
 </header>
 
+<noscript class="<?= (is_front_page() || is_page('acoes-prioritarias') || is_page('dados-abertos')) ? 'app-obrigatorio' : 'app-opcional'?>">
+  <p>O seu navegador não suporta JavaScript ou este recurso não está ativo no momento.</p>
+  <p>Este site possui aplicação web interativa para visualização de dados, gráficos e mapas que necessita do JavaScript para funcionar corretamente.</p>
+</noscript>
+
 <div id="conteudo-principal">
