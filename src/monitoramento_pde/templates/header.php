@@ -1,7 +1,14 @@
 <header class="banner">
-  <nav class="navbar navbar-default">
+  <div id="pular-conteudo">
+    <ul>
+	  <li><a accesskey="1" href="#conteudo-principal">Ir para o conteúdo <span>1</span></a></li>
+	  <li><a accesskey="2" href="#container-secoes">Ir para o menu <span>2</span></a></li>
+	  <li><a accesskey="4" href="#rodape">Ir para o rodapé <span>4</span></a></li>
+    </ul>
+  </div>
+  <div class="navbar navbar-default">
     <div class="container">
-			<div class="navbar-header" style="width:100%;">
+      <nav class="navbar-header" style="width:100%;" aria-label="Cabeçalho">
 				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".menu-secoes-toggle">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
@@ -12,20 +19,19 @@
 				  <a class="navbar-brand navbar-right" href="https://prefeitura.sp.gov.br"><img class="img-responsive" id="navbar-prefeitura" src="../app/uploads/2016/08/prefeitura.png" alt="link prefeitura de são paulo"></a>
 				  <!--<a class="navbar-brand navbar-right" href="http://gestaourbana.prefeitura.sp.gov.br"><img class="img-responsive" id="navbar-gestao" src="../app/uploads/2016/08/gestao_urbana.png" alt="link gestão urbana"></a>-->
 				</div>
-			</div>
+      </nav>
 			
-      <?php
-      if (has_nav_menu('secoes')) :
-        wp_nav_menu(['theme_location' => 'secoes',
-					 'menu_class' => 'nav nav-pills',
-					 'container_class' => 'collapse navbar-collapse menu-secoes-toggle',
-					 'container_id' => 'container-secoes']);
-      endif;
-      ?>
-
-    
+      <nav id="container-secoes" class="collapse navbar-collapse menu-secoes-toggle" aria-label="Menu Principal">
+        <?php
+          if (has_nav_menu('secoes')) :
+            wp_nav_menu(['theme_location' => 'secoes',
+              'menu_class' => 'nav nav-pills',
+              'container' => '']);
+          endif;
+        ?>
+      </nav>
     </div>
-  </nav>
+  </div>
 	
 	<script>
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -39,4 +45,4 @@
 	</script>
 </header>
 
-
+<div id="conteudo-principal">

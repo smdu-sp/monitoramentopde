@@ -1,4 +1,6 @@
-<footer class="content-info" style="width:100%;background-color:#f8f8f8">
+</div>
+
+<footer  id="rodape" class="content-info" style="width:100%;background-color:#f8f8f8">
   	<div class="container" style="padding-top:15px;padding-bottom:15px;">
 		<div class="row rodape-topo">
 			<div class="col-sm-3 text-center">
