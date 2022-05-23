@@ -375,7 +375,7 @@ app.controller("dashboard", function($scope,
 				$scope.termoBuscado = "";
 				$scope.indicadores = [];
 		}
-	}
+	};
 
 	// Verifica se URL aponta para conteúdo válido e exibe esse conteúdo
 	$scope.urlConteudo = function(computedUrl) {
@@ -3115,10 +3115,10 @@ app.controller("dashboard", function($scope,
 				<div class="col-sm-6"> 
 					<p class="quebra-linha" ng-bind-html="indicador.apresentacao"></p>
 					<div data-html2canvas-ignore>
-						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
-						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
-						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="verMemoria()">{{ mostraTabela ? 'Ocultar' : 'Visualizar' }} Tabela de valores do indicador </a>
-						<a class="link-saiba-mais link-saiba-mais-indicador" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
+						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Ficha técnica do indicador {{indicador.nome}}" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
+						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Ficha técnica do instrumento {{indicador.instrumento}}" ng-click="abrirModal('indicador')"ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
+						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="{{mostraTabela ? 'Ocultar' : 'Visualizar'}} Tabela de valores do indicador {{indicador.nome}}" ng-click="verMemoria()">{{mostraTabela ? 'Ocultar' : 'Visualizar'}} Tabela de valores do indicador</a>
+						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Baixar Tabela de valores do indicador {{indicador.nome}} (Excel XLSX)" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
 					</div>
 					<br>
 					<div>
@@ -3130,11 +3130,10 @@ app.controller("dashboard", function($scope,
 				</div>
 				<div class="col-sm-6">
 					<div class="row">
-
 						<div class="col-sm-5 col-sm-offset-1 caixa-data">
 						
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
-								<label for="data">Data inicial:</label>
+								<label for="data-inicial">Data inicial:</label>
 								<br>
 								<select 
 									style="max-width:100%;" 
@@ -3142,40 +3141,42 @@ app.controller("dashboard", function($scope,
 									data-ng-init="selecao.dataMin = razaoOODC(indicador.id_indicador)"
 									data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " 
 									data-ng-change="ajustarDataFinal();carregarGraficoHistorico(regiaoRealcada.codigo, true);"
-									name="dataInicial">
+									name="dataInicial"
+									id="data-inicial">
 								</select>
 							</p>
 							<p ng-if="hoverMapa && (indicador.datas.length > 0 || indicador.datas[0]) ">
-								<label for="data">Data final:</label>
+								<label for="data-final">Data final:</label>
 								<br>
 								<select 
 									style="max-width:100%;" 
 									data-ng-model="selecao.dataMax" 
 									data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' | dataFinal: selecao.dataMin " 
 									data-ng-change="carregarGraficoHistorico(regiaoRealcada.codigo, true)" 
-									name="dataFinal">
+									name="dataFinal"
+									id="data-final">
 								</select>
 							</p>
 							
 							<p ng-if="!hoverMapa && (indicador.datas.length > 0 && indicador.datas[0]) ">
-								<label for="data"> Data</label>
+								<label for="data-simples">Data</label>
 								<br>
-								<select ng-if="indicador.periodicidade == 'anual' || indicador.periodicidade == 'mensal' || !indicador.periodicidade" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo"></select>
-								<select ng-if="indicador.periodicidade == 'trimestral'" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as formatarTrimestre(data) for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo"></select>
+								<select ng-if="indicador.periodicidade == 'anual' || indicador.periodicidade == 'mensal' || !indicador.periodicidade" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as (formatarData(data) | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo" id="data-simples"></select>
+								<select ng-if="indicador.periodicidade == 'trimestral'" style="max-width:100%;" data-ng-model="selecao.dataSel" data-ng-options="data as formatarTrimestre(data) for data in indicador.datas | filter:'' " data-ng-change="cargaIndicadorValores(false,true)" name="periodo" id="data-simples"></select>
 							</p>
 						</div>
 						<div class="col-sm-3 caixa-categoria" style="position: absolute; left: 10em">
 							<p ng-if="(regiaoRealcada.codigo == null) && mostrarCategoria()">
-								<label>Categoria:</label>
+								<label for="categoria">Categoria:</label>
 								<br>
-								<select style="max-width:100%;" data-ng-model="selecao.categoria" data-ng-options="categoria as categoria.name for categoria in selecao.categorias" data-ng-change="filtraCategoria()" name="categoria">
+								<select style="max-width:100%;" data-ng-model="selecao.categoria" data-ng-options="categoria as categoria.name for categoria in selecao.categorias" data-ng-change="filtraCategoria()" name="categoria" id="categoria">
 									<option value="">Escolha uma categoria</option>
 								</select>
 							</p>
 						</div>
 						<div class="col-sm-6">
 							<p>
-								<label for="territorio">Unidade territorial de análise</label>
+								<label for="seletor-territorio">Unidade territorial de análise</label>
 								<!-- UNIDADE TERRITORIAL DE ANÁLISE DO INDICADOR -->
 								<br>
 								<select style="max-width:100%;width:100%;" id="seletor-territorio" data-ng-model="selecao.idTerrSel" data-ng-click="subRegional($event);" data-ng-options="territorio.id_territorio as territorio.nome for territorio in indicador.territorios | orderBy: 'ordem'" data-ng-change="cargaIndicadorValores(false,true);atribuirRegiaoSemSelecao();" name="territorio"></select>
