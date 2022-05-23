@@ -42,7 +42,7 @@ app.controller("acoesPrioritarias", function($scope, $http, $filter, AcaoPriorit
 
 </script>
 
-<div class="content-page container text-justify" data-ng-app="monitoramentoPde" data-ng-controller="acoesPrioritarias">
+<div id="conteudo" class="content-page container text-justify" data-ng-app="monitoramentoPde" data-ng-controller="acoesPrioritarias">
 <?php the_content(); ?>
 
 <div class="row" style="margin:0;">
@@ -68,7 +68,6 @@ app.controller("acoesPrioritarias", function($scope, $http, $filter, AcaoPriorit
 				<option value="">Todos</option>
 				</select>-->
 			</div>
-			
 				<div style="padding-left:15px; font-size:18px; margin-top: 10px; margin-bottom: 10px;">
 					<strong> Ação </strong>
 				</div>
@@ -76,9 +75,9 @@ app.controller("acoesPrioritarias", function($scope, $http, $filter, AcaoPriorit
 			--><div class="col-sm-1 acao-prioritaria" style="display:inline-block;float:none;vertical-align:middle;"> 
 				<strong> Artigo </strong>
 			</div><!--
-			--><label for="estagio_implementacao" class="col-sm-2 acao-prioritaria" style="display:inline-block;float:none;vertical-align:middle;padding-left:7px"> 
+			--><div for="estagio_implementacao" class="col-sm-2 acao-prioritaria" style="display:inline-block;float:none;vertical-align:middle;padding-left:7px"> 
 				<strong> Estágio de implementação </strong>
-			</label><!--
+			</div><!--
 			--><label for="tema" class="col-sm-2 acao-prioritaria" style="display:inline-block;float:none;vertical-align:middle;padding-left:7px"> 
 				<strong> Tema </strong>
 			</label><!--
@@ -92,10 +91,11 @@ app.controller("acoesPrioritarias", function($scope, $http, $filter, AcaoPriorit
 			</div><!--
 			--><div class="col-sm-1" style="display:inline-block;float:none;">
 			</div><!--
-			--><div class="col-sm-2 text-center" style="display:inline-block;float:none;vertical-align:middle;padding-right:0px;"> 
-				<select style="width:100%;" data-ng-model="optEstagio_implementacao" data-ng-options="acao.estagio_implementacao for acao in acoesPrioritarias | unique: 'estagio_implementacao' | filter: {estagio_implementacao:''}" data-ng-change="cargaAcoesPrioritarias()" name="estagio_implementacao">
+			--><div class="col-sm-2 text-center" style="display:inline-block;float:none;vertical-align:middle;padding-right:0px;">
+				<!-- TODO: DEFINIR LÓGICA PARA NÃO EXIBIR O COMBOBOX CASO NÃO EXISTA OPÇÃO A SER SELECIONADA -->
+				<!-- <select style="width:100%;" data-ng-model="optEstagio_implementacao" data-ng-options="acao.estagio_implementacao for acao in acoesPrioritarias | unique: 'estagio_implementacao' | filter: {estagio_implementacao:''}" data-ng-change="cargaAcoesPrioritarias()" name="estagio_implementacao" id="estagio_implementacao">
 				<option value="">Todos</option>
-				</select>
+				</select> -->
 			</div><!--
 			--><div class="col-sm-2 text-center" class="acao-prioritaria-cbo" style="display:inline-block;float:none;vertical-align:middle;padding-left:7px"> 
 				<select style="width:100%;" data-ng-model="optTema" class="acao-prioritaria" data-ng-options="acao.tema for acao in acoesPrioritarias | unique: 'tema' | filter: {tema:''}" data-ng-change="cargaAcoesPrioritarias()" name="tema" id="tema">
