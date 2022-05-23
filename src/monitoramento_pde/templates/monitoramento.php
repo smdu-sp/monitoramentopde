@@ -3199,16 +3199,20 @@ app.controller("dashboard", function($scope,
 					<div class="row" ng-if="mostraTabela">
 						<div class="tabela-valores-container">
 							<table class="tabela-valores">
-								<tr>
-									<th ng-repeat="(key, valor) in memoriaIndicador.dados[0]">{{key}}</th>
-								</tr>
-								<tr ng-repeat="(key, dado) in memoriaIndicador.dados">
-									<td ng-repeat="(coluna, valor) in dado" 
-											ng-if="deveMostrarCelula(memoriaIndicador.dados, key, coluna, valor)"
-											rowspan="{{ calculaRowspan(memoriaIndicador.dados, coluna, valor) }}">
-										{{ valor }}
-									</td>
-								</tr>
+								<thead>
+									<tr>
+										<th ng-repeat="(key, valor) in memoriaIndicador.dados[0]">{{key}}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr ng-repeat="(key, dado) in memoriaIndicador.dados">
+										<td ng-repeat="(coluna, valor) in dado" 
+												ng-if="deveMostrarCelula(memoriaIndicador.dados, key, coluna, valor)"
+												rowspan="{{ calculaRowspan(memoriaIndicador.dados, coluna, valor) }}">
+											{{ valor }}
+										</td>
+									</tr>
+								</tbody>
 							</table>
 						</div>
 					</div>
