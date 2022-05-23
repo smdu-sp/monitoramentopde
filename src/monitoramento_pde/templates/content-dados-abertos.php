@@ -30,7 +30,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 	$scope.menuTipoDados = [
 		{	
 			titulo:'Banco de dados',
-			introducao: 'Os indicadores são fruto do cálculo e cruzamento de dados organizados em bancos que alimentam o sistema de monitoramento e avaliação. <br> Veja abaixo a lista de bancos de dados. ',
+			introducao: '<p>Os indicadores são fruto do cálculo e cruzamento de dados organizados em bancos que alimentam o sistema de monitoramento e avaliação.</p><p>Veja abaixo a lista de bancos de dados.</p>',
 			tipoArquivo:['XLSX', 'CSV', 'TXT'],
 			seletor:'instrumento',
 			dados:$scope.fontesDados
@@ -38,14 +38,14 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 		},
 		{	
 			titulo:'Ficha técnica dos instrumentos', 
-			introducao: 'Os Instrumentos Urbanísticos e de Gestão Ambiental são meio para viabilizar a efetivação dos princípios e objetivos do Plano Diretor.<br> Veja abaixo a lista dos instrumentos. <br> Se desejar, filtre por estratégia: <br> ',
+			introducao: '<p>Os Instrumentos Urbanísticos e de Gestão Ambiental são meio para viabilizar a efetivação dos princípios e objetivos do Plano Diretor.</p><p>Veja abaixo a lista dos instrumentos.</p><p>Se desejar, filtre por estratégia:</p>',
 			tipoArquivo:['DOC |','PDF'],
 			seletor:'estrategia',
 			dados:['Transferência do direito de construir','Estudo de Impacto Ambiental','Estudo de viabilidade ambiental', 'Avaliação ambiental estratégica']
 		},
 		{
 			titulo:'Ficha técnica dos indicadores',
-			introducao: 'Os indicadores de monitoramento e avaliação contemplam, abordando a eficiência, eficácia e efetividade, das diferentes dimensões de avaliação das políticas públicas presentes no Plano Diretor. <br> Veja abaixo a lista dos indicadores. <br> Se desejar, filtre por estratégia: <br> 		',
+			introducao: '<p>Os indicadores de monitoramento e avaliação contemplam, abordando a eficiência, eficácia e efetividade, das diferentes dimensões de avaliação das políticas públicas presentes no Plano Diretor.</p><p>Veja abaixo a lista dos indicadores.</p><p>Se desejar, filtre por estratégia:</p>',
 			tipoArquivo:['DOC','PDF'],
 			seletor:'estrategia',
 			dados:['Percentual de áreas grafadas como ZEPAM','Variação da cobertura vegetal em ZEPAM', 'Densidade de ZEPAM por habitante', 'Distribuição de usos nas áreas marcadas como ZEPAM']
@@ -282,9 +282,7 @@ app.controller("dadosAbertos", function($scope, $http, $filter, FontesDados, Dad
 
 <div id="conteudo" class="content-page container text-justify" data-ng-app="monitoramentoPde" data-ng-controller="dadosAbertos">
 <?php the_content(); ?>
-	<p><span ng-bind-html="item.introducao | trustedHtml"></span>
-
-	</p>
+	<div ng-bind-html="item.introducao | trustedHtml"></div>
 	<ul class="list-group">
 		
 		<li class="list-group-item row list-pontilhada" data-ng-repeat="dado in item.dados | orderBy: 'nome'">
