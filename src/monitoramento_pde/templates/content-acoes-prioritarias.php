@@ -69,7 +69,9 @@ app.controller("acoesPrioritarias", function($scope, $http, $filter, AcaoPriorit
 				</select>-->
 			</div>
 			
-				<h4 style="padding-left:15px;"> <strong> Ação </strong> </h4>
+				<div style="padding-left:15px; font-size:18px; margin-top: 10px; margin-bottom: 10px;">
+					<strong> Ação </strong>
+				</div>
 			</div><!--
 			--><div class="col-sm-1 acao-prioritaria" style="display:inline-block;float:none;vertical-align:middle;"> 
 				<strong> Artigo </strong>

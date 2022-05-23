@@ -1,5 +1,5 @@
 <?php use Roots\Sage\Titles; ?>
 
 <div class="page-header">
-  <h3 class="titulo-pagina"><?= Titles\title(); ?></h3>
+  <h1 class="titulo-pagina"><?= Titles\title(); ?></h1>
 </div>

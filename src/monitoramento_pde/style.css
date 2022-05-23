@@ -134,6 +134,15 @@ header .navbar a:hover, .navbar a:focus{
 	}
 }
 
+/* Títulos das páginas internas */
+.titulo-pagina {
+	font-size: 24px;
+}
+
+h2.titulo-pagina {
+	font-size: 18px;
+}
+
 /* template  */
 /* carrosel */
 
