@@ -3303,7 +3303,7 @@ app.controller("dashboard", function($scope,
 				<div ng-show="tabAtivaForma==1">
 					<ul class="list-group row">
 						<li class="list-group-item col-sm-3 text-left list-visualizacao" ng-mouseover="this.hover=true" ng-mouseleave="this.hover=false" style="width:20%;" ng-repeat="itemFilho in item.children">
-							<a href=""  ng-click="cargaEstrategia(itemFilho.url.slice(1,itemFilho.url.length))" aria-label="Selecionar estratégia: {{itemFilho.title}}">
+							<a href="" ng-click="cargaEstrategia(itemFilho.url.slice(1,itemFilho.url.length))" aria-label="{{((itemFilho.url.slice(1,itemFilho.url.length) == estrategia.id_grupo_indicador)? 'Estratégia selecionada' : 'Selecionar estratégia')}}: {{itemFilho.title}}">
 								<img class="img-responsive icones-visualizacao col-sm-3"  ng-src="/app/themes/monitoramento_pde/images/icones/{{itemFilho.description + ((itemFilho.url.slice(1,itemFilho.url.length) == estrategia.id_grupo_indicador || this.hover)? '_cor' : '_pb')}}.png" alt="Ícone da Estratégia {{itemFilho.title}}" aria-hidden="true">
 								<span class="col-sm-12" style="padding:0">
 									<br><strong>{{itemFilho.title}}</strong>
