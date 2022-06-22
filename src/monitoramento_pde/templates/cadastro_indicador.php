@@ -774,7 +774,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<br>
 				<div class="descricao-cadastro"><small> Selecione o objetivo que o indicador pertencerá </small></div>
 				
-				<select class="controle-cadastro" style="max-width:100%;" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: id_grupo_indicador" data-ng-model="indicadorAtivo.id_objetivo" id="objetivo">
+				<select class="controle-cadastro" style="max-width:100%;" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="indicadorAtivo.id_objetivo" id="objetivo">
 				<option value=""></option>
 				</select>
 			</div>
