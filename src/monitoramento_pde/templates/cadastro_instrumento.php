@@ -593,6 +593,13 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		});
 		$scope.estado = 'listar';
 	};
+
+	$scope.ordenarTipo = function(grupo) {
+		if ($scope.tipo === 'objetivo') {
+			return grupo.id_grupo_indicador;
+		}
+		return grupo.nome;
+	}
 	
 	$scope.carregar = function(){		
 		$scope.camadasInstrumento = []; // Limpa legenda / camadas do instrumento
@@ -1180,7 +1187,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 					
 					<div class="descricao-cadastro"><small>Selecione o {{tipoExibicao}}</small></div>
 					
-					<select class="controle-cadastro" style="max-width:100%;" data-ng-model="idItemAtual" data-ng-options="grupo.id_grupo_indicador as grupo.nome for grupo in grupos | orderBy: 'nome'" data-ng-change="carregar()" id="grupo">
+					<select class="controle-cadastro" style="max-width:100%;" data-ng-model="idItemAtual" data-ng-options="grupo.id_grupo_indicador as grupo.nome for grupo in grupos | orderBy: ordenarTipo" data-ng-change="carregar()" id="grupo">
 					<option value=""></option>
 					</select>
 				</div>
