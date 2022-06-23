@@ -3774,7 +3774,6 @@ function indicador_historico(WP_REST_Request $request){
 	$comando->bindParam(':indicador', $parametros['indicador']);
 	$comando->bindParam(':territorio', $parametros['territorio']);
 	$comando->bindParam(':regiao', $parametros['regiao']);
-
 	
 	$dados = [];
 	if (!$comando->execute()) {
@@ -3974,7 +3973,9 @@ function indicador_cadastro(WP_REST_Request $request){
 				,max(case when grupo.tipo = 'instrumento' then grupo.ordem else null end) as ordem_instrumento
 				,fonte_var.formula_calculo ||  case when indic.tipo_valor = 'Percentual' then ' * 100' else '' end as formula_calculo
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as estrategias
+				,json_agg(distinct case when grupo.tipo = 'objetivo' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as objetivos
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
+				,json_agg(distinct case when grupo.tipo = 'objetivo' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as id_objetivo
 				,fonte_var.data_atualizacao 
 				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
 				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
@@ -4073,6 +4074,7 @@ function indicador_cadastro(WP_REST_Request $request){
 		$linha['territorios'] = json_decode($linha['territorios']);
 		$linha['territorio_exclusao'] = json_decode($linha['territorio_exclusao']);
 		$linha['estrategias'] = json_decode($linha['estrategias']);
+		$linha['objetivos'] = json_decode($linha['objetivos']);
 	}
 	
 	$response = new WP_REST_Response(
@@ -4265,6 +4267,8 @@ class Indicador
 	public $data_atualizacao;
 	public $datas;
 	public $territorios;
+	public $objetivos;
+	public $id_objetivo;
 
 	function __construct($indicador_properties)
 	{
@@ -4333,7 +4337,9 @@ function cache_indicadores() {
 				,max(case when grupo.tipo = 'instrumento' then grupo.ordem else null end) as ordem_instrumento
 				,fonte_var.formula_calculo ||  case when indic.tipo_valor = 'Percentual' then ' * 100' else '' end as formula_calculo
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as estrategias
+				,json_agg(distinct case when grupo.tipo = 'objetivo' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as objetivos
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
+				,json_agg(distinct case when grupo.tipo = 'objetivo' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as id_objetivo
 				,fonte_var.data_atualizacao 
 				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
 				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
@@ -4400,6 +4406,7 @@ function cache_indicadores() {
 			$linha['territorios'] = json_decode($linha['territorios']);
 			$linha['territorio_exclusao'] = json_decode($linha['territorio_exclusao']);
 			$linha['estrategias'] = json_decode($linha['estrategias']);
+			$linha['objetivos'] = json_decode($linha['objetivos']);
 		}
 		
 		$dados = json_encode($dados);
