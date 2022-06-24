@@ -463,8 +463,49 @@ app.controller("dashboard", function($scope,
 		$scope.instrumentos = instrumentos;
 	});
 	GrupoIndicador.query({tipo:'objetivo',tipo_retorno:'object',formato_retorno:'array'},function(objetivos){
+		objetivos.forEach(obj => obj.tipo = 'objetivo');
 		$scope.rawObjetivos = objetivos;
-		// $scope.objetivos = objetivos;
+		$scope.filtrosObjetivos = {
+			plano_diretor: {
+				id: 1,
+				nome: "Plano Diretor Estratégico",
+				objetivos: $scope.rawObjetivos
+			},
+			// macroareas: {
+			// 	id: 2,
+			// 	nome: "Macroáreas",
+			// 	objetivos: [
+			// 		"Macroárea de Estruturação Urbana",
+			// 		"Macroárea de Urbanização Consolidada",
+			// 		"Macroárea de Qualificação da Urbanização",
+			// 		"Macroárea de Redução da Vulnerabilidade Urbana",
+			// 		"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
+			// 		"Macroárea de Controle e Qualificação Urbana e Ambiental",
+			// 		"Macroárea de Contenção Urbana e Uso Sustentável",
+			// 		"Macroárea de Preservação dos Ecossistemas Naturais"
+			// 	]
+			// },
+			zonas_especiais: {
+				id: 3,
+				nome: "Zonas Especiais",
+				objetivos: [{
+						id_grupo_indicador: 22,
+						nome: "Zonas Especiais de Interesse Social (ZEIS)"
+					},
+					{
+					// "Zonas Especiais de Preservação (ZEP)",
+						id_grupo_indicador: 21,
+						nome: "Zonas Especiais de Preservação Cultural (ZEPEC)"
+					},
+					{
+						id_grupo_indicador: 19,
+						nome: "Zonas Especiais de Proteção Ambiental (ZEPAM)"
+					}
+				]
+			}
+			// "Macroáreas": ["A","B"],
+			// "Zonas Especiais": ["C","D"]
+		};
 	});	
 
 	$scope.idPoligonoAnterior = 0;
@@ -2832,47 +2873,6 @@ app.controller("dashboard", function($scope,
 		});
 	}
 
-	$scope.filtrosObjetivos = {
-		// plano_diretor: {
-		// 	id: 1,
-		// 	nome: "Plano Diretor Estratégico",
-		// 	objetivos: []
-		// },
-		// macroareas: {
-		// 	id: 2,
-		// 	nome: "Macroáreas",
-		// 	objetivos: [
-		// 		"Macroárea de Estruturação Urbana",
-		// 		"Macroárea de Urbanização Consolidada",
-		// 		"Macroárea de Qualificação da Urbanização",
-		// 		"Macroárea de Redução da Vulnerabilidade Urbana",
-		// 		"Macroárea de Redução da Vulnerabilidade Urbana e Recuperação Ambiental",
-		// 		"Macroárea de Controle e Qualificação Urbana e Ambiental",
-		// 		"Macroárea de Contenção Urbana e Uso Sustentável",
-		// 		"Macroárea de Preservação dos Ecossistemas Naturais"
-		// 	]
-		// },
-		zonas_especiais: {
-			id: 3,
-			nome: "Zonas Especiais",
-			objetivos: [{
-					id: 22,
-					nome: "Zonas Especiais de Interesse Social (ZEIS)"
-				},
-				{
-				// "Zonas Especiais de Preservação (ZEP)",
-					id: 21,
-					nome: "Zonas Especiais de Preservação Cultural (ZEPEC)"
-				},
-				{
-					id: 19,
-					nome: "Zonas Especiais de Proteção Ambiental (ZEPAM)"
-				}
-			]
-		}
-		// "Macroáreas": ["A","B"],
-		// "Zonas Especiais": ["C","D"]
-	};
 	
 	$scope.ajustarDataFinal = function(){
 		if($scope.selecao.dataMin >= $scope.selecao.dataMax){
@@ -3352,7 +3352,7 @@ app.controller("dashboard", function($scope,
 						ng-disabled="carregandoIndicador"
 						data-ng-model="optObjetivo" 
 						data-ng-options="objetivo.nome for objetivo in fltrObjetivo.objetivos | orderBy: '-nome' : true" 
-						ng-change="cargaCadastroIndicadores(optObjetivo.id); atualizaFicha(optObjetivo.id); loadMap(); atualizarStatusMapa(optObjetivo.id)" 
+						ng-change="cargaCadastroIndicadores(optObjetivo.id_grupo_indicador); atualizaFicha(optObjetivo.id_grupo_indicador); loadMap(); atualizarStatusMapa(optObjetivo.id_grupo_indicador)" 
 						ng-show="fltrObjetivo.objetivos"><option value="" disabled selected hidden>Selecione...</option></select>
 					<br />
 					<div ng-show="optObjetivo">
