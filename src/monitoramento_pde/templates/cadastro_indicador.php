@@ -178,10 +178,12 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 
 			// estrategiasDoIndicador = $scope.indicadorAtivo.estrategias?.map((valor) => { return valor });
 			estrategiasDoIndicador = $scope.indicadorAtivo.estrategias;
+			objetivosDoIndicador = $scope.indicadorAtivo.objetivos;
 			window.setTimeout(() => { 
 				$scope.indicadorAtivo.estrategias = estrategiasDoIndicador;
+				$scope.indicadorAtivo.objetivos = objetivosDoIndicador;
 				$scope.$apply();
-			}, 100);
+			}, 500);
 			
 			if($scope.indicadorComposicao)
 				$scope.indicadorComposicao.id_fonte_dados = null;
