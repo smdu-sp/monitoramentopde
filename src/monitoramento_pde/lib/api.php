@@ -4031,7 +4031,7 @@ function indicador_cadastro(WP_REST_Request $request){
 
 	// SE REQUEST FOR PARA TODOS OS INDICADORES, RETORNA QUERY SIMPLIFICADA
 	if(sizeof($parametros) === 0) {
-		$comando_string = "SELECT * FROM sistema.indicador AS indicadores
+		$comando_string = "SELECT * FROM sistema.indicador AS indic
 			INNER JOIN
 			(
 				select * FROM
@@ -4044,7 +4044,7 @@ function indicador_cadastro(WP_REST_Request $request){
 				ON relation.id_grupo_indicador = grupo_indicador.id_instrumento
 			)
 			AS instrumentos
-			ON indicadores.id_indicador = instrumentos.id_indicador".
+			ON indic.id_indicador = instrumentos.id_indicador".
 			$comando_where;
 	}
 
