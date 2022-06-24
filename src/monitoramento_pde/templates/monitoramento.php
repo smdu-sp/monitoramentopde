@@ -362,13 +362,13 @@ app.controller("dashboard", function($scope,
 				break;
 			case 2: 
 				$scope.atualizarStatusMapa(optInstrumentoSup);
-				$scope.cargaCadastroIndicadores(optInstrumentoSup);
 				$scope.atualizaFicha(optInstrumentoSup);
+				$scope.cargaCadastroIndicadores(optInstrumentoSup);
 				break;
 			case 3:
-				$scope.atualizarStatusMapa(optObjetivoSup);
+				$scope.atualizarStatusMapa(optObjetivoSup, true);
+				$scope.atualizaFicha(optObjetivoSup, true);
 				$scope.cargaCadastroIndicadores(optObjetivoSup);
-				$scope.atualizaFicha(optObjetivoSup);
 				break;
 			case 4:
 				// Aba de pesquisa de indicadores por texto
@@ -1924,10 +1924,8 @@ app.controller("dashboard", function($scope,
 	$scope.atualizaFicha = function(idGrupo, isObjetivo){
 		if(idGrupo == null)
 			return;
-		// if(isObjetivo) {
-			
-		// }
 		tipoGrupo = isObjetivo ? 'objetivo' : 'instrumento';
+		$scope.verMais = false;
 		// else {
 			GrupoIndicador.get({id:idGrupo,tipo:tipoGrupo,tipo_retorno:'object'},function(fichaInstrumento){
 				$scope.fichaInstrumento = fichaInstrumento;
@@ -1937,9 +1935,11 @@ app.controller("dashboard", function($scope,
 					$scope.obterCamadas(fichaInstrumento.id_grupo_indicador)
 					$scope.verMais = true;
 				}
+				else if(fichaInstrumento.propriedades["descricao"]) {
+					$scope.descricaoGrupoIndicador = fichaInstrumento.propriedades["descricao"];
+				}
 				else{
 					$scope.descricaoGrupoIndicador = 'Não há definição para este '+tipoGrupo+'.';
-					$scope.verMais = false;
 				}
 			});
 		// }
@@ -2268,8 +2268,8 @@ app.controller("dashboard", function($scope,
 		return estilo;
 	}
 
-	$scope.atualizarStatusMapa = function(opcao) {
-		$scope.mostrarMapa = typeof opcao === "number" ? opcao >= 0 : false;
+	$scope.atualizarStatusMapa = function(opcao, isObjetivo) {
+		$scope.mostrarMapa = typeof opcao === "number" && !isObjetivo ? opcao >= 0 : false;
 		switch ($scope.tabAtivaForma) {
 			case 2:
 				optInstrumentoSup = opcao;
@@ -2279,7 +2279,10 @@ app.controller("dashboard", function($scope,
 		}
 	};
 
-	$scope.loadMap = function() {
+	$scope.loadMap = function(isObjetivo) {
+		if (isObjetivo) {
+			return;
+		}
 		console.log("function loadMap");
 
 		if($rootScope.mapLoaded)
@@ -2964,6 +2967,13 @@ app.controller("dashboard", function($scope,
 		});
 	};
 
+	$scope.ordenarObjetivo = function(grupo) {
+		if (grupo.tipo === 'objetivo') {
+			return grupo.id_grupo_indicador;
+		}
+		return grupo.nome;
+	}
+
 	$scope.reportarProblema = function(tipo) {
 		const idFormulario = `reportar-problema-${tipo}`;
 		var formulario = document.getElementById(idFormulario);
@@ -3351,18 +3361,18 @@ app.controller("dashboard", function($scope,
 					<select style="min-width:250px;max-width:400px;" 
 						ng-disabled="carregandoIndicador"
 						data-ng-model="optObjetivo" 
-						data-ng-options="objetivo.nome for objetivo in fltrObjetivo.objetivos | orderBy: '-nome' : true" 
-						ng-change="cargaCadastroIndicadores(optObjetivo.id_grupo_indicador); atualizaFicha(optObjetivo.id_grupo_indicador); loadMap(); atualizarStatusMapa(optObjetivo.id_grupo_indicador)" 
+						data-ng-options="objetivo.nome for objetivo in fltrObjetivo.objetivos | orderBy: ordenarObjetivo" 
+						ng-change="cargaCadastroIndicadores(optObjetivo.id_grupo_indicador); atualizaFicha(optObjetivo.id_grupo_indicador, optObjetivo.tipo); loadMap(optObjetivo.tipo); atualizarStatusMapa(optObjetivo.id_grupo_indicador, optObjetivo.tipo)" 
 						ng-show="fltrObjetivo.objetivos"><option value="" disabled selected hidden>Selecione...</option></select>
 					<br />
 					<div ng-show="optObjetivo">
 						<h2 class="titulo-objetivo" ng-show="fichaInstrumento.nome"><strong>{{ fichaInstrumento.nome ? fichaInstrumento.nome : 'Nome do instrumento'}}</strong></h2>
 						<p ng-show="descricaoGrupoIndicador">
-							{{ descricaoGrupoIndicador }}... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a>
+							{{ descricaoGrupoIndicador }}<span ng-show="verMais">... <a href='' ng-click='abrirModal("instrumento")'>ver mais</a></span>
 						</p>
 						<p ng-show="kmlMapaAtual">Download do mapa georreferenciado: <a ng-href="{{kmlMapaAtual}}" class="download-badge">KML</a></p>
 						<!-- DADOS ABERTOS -->
-						<div ng-show="descricaoGrupoIndicador" class="download-dados-abertos">
+						<div ng-show="descricaoGrupoIndicador && optObjetivo.tipo !== 'objetivo'" class="download-dados-abertos">
 							<p>Download do banco de dados:
 								<a class="download-badge" target="_blank" ng-href="<?php echo bloginfo('url'); ?>/dados-abertos">Dados abertos</a>
 							<!-- <a href="" ng-click="exportDadoFromInstrumento(optInstrumento,formato)" class="download-badge" data-ng-repeat="formato in grupoInstrumento.tipoArquivo"> <strong> DOWNLOAD {{formato}} </strong></a> -->
