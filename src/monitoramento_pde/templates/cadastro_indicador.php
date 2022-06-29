@@ -179,6 +179,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			// estrategiasDoIndicador = $scope.indicadorAtivo.estrategias?.map((valor) => { return valor });
 			estrategiasDoIndicador = $scope.indicadorAtivo.estrategias;
 			objetivosDoIndicador = $scope.indicadorAtivo.objetivos;
+			if (objetivosDoIndicador === null) {
+				objetivosDoIndicador = [];
+			}
 			window.setTimeout(() => { 
 				$scope.indicadorAtivo.estrategias = estrategiasDoIndicador;
 				$scope.indicadorAtivo.objetivos = objetivosDoIndicador;
@@ -225,6 +228,15 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		
 	};
 	
+	$scope.adicionarObjetivo = function(){
+		const obj = {
+			id_grupo_indicador: null,
+			nome: null,
+			ordem: null,
+		};
+		$scope.indicadorAtivo.objetivos.push(obj);		
+	};
+	
 	$scope.criarModalConfirmacao = function(acao){
 		$rootScope.modalConfirmacao = $uibModal.open({
 			animation: true,
@@ -251,7 +263,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	};
 	
 	$scope.limparForm = function(){
-		$scope.indicadorAtivo = null;
+		$scope.indicadorAtivo = {estrategias: [], objetivos: []};
 		$scope.indicadorComposicao = [];
 		$scope.estado = "inserir";
 	};
@@ -772,13 +784,18 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			<button ng-click='logcon(indicadorAtivo)' style="display: none">VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
-				<label for="objetivo"> Nome do objetivo </label>
+				<label for="objetivo"> Nome do(s) objetivo(s) </label>
 				<br>
-				<div class="descricao-cadastro"><small> Selecione o objetivo que o indicador pertencerá </small></div>
-				
-				<select class="controle-cadastro" style="max-width:100%;" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="indicadorAtivo.id_objetivo" id="objetivo">
-				<option value=""></option>
-				</select>
+				<div class="descricao-cadastro"><small> Selecione o(s) objetivo(s) associados ao indicador</small></div>
+				<div data-ng-repeat="objetivoIndicador in indicadorAtivo.objetivos">
+					<select class="controle-cadastro" style="max-width:100%;" ng-attr-id="{{'objetivo-' + $index}}" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="objetivoIndicador.id_grupo_indicador">
+						<option value="Selecione"></option>
+					</select>
+					<br>
+					<span ng-repeat="objetivo in objetivos | filter: {'id_grupo_indicador': objetivoIndicador.id_grupo_indicador}">{{objetivo.propriedades.descricao}}</span>
+					<br>
+				</div>
+				<input type="button" class="btn-primary" data-ng-click="adicionarObjetivo()" value="Adicionar Objetivo" style="margin-top:1em;margin-bottom:1em">
 			</div>
 			
 			<!--<div class="elemento-cadastro">
