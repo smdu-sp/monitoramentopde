@@ -784,9 +784,9 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 			<button ng-click='logcon(indicadorAtivo)' style="display: none">VER INDICADOR</button>
 			
 						<div class="elemento-cadastro">
-				<label for="objetivo"> Nome do(s) objetivo(s) </label>
+				<label for="objetivo"> Nome(s) do(s) objetivo(s) </label>
 				<br>
-				<div class="descricao-cadastro"><small> Selecione o(s) objetivo(s) associados ao indicador</small></div>
+				<div class="descricao-cadastro"><small> Selecione o(s) objetivo(s) do indicador</small></div>
 				<div data-ng-repeat="objetivoIndicador in indicadorAtivo.objetivos">
 					<select class="controle-cadastro" style="max-width:100%;" ng-attr-id="{{'objetivo-' + $index}}" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="objetivoIndicador.id_grupo_indicador">
 						<option value="Selecione"></option>
