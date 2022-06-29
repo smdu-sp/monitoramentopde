@@ -974,20 +974,22 @@ function atualizar_indicador(WP_REST_Request $request){
 			$objetivos = $indicador['objetivos'];
 
 			foreach($objetivos as $chave => $valor) {
-				$comando_string = 
-				"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
-																						values(:id_grupo_indicador,:id_indicador,:ordem)";
-				
-				$comando = $pdo->prepare($comando_string);
-				
-				$comando->bindParam(':id_grupo_indicador',$valor['id_grupo_indicador']);
-				$comando->bindParam(':id_indicador',$indicador['id_indicador']);
-				$comando->bindParam(':ordem',$valor['ordem']);
-				
-				if (!$comando->execute()){
-					$erro = $comando->errorInfo();
-					$response = new  WP_REST_Response($erro[2], 500);
-					return $response;
+				if (!is_null($valor['id_grupo_indicador'])) {
+					$comando_string = 
+					"insert into sistema.indicador_x_grupo( id_grupo_indicador, id_indicador, ordem)
+																							values(:id_grupo_indicador,:id_indicador,:ordem)";
+					
+					$comando = $pdo->prepare($comando_string);
+					
+					$comando->bindParam(':id_grupo_indicador',$valor['id_grupo_indicador']);
+					$comando->bindParam(':id_indicador',$indicador['id_indicador']);
+					$comando->bindParam(':ordem',$valor['ordem']);
+					
+					if (!$comando->execute()){
+						$erro = $comando->errorInfo();
+						$response = new  WP_REST_Response($erro[2], 500);
+						return $response;
+					}
 				}
 			}
 		}
