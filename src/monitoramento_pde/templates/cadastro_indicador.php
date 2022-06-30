@@ -458,6 +458,10 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	$scope.deletarElemento = function(indice){
 		$scope.indicadorComposicao.splice(indice,1);
 	};
+
+	$scope.deletarObjetivo = function(indice){
+		$scope.indicadorAtivo.objetivos.splice(indice,1);
+	};	
 	
 	function Workbook() {
 		if(!(this instanceof Workbook)) return new Workbook();
@@ -788,10 +792,14 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				<br>
 				<div class="descricao-cadastro"><small> Selecione o(s) objetivo(s) do indicador</small></div>
 				<div data-ng-repeat="objetivoIndicador in indicadorAtivo.objetivos">
-					<select class="controle-cadastro" style="max-width:100%;" ng-attr-id="{{'objetivo-' + $index}}" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="objetivoIndicador.id_grupo_indicador">
-						<option value="Selecione"></option>
-					</select>
-					<br>
+					<div>
+						<select class="controle-cadastro" style="max-width:100%;" ng-attr-id="{{'objetivo-' + $index}}" data-ng-options="objetivo.id_grupo_indicador as objetivo.nome for objetivo in objetivos | orderBy: 'id_grupo_indicador'" data-ng-model="objetivoIndicador.id_grupo_indicador">
+							<option value="Selecione"></option>
+						</select>
+						<div style="display: inline-block;"> 
+							<button class="btn-danger btn-remover" ng-click="deletarObjetivo($index)">-</button>
+						</div>
+					</div>
 					<span ng-repeat="objetivo in objetivos | filter: {'id_grupo_indicador': objetivoIndicador.id_grupo_indicador}">{{objetivo.propriedades.descricao}}</span>
 					<br>
 				</div>
@@ -977,7 +985,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				</select>
 				</div>
 				<div class="col-sm-1 pull-right"> 
-					<button class="btn-danger" ng-click="deletarElemento($index)">-</button>
+					<button class="btn-danger btn-remover" ng-click="deletarElemento($index)">-</button>
 				</div>
 				</div>
 
@@ -1025,5 +1033,15 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 <?php }else{ ?>
 			<h4> Você não possui autorização para visualizar esse conteúdo.</h4>
 <?php } ?>
-			
+
 </div>
+
+<style>
+	.btn-danger.btn-remover {
+		height: 27px;
+		width: 27px;
+		vertical-align: top;
+		line-height: 0.4;
+		font-size: 28px;
+	}
+</style>
