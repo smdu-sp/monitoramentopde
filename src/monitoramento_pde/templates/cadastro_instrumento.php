@@ -209,7 +209,6 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.estado = "listar";
 	$scope.estilo = {};
 	// $scope.estiloKml = false;
-	$scope.raio = 4;
 
 	$scope.mapLegendas = [];
 
@@ -322,7 +321,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 						color: index.style.fill_color
 					}),					
 					image: new ol.style.Circle({ // Estilo do ponto
-						radius: $scope.raio,
+						radius: index.style.radius ? index.style.radius : 4,
 						fill: new ol.style.Fill({color: index.style.fill_color}),
 						stroke: new ol.style.Stroke({
 							color: index.style.stroke_color,
@@ -396,6 +395,9 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 				fill_color: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).hex : null,
 				fill_color_a: camada.style.fill_color ? rgbaToHex(camada.style.fill_color).alfa : null
 			}
+
+			camada.raio = camada.style.radius ? camada.style.radius : 4;
+			
 			customLayers.push(camada);
 		}
 		// Ordena camadas conforme propriedade 'ordem'
@@ -473,6 +475,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	};
 
 	$scope.alterarCor = function(camada) {
+		let radius = camada.raio;
 		let hexStroke = camada.hexStyle.stroke_color ? camada.hexStyle.stroke_color : "#000000";
 		let opacityStroke = camada.hexStyle.stroke_color_a ? camada.hexStyle.stroke_color_a : "1";
 		let hexFill = camada.hexStyle.fill_color ? camada.hexStyle.fill_color : "#000000";
@@ -481,6 +484,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 		let strokeColor = 'rgba(' + hexToRgb(hexStroke).r + ', ' + hexToRgb(hexStroke).g + ', ' + hexToRgb(hexStroke).b + ', ' + opacityStroke + ')';
 		let fillColor = 'rgba(' + hexToRgb(hexFill).r + ', ' + hexToRgb(hexFill).g + ', ' + hexToRgb(hexFill).b + ', ' + opacityFill + ')';
 
+		camada.parametros_estilo.radius = radius;
 		camada.parametros_estilo.stroke_color = strokeColor;
 		camada.parametros_estilo.fill_color = fillColor;
 
@@ -1288,6 +1292,10 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 										<div>
 											<label>Ordem da legenda</label>
 											<input class="form-control" type="number" min="0" onkeypress="return event.charCode >= 48 && event.charCode <= 57" ng-model="camada.ordem_legenda" data-ng-model-instant ng-change="alertaAlteracoes(key);alterarCor(camada)">
+										</div>
+										<div ng-if="camada.tipo_feature === 'ponto'">
+											<label>Tamanho do ponto</label>
+											<input class="form-control" type="number" min="1" onkeypress="return event.charCode >= 48 && event.charCode <= 57" ng-model="camada.raio" data-ng-model-instant ng-change="alertaAlteracoes(key);alterarCor(camada)">
 										</div>
 									</div>
 								</div>

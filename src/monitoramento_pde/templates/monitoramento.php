@@ -2069,7 +2069,7 @@ app.controller("dashboard", function($scope,
 						color: index.style.fill_color
 					}),					
 					image: new ol.style.Circle({ // Estilo do ponto
-						radius: $scope.raio ? $scope.raio : 4,
+						radius: index.style.radius ? index.style.radius : 4,
 						fill: new ol.style.Fill({color: index.style.fill_color}),
 						stroke: new ol.style.Stroke({
 							color: index.style.stroke_color,
@@ -2359,15 +2359,15 @@ app.controller("dashboard", function($scope,
 		    width: 3
 		  }),
 		  image: new ol.style.Circle({
-       radius: width * 2,
-       fill: new ol.style.Fill({
-         color: white
-       }),
-       stroke: new ol.style.Stroke({
-         color: blue,
-         width: width / 2
-       })
-     })
+			radius: width * 2,
+			fill: new ol.style.Fill({
+			  color: white
+			}),
+			stroke: new ol.style.Stroke({
+			  color: blue,
+			  width: width / 2
+		    })
+		  })
 		});
 
 		mapWatcher(highlightStyle);
@@ -3312,7 +3312,7 @@ app.controller("dashboard", function($scope,
 			<hr>
 		</div>
 		<uib-tabset active="tabAtivaForma" type="pills">
-			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}" data-html2canvas-ignore>
+			<uib-tab index="$index + 1" ng-click="atualizaListaIndicadores()" ng-repeat="item in menuForma.items" heading="{{item.title}}" classes="{{item.classes}}" aria-label="{{((tabAtivaForma == $index + 1) ? 'Selecionado: ' : 'Selecionar ') + item.title}}" data-html2canvas-ignore>
 				<hr data-html2canvas-ignore>
 				
 				<div ng-show="tabAtivaForma==1">
