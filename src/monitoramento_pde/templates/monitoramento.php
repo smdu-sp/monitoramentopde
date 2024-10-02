@@ -2208,33 +2208,32 @@ app.controller("dashboard", function($scope,
 	$scope.estiloLegenda = function(camada) {
 		// ESTILO DO KML
 		// Se opção "estilo do KML" estiver marcada, pega estilo da primeira feature para desenhar ícone da legenda
-		if (camada.parametros_estilo.style_from_kml && camada.arquivo_kml) {
-			var xhttp = new XMLHttpRequest();
-			let xmlCamada = '';
-			xhttp.onreadystatechange = function() {
-		    if (this.readyState == 4 && this.status == 200) {
-					parser = new DOMParser();
-					xmlCamada = parser.parseFromString(xhttp.responseText,"text/xml");
+		if (camada.parametros_estilo.style_from_kml && camada.arquivo_kml && !$scope.styleFromKmlCarregado) {
+			$scope.styleFromKmlCarregado = true;
+			$http.get(camada.path)
+				.then(function(response) {
+					let xmlCamada = new DOMParser().parseFromString(response.data, "text/xml");					
 					let xmlFillColor = xmlCamada.getElementsByTagName("PolyStyle")[0] ? xmlCamada.getElementsByTagName("PolyStyle")[0].childNodes : [];
-					for (var i = 0; i < xmlFillColor.length - 1; i++){
-						if(xmlFillColor[i].tagName === "color"){
+
+					for (let i = 0; i < xmlFillColor.length; i++) {
+						if (xmlFillColor[i].tagName === "color") {
 							camada.style.fill_color = abgrHex2rgba(xmlFillColor[i].innerHTML);
-							// console.log(xmlFillColor[i].innerHTML);
 							break;
 						}
 					}
+
 					let xmlStrokeColor = xmlCamada.getElementsByTagName("LineStyle")[0] ? xmlCamada.getElementsByTagName("LineStyle")[0].childNodes : [];
-					for (var i = 0; i < xmlStrokeColor.length - 1; i++){
-						if(xmlStrokeColor[i].tagName === "color"){
+
+					for (let i = 0; i < xmlStrokeColor.length; i++) {
+						if (xmlStrokeColor[i].tagName === "color") {
 							camada.style.stroke_color = abgrHex2rgba(xmlStrokeColor[i].innerHTML);
-							// console.log(xmlStrokeColor[i].innerHTML);
 							break;
 						}
 					}
-		    }
-			};
-			xhttp.open("GET", camada.path, true);
-			xhttp.send();
+				})
+				.catch(function(error) {
+					console.error("Erro ao acessar o arquivo KML:", error);
+				});
 		}
 		// FIM ESTILO DO KML
 
@@ -2283,6 +2282,8 @@ app.controller("dashboard", function($scope,
 		if (isObjetivo) {
 			return;
 		}
+		
+		$scope.styleFromKmlCarregado = false;
 		console.log("function loadMap");
 
 		if($rootScope.mapLoaded)
