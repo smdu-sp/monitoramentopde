@@ -135,7 +135,7 @@ header .navbar a:hover, .navbar a:focus{
 }
 
 /* Títulos das páginas internas */
-.titulo-pagina {
+h1.titulo-pagina {
 	font-size: 24px;
 }
 
@@ -413,12 +413,14 @@ footer{
 	border-bottom-style:dotted;
 }
 
-.acao-prioritaria:first-letter, .acao-prioritaria-cbo select{
-	text-transform:capitalize;
+.acao-prioritaria-cbo select{
+	font-size: 14px;
+	margin-bottom: 4px;
 }
 
 .acao-prioritaria{
 	text-align:left;
+	font-size: 14px;
 }
 
 .ol-scale-line{
@@ -480,7 +482,6 @@ footer{
 .controle-cadastro{
 	height:2em;
 }
-
 
 /* Text Replaces */
 
@@ -559,4 +560,18 @@ ul#menu-secoes li:nth-child(10), ul#menu-secoes li:nth-child(11), ul#menu-secoes
     font-weight: bold;
     background-color: #eee;
     margin: 0;
+}
+
+div.barra-progresso {
+	height: 20px;
+    position: relative;
+    background: linear-gradient(45deg, #99dee0, #24285b);
+    -moz-border-radius: 25px;
+    -webkit-border-radius: 25px;
+    border-radius: 25px;
+    margin: 10px 5% 0;
+    padding: 10px;
+    box-shadow: inset 0 -1px 1px rgba(255,255,255,0.3);
+    transition: width 60s;
+    transition-timing-function: linear;    
 }
