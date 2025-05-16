@@ -3687,55 +3687,23 @@ function acoes_prioritarias(WP_REST_Request $request){
 	
 	$comando_string = "select * from fonte_dados.acoes_prioritarias where 1 = 1";
 	
-	if(array_key_exists('categoria',$parametros))
-		if($parametros['categoria'] != '')
-			$comando_string = $comando_string.' and categoria = :categoria';
-			
-	if(array_key_exists('estrategia',$parametros))
-		if($parametros['estrategia'] != '')
-			$comando_string = $comando_string.' and objetivo_relacionado = :estrategia';
-			
-	if(array_key_exists('andamento',$parametros))
-		if($parametros['andamento'] != '')
-			$comando_string = $comando_string.' and andamento = :andamento';
+	if(array_key_exists('politica_setorial',$parametros))
+		if($parametros['politica_setorial'] != '')
+			$comando_string = $comando_string.' and politica_setorial = :politica_setorial';
 	
-	if(array_key_exists('artigo',$parametros))
-		if($parametros['artigo'] != '')
-			$comando_string = $comando_string.' and artigo = :artigo';
-	
-	if(array_key_exists('tema',$parametros))
-		if($parametros['tema'] != '')
-			$comando_string = $comando_string.' and tema = :tema';
-		
-	if(array_key_exists('estagio_implementacao',$parametros))
-		if($parametros['estagio_implementacao'] != '')
-			$comando_string = $comando_string.' and estagio_implementacao = :estagio_implementacao';
+	if(array_key_exists('sistemas_urbanos_e_ambientais',$parametros))
+		if($parametros['sistemas_urbanos_e_ambientais'] != '')
+			$comando_string = $comando_string.' and sistemas_urbanos_e_ambientais = :sistemas_urbanos_e_ambientais';
 	
 	$comando = $pdo->prepare($comando_string);
 	
-	if(array_key_exists('andamento',$parametros))
-		if($parametros['andamento'] != '')
-			$comando->bindParam(':andamento',$parametros['andamento']);
+	if(array_key_exists('politica_setorial',$parametros))
+		if($parametros['politica_setorial'] != '')
+			$comando->bindParam(':politica_setorial',$parametros['politica_setorial']);
 	
-	if(array_key_exists('estrategia',$parametros))
-		if($parametros['estrategia'] != '')
-			$comando->bindParam(':estrategia',$parametros['estrategia']);
-	
-	if(array_key_exists('categoria',$parametros))
-		if($parametros['categoria'] != '')
-			$comando->bindParam(':categoria',$parametros['categoria']);
-	
-	if(array_key_exists('artigo',$parametros))
-		if($parametros['artigo'] != '')
-			$comando->bindParam(':artigo',$parametros['artigo']);
-	
-	if(array_key_exists('tema',$parametros))
-		if($parametros['tema'] != '')
-			$comando->bindParam(':tema',$parametros['tema']);
-	
-	if(array_key_exists('estagio_implementacao',$parametros))
-		if($parametros['estagio_implementacao'] != '')
-			$comando->bindParam(':estagio_implementacao',$parametros['estagio_implementacao']);
+	if(array_key_exists('sistemas_urbanos_e_ambientais',$parametros))
+		if($parametros['sistemas_urbanos_e_ambientais'] != '')
+			$comando->bindParam(':sistemas_urbanos_e_ambientais',$parametros['sistemas_urbanos_e_ambientais']);
 	
 	if(!$comando->execute()){
 		$erro = $comando->errorInfo();
