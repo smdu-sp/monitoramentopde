@@ -41,7 +41,7 @@
 			<div class="col-sm-3 text-center">
 				<div class="row">
 					<div class="col-sm-12">
-						<a href="https://prefeitura.sp.gov.br" ><img class="img-responsive" src="<?php echo get_template_directory_uri(); ?>/images/logo_prefeitura_sem_smdu_footer.jpg" alt="link prefeitura de são paulo"></a>
+						<a href="https://prefeitura.sp.gov.br" ><img class="img-responsive" src="../assets/img/logo_PrefSP_sem-fundo_horizontal_fundo-claro_sem-margem_65p.png" alt="Site da Prefeitura de São Paulo"></a>
 					</div>
 				</div>
 			</div>

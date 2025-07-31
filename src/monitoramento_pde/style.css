@@ -71,9 +71,21 @@ body{
 	color:#252525;
 }
 
-#navbar-gestao, #navbar-prefeitura{
+#navbar-gestao{
 	height:110%;
 	text-align:center;
+}
+
+#navbar-titulo{
+	padding: 25px 15px;
+}
+
+#navbar-prefeitura{
+	padding: 13px 15px;
+}
+
+#navbar-prefeitura__logo{
+	height: 44px;
 }
 
 #menu-secoes{
