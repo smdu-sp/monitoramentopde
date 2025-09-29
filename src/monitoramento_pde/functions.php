@@ -33,3 +33,40 @@ add_filter( 'wp_image_editors', 'change_graphic_lib' );
 function change_graphic_lib($array) {
 return array( 'WP_Image_Editor_GD', 'WP_Image_Editor_Imagick' );
 }
+
+// Funções para esconder os usuários 
+function redirect_to_home_if_author_parameter() {
+	$is_author_set = get_query_var( 'author', '' );
+
+	if ( $is_author_set != '' && !is_admin()) {
+		wp_redirect( home_url(), 301 );
+		exit;
+	}
+}
+
+add_action( 'template_redirect', 'redirect_to_home_if_author_parameter' );
+
+function disable_rest_endpoints ( $endpoints ) {
+    if ( isset( $endpoints['/wp/v2/users'] ) ) {
+        unset( $endpoints['/wp/v2/users'] );
+    }
+
+    if ( isset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] ) ) {
+        unset( $endpoints['/wp/v2/users/(?P<id>[\d]+)'] );
+    }
+
+    return $endpoints;
+}
+
+add_filter( 'rest_endpoints', 'disable_rest_endpoints');
+
+if (!function_exists('get_magic_quotes_gpc')) {
+    function get_magic_quotes_gpc() {
+        // Check if magic quotes GPC emulation is needed
+        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
+            return (bool) ini_get('magic_quotes_gpc');
+        } else {
+            return false; // Magic quotes GPC is deprecated and not available
+        }
+    }
+}
