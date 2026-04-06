@@ -70,3 +70,42 @@ if (!function_exists('get_magic_quotes_gpc')) {
         }
     }
 }
+
+// Bloqueia o registro de novos usuários
+add_action('init', 'bloquear_registro_usuarios');
+function bloquear_registro_usuarios() {
+    if (isset($_GET['action']) && $_GET['action'] == 'register') {
+        wp_redirect(wp_login_url());
+        exit;
+    }
+}
+
+// Remove o suporte a comentários
+add_action('admin_init', 'remover_suporte_comentarios');
+function remover_suporte_comentarios() {
+    $post_types = get_post_types();
+    foreach ($post_types as $post_type) {
+        if (post_type_supports($post_type, 'comments')) {
+            remove_post_type_support($post_type, 'comments');
+            remove_post_type_support($post_type, 'trackbacks');
+        }
+    }
+}
+
+add_filter('comments_open', '__return_false', 20, 2);
+add_filter('pings_open', '__return_false', 20, 2);
+add_filter('comments_array', '__return_empty_array', 10, 2);
+
+add_action('admin_menu', 'remover_menu_comentarios');
+function remover_menu_comentarios() {
+    remove_menu_page('edit-comments.php');
+}
+
+add_action('admin_init', 'redirecionar_acesso_comentarios');
+function redirecionar_acesso_comentarios() {
+    global $pagenow;
+    if ($pagenow === 'edit-comments.php') {
+        wp_redirect(admin_url());
+        exit;
+    }
+}
