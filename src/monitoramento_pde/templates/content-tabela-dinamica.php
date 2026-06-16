@@ -4,8 +4,8 @@ jQuery.noConflict();
 var app = angular.module('monitoramentoPde', ['ngResource','ngAnimate','ui.bootstrap','angular.filter']);
 
 app.controller("tabelaDinamica", function($scope, $http, $filter, $q) {
-    const urlDados = `/wp-json/monitoramento_pde/v1/tabelas_dinamicas?tabela=${NOME_TABELA}/`;
-    const urlColunas = `/wp-json/monitoramento_pde/v1/tabelas_dinamicas_colunas?tabela=${NOME_TABELA}/`;
+    const urlDados = `/wp-json/monitoramento_pde/v1/tabelas_dinamicas/?tabela=${NOME_TABELA}`;
+    const urlColunas = `/wp-json/monitoramento_pde/v1/tabelas_dinamicas_colunas/?tabela=${NOME_TABELA}`;
 
     $scope.filtros = {};
     $scope.opcoes = {};
