@@ -3704,7 +3704,7 @@ function tabelas_dinamicas(WP_REST_Request $request) {
     $valida_comando = $pdo->prepare($valida_tabela_string);
     $valida_comando->bindValue(':meta_tabela', $tabela_segura . '_colunas');
     
-    if (!$valida_comando->execute() || !$valida_comando->fetch()) {
+    if (!$valida_comando->execute()) {
         $erro = $valida_comando->errorInfo();
         return new WP_REST_Response('Tabela não encontrada ou fora do escopo autorizado.', 404);
     }
