@@ -428,9 +428,18 @@ add_action( 'rest_api_init', function () {
  
   add_action( 'rest_api_init', function () {
 		global $ApiConfig;
-		register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/acoes_prioritarias', array(
+		register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/tabelas_dinamicas', array(
 			'methods' => WP_REST_Server::READABLE,
-			'callback' => 'acoes_prioritarias'
+			'callback' => 'tabelas_dinamicas'
+			) 
+		);
+	});
+ 
+  add_action( 'rest_api_init', function () {
+		global $ApiConfig;
+		register_rest_route( $ApiConfig['application'].'/v'.$ApiConfig['version'], '/tabelas_dinamicas_colunas', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => 'tabelas_dinamicas_colunas'
 			) 
 		);
 	});
@@ -3675,45 +3684,99 @@ function grupo_indicador(WP_REST_Request $request){
 	return $response;
 }
  
-function acoes_prioritarias(WP_REST_Request $request){
-	$parametros = $request->get_params();
-	// global $DbConfig;
-	// try {
-	// 	$pdo = new PDO('pgsql:host='.$DbConfig['host'].';port='.$DbConfig['port'].';user='.$DbConfig['user'].';dbname='.$DbConfig['dbname'].';password='.$DbConfig['password']);
-	// } catch (PDOException $e) {
-	// 	die("Conexão ao banco de dados falhou: " . $e->getMessage());
-	// }
-	$pdo = pdo_connect();
-	
-	$comando_string = "select * from fonte_dados.acoes_prioritarias where 1 = 1";
-	
-	if(array_key_exists('politica_setorial',$parametros))
-		if($parametros['politica_setorial'] != '')
-			$comando_string = $comando_string.' and politica_setorial = :politica_setorial';
-	
-	if(array_key_exists('sistemas_urbanos_e_ambientais',$parametros))
-		if($parametros['sistemas_urbanos_e_ambientais'] != '')
-			$comando_string = $comando_string.' and sistemas_urbanos_e_ambientais = :sistemas_urbanos_e_ambientais';
-	
-	$comando = $pdo->prepare($comando_string);
-	
-	if(array_key_exists('politica_setorial',$parametros))
-		if($parametros['politica_setorial'] != '')
-			$comando->bindParam(':politica_setorial',$parametros['politica_setorial']);
-	
-	if(array_key_exists('sistemas_urbanos_e_ambientais',$parametros))
-		if($parametros['sistemas_urbanos_e_ambientais'] != '')
-			$comando->bindParam(':sistemas_urbanos_e_ambientais',$parametros['sistemas_urbanos_e_ambientais']);
-	
-	if(!$comando->execute()){
-		$erro = $comando->errorInfo();
-		return $erro[2]; 
-	} else {
-		$dados = $comando->fetchAll(PDO::FETCH_ASSOC);
-	}
-	
-	$response = new WP_REST_Response( $dados );
-	return $response;
+function tabelas_dinamicas(WP_REST_Request $request) {
+    $tabela_nome = $request->get_param('tabela');
+
+    $tabela_segura = preg_replace('/[^a-zA-Z0-9_]/', '', $tabela_nome);
+
+    if (empty($tabela_segura)) {
+        return new WP_REST_Response('Nome da tabela inválido ou não fornecido.', 400);
+    }
+
+    $pdo = pdo_connect();
+    
+    // Permite apenas tabelas que tenham uma tabela de metadados associada (sufixo "_colunas")
+    $valida_tabela_string = "SELECT 1 FROM information_schema.tables 
+                             WHERE table_schema = 'fonte_dados' 
+                             AND table_name = :meta_tabela 
+                             LIMIT 1";
+    
+    $valida_comando = $pdo->prepare($valida_tabela_string);
+    $valida_comando->bindValue(':meta_tabela', $tabela_segura . '_colunas');
+    
+    if (!$valida_comando->execute() || !$valida_comando->fetch()) {
+        $erro = $valida_comando->errorInfo();
+        return new WP_REST_Response('Tabela não encontrada ou fora do escopo autorizado.', 404);
+    }
+
+    if (!$valida_comando->fetch()) {
+        return new WP_REST_Response('Tabela não encontrada ou fora do escopo autorizado.', 404);
+    }
+
+    $comando_string = "SELECT * FROM fonte_dados." . $tabela_segura . " WHERE 1 = 1";
+    
+    $parametros = $request->get_params();
+    
+    unset($parametros['tabela']);
+    unset($parametros['rest_route']);
+    
+    $valores_bind = [];
+
+    foreach ($parametros as $coluna => $valor) {
+        
+        $coluna_segura = preg_replace('/[^a-zA-Z0-9_]/', '', $coluna);
+        
+        if (!empty($coluna_segura) && $valor !== '' && $valor !== null) {
+            $comando_string .= " AND " . $coluna_segura . " = :" . $coluna_segura;
+			$valores_bind[':' . $coluna_segura] = sanitize_text_field($valor); 
+        }
+    }
+
+    $comando = $pdo->prepare($comando_string);
+
+    foreach ($valores_bind as $parametro => $valor_seguro) {
+        $comando->bindValue($parametro, $valor_seguro);
+    }
+
+    if (!$comando->execute()) {
+        $erro = $comando->errorInfo();
+        return new WP_REST_Response($erro[2], 500); 
+    } 
+    
+    $dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+    
+    return new WP_REST_Response($dados, 200);
+}
+
+function tabelas_dinamicas_colunas(WP_REST_Request $request) {
+    $tabela_nome = $request->get_param('tabela');
+
+    $tabela_segura = preg_replace('/[^a-zA-Z0-9_]/', '', $tabela_nome);
+
+    if (empty($tabela_segura)) {
+        return new WP_REST_Response('Nome da tabela inválido ou não fornecido.', 400);
+    }
+
+    $pdo = pdo_connect();
+    
+    $comando_string = "SELECT * FROM fonte_dados." . $tabela_segura . "_colunas WHERE 1 = 1";
+    
+    $comando = $pdo->prepare($comando_string);
+    
+    if (!$comando->execute()) {
+        $erro = $comando->errorInfo();
+        return new WP_REST_Response($erro[2], 500); 
+    } else {
+        $dados = $comando->fetchAll(PDO::FETCH_ASSOC);
+        
+        foreach ($dados as &$coluna) {
+            $coluna['ordem'] = (int) $coluna['ordem'];
+            $coluna['possui_filtro'] = (strtolower(trim($coluna['possui_filtro'])) === 'sim');
+        }
+        unset($coluna); 
+    }
+    
+    return new WP_REST_Response($dados, 200);
 }
 
 function indicador_historico(WP_REST_Request $request){
