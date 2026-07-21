@@ -3396,10 +3396,10 @@ app.controller("dashboard", function($scope,
 		</uib-tabset>
 
 		<!-- Mapa dos instrumentos -->
-			<div id="mapcontainer" ng-show="tabAtivaForma==2 || tabAtivaForma==3" ng-class="{'zeroheight': !mostrarMapa}">
+			<div id="mapcontainer" ng-show= "camadasInstrumento.length > 0 && (tabAtivaForma==2 || tabAtivaForma==3)" ng-class="{'zeroheight': !mostrarMapa}">
 				
 
-				<div id="map-instrumento" class="map"></div>
+				<div id="map-instrumento" class="map" ></div>
 				
 				<div id="legenda-mapa" ng-show="camadasInstrumento.length > 0">
 					<span><strong>Legenda</strong></span>
