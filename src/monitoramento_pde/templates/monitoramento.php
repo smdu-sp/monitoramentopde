@@ -3127,7 +3127,6 @@ app.controller("dashboard", function($scope,
 					<p class="quebra-linha" ng-bind-html="indicador.apresentacao"></p>
 					<div data-html2canvas-ignore>
 						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Ficha técnica do indicador {{indicador.nome}}" ng-click="abrirModal('indicador')"> Ficha técnica do indicador </a>
-						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Ficha técnica do instrumento {{indicador.instrumento}}" ng-click="abrirModal('indicador')"ng-click="abrirModal('instrumento')"> Ficha técnica do instrumento </a>
 						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="{{mostraTabela ? 'Ocultar' : 'Visualizar'}} Tabela de valores do indicador {{indicador.nome}}" ng-click="verMemoria()">{{mostraTabela ? 'Ocultar' : 'Visualizar'}} Tabela de valores do indicador</a>
 						<a href="" class="link-saiba-mais link-saiba-mais-indicador" role="button" aria-label="Baixar Tabela de valores do indicador {{indicador.nome}} (Excel XLSX)" ng-click="exportarMemoria()">Baixar Tabela de valores do indicador</a>
 					</div>
