@@ -567,7 +567,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	}
 
 	$scope.gravarParametrosMapa = function(){
-		var parametrosTratados = typeof($scope.mapa.parametros_mapa) == 'string' ? $scope.mapa.parametros_mapa : JSON.stringify($scope.mapa.parametros_mapa);
+		var parametrosTratados = typeof($scope.mapa.parametros_mapa) == 'string' ? $scope.mapa.parametros_mapa : angular.toJson($scope.mapa.parametros_mapa);
 		
 		GravarParametrosMapa.update({id_grupo_indicador:$scope.idItemAtual,parametros_mapa:parametrosTratados}).$promise.then(
 			function(mensagem){				
@@ -719,7 +719,7 @@ app.controller("cadastroGrupo", function($scope, $rootScope, $http, $filter, $ui
 	$scope.gravarParametrosCamada = function(idCamada, indice){		
 		// Pega parâmetros da camada
 		let parametrosEstilo = $scope.camadasInstrumento[indice].parametros_estilo;
-		let parametrosTratados = typeof(parametrosEstilo) == 'string' ? parametrosEstilo : JSON.stringify(parametrosEstilo);
+		let parametrosTratados = typeof(parametrosEstilo) == 'string' ? parametrosEstilo : angular.toJson(parametrosEstilo);
 		let tipoFeature = $scope.camadasInstrumento[indice].tipo_feature;
 		let nomeCamada = $scope.camadasInstrumento[indice].nome_camada;
 		let ordem = $scope.camadasInstrumento[indice].ordem;
