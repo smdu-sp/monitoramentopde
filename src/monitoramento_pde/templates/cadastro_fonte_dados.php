@@ -72,9 +72,6 @@ function dadoAberto(nome, tipo="fonte de dados", formato="xls", verificado=false
 	this.formato = formato;
 	this.verificado = verificado;
 	this.disponivel = true;
-	if(formato === 'shp') {
-		this.$$hashKey = "object:123"
-	}
 }
 
 app.factory('FonteDadosCarregar',function($resource){
@@ -360,7 +357,7 @@ app.controller("cadastroFonteDados", function($scope, $rootScope, $http, $filter
 		for (var i = parsed.length - 1; i >= 0; i--) {
 			parsed[i].verificado = true;
 		}
-		$scope.itemAtual.dados_disponiveis = JSON.stringify(parsed);
+		$scope.itemAtual.dados_disponiveis = angular.toJson(parsed);
 	}
 	
 	$scope.atualizar = function(){
