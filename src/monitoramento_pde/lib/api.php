@@ -4013,6 +4013,7 @@ function indicador_cadastro(WP_REST_Request $request){
 				,indic.tipo_valor
 				,indic.fonte
 				,indic.preencher_zero
+				,indic.tipo_grafico
 				,json_agg(distinct jsonb_build_object('id',exc.id_territorio,'label',exc.nome)) as territorio_exclusao
 				,max(case when grupo.tipo = 'instrumento' then grupo.nome else null end) as instrumento
 				,max(case when grupo.tipo = 'instrumento' then grupo.id_grupo_indicador else null end) as id_instrumento
@@ -4377,6 +4378,7 @@ function cache_indicadores() {
 				,indic.tipo_valor
 				,indic.fonte
 				,indic.preencher_zero
+				,indic.tipo_grafico
 				,json_agg(distinct jsonb_build_object('id',exc.id_territorio,'label',exc.nome)) as territorio_exclusao
 				,max(case when grupo.tipo = 'instrumento' then grupo.nome else null end) as instrumento
 				,max(case when grupo.tipo = 'instrumento' then grupo.id_grupo_indicador else null end) as id_instrumento

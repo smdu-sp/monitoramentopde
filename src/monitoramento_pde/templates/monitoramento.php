@@ -754,7 +754,7 @@ app.controller("dashboard", function($scope,
 					subtitulo = "Unidade territorial de análise: " +  "Município" + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
 					$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 						chart: {
-							type: 'line',
+							type: $scope.indicador.tipo_grafico || 'column',
 							marginTop: 25,
 							width:larguraGraficoLinha							
 					        },
@@ -1053,7 +1053,7 @@ app.controller("dashboard", function($scope,
 			subtitulo = "Unidade territorial de análise: " +  $scope.regiaoRealcada.nome + " <br> Período: " + $filter('date')($scope.indicador.datas[$scope.indicador.datas.length-1], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy') + " a " + $filter('date')($scope.indicador.datas[0], $scope.indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy');
 			$scope.graficoLinhas = Highcharts.chart('graficoLinhas', {
 				chart: {
-					type: 'line',
+					type: $scope.indicador.tipo_grafico || 'column',
 					marginTop: 25,
 					width:larguraGraficoLinha
 			        },
@@ -1394,7 +1394,7 @@ app.controller("dashboard", function($scope,
 				if(!$scope.semMunicipio() || $scope.selecao.categorias && $scope.selecao.categorias.length != 1){
 					$scope.graficoBarras = new Highcharts.chart('graficoBarras',{
 						chart: {
-							type: 'column'
+							type: $scope.indicador.tipo_grafico || 'column'
 							,marginTop: 35
 						},
 						colors: app.defaultColors,
@@ -1497,7 +1497,7 @@ app.controller("dashboard", function($scope,
 						},
 						plotOptions: {
 							column: {
-								stacking: 'normal',
+								stacking: ($scope.indicador.tipo_grafico === 'column' || $scope.indicador.tipo_grafico === 'bar' || !$scope.indicador.tipo_grafico) ? 'normal' : undefined,
 								borderWidth: 0
 							},
 							series: {
