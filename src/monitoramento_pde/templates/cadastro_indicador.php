@@ -934,7 +934,20 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 				
 				<input type="text" class="controle-cadastro" style="max-width:100%;width:100%;" data-ng-model="indicadorAtivo.simbolo_valor" id="simbolo_valor"></input>
 			</div>
-			
+
+			<div class="elemento-cadastro">
+            <label for="tipo_grafico"> Tipo de representação gráfica </label>
+            <br>
+            <div class="descricao-cadastro"><small> Selecione o formato ideal de gráfico para este indicador. </small></div>
+            
+            <select class="controle-cadastro" style="max-width:100%;" data-ng-model="indicadorAtivo.tipo_grafico" id="tipo_grafico">
+                <option value="column">Colunas (Barras Verticais lado a lado)</option>
+                <option value="bar">Barras (Horizontais)</option>
+                <option value="line">Linha</option>
+                <option value="area">Área</option>
+                <option value="pie">Pizza</option>
+            </select>
+            </div>
 
 			
 			<div class="container elemento-cadastro" style="background-color:#E5E5E5;border-color:#DDDDDD;border-width:1px;border-style:solid;">
