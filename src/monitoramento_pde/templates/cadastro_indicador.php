@@ -267,7 +267,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	};
 	
 	$scope.limparForm = function(){
-		$scope.indicadorAtivo = {estrategias: [], tipo_grafico: 'column'};
+		$scope.indicadorAtivo = {estrategias: []objetivos: [], tipo_grafico: 'column'};
 		$scope.indicadorComposicao = [];
 		$scope.estado = "inserir";
 	};
