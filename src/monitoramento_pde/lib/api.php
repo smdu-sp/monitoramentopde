@@ -874,6 +874,7 @@ function atualizar_indicador(WP_REST_Request $request){
 	id_territorio_padrao = :id_territorio_padrao,
 	observacao = :observacao,
 	preencher_zero = :preencher_zero
+	tipo_grafico = :tipo_grafico
 	where id_indicador = :id_indicador";
 	$comando = $pdo->prepare($comando_string);
  
@@ -896,6 +897,7 @@ function atualizar_indicador(WP_REST_Request $request){
 			$comando->bindParam(':id_territorio_padrao',$indicador['id_territorio_padrao']);
 			$comando->bindParam(':observacao',$indicador['observacao']);
 			$comando->bindParam(':preencher_zero',$indicador['preencher_zero']);
+			$comando->bindParam(':tipo_grafico',$indicador['tipo_grafico']);
 		}
  
  	if(!$comando->execute()){
@@ -2225,8 +2227,8 @@ function inserir_indicador(WP_REST_Request $request){
 	$indicador = $parametros['indicador'];
 	
 	$comando_string = 
-	"insert into sistema.indicador( nome, periodicidade, tipo_valor, nota_tecnica, nota_tecnica_resumida, apresentacao, simbolo_valor, ativo, homologacao, fonte, id_territorio_padrao, observacao, preencher_zero)
-													values(:nome,:periodicidade,:tipo_valor,:nota_tecnica,:nota_tecnica_resumida,:apresentacao,:simbolo_valor,:ativo,:homologacao,:fonte,:id_territorio_padrao,:observacao,:preencher_zero)
+	"insert into sistema.indicador( nome, periodicidade, tipo_valor, nota_tecnica, nota_tecnica_resumida, apresentacao, simbolo_valor, ativo, homologacao, fonte, id_territorio_padrao, observacao, preencher_zero, tipo_grafico)
+													values(:nome,:periodicidade,:tipo_valor,:nota_tecnica,:nota_tecnica_resumida,:apresentacao,:simbolo_valor,:ativo,:homologacao,:fonte,:id_territorio_padrao,:observacao,:preencher_zero, :tipo_grafico)
 	returning id_indicador;";
 	
 	$comando = $pdo->prepare($comando_string);
@@ -2247,6 +2249,7 @@ function inserir_indicador(WP_REST_Request $request){
 	$comando->bindParam(':id_territorio_padrao',$indicador['id_territorio_padrao']);
 	$comando->bindParam(':observacao',$indicador['observacao']);
 	$comando->bindParam(':preencher_zero',$indicador['preencher_zero']);
+	$comando->bindParam(':tipo_grafico',$indicador['tipo_grafico']);
  
   if(!$comando->execute()){
 		$erro = $comando->errorInfo();
