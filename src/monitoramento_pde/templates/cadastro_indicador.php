@@ -176,6 +176,10 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 		Indicador.query({id:$scope.idIndicadorAtivo}, function(indicadorRetornado){
 			$scope.indicadorAtivo = indicadorRetornado[0];
 
+			if (!$scope.indicadorAtivo.tipo_grafico) {
+				$scope.indicadorAtivo.tipo_grafico = 'column';
+			}
+
 			// estrategiasDoIndicador = $scope.indicadorAtivo.estrategias?.map((valor) => { return valor });
 			estrategiasDoIndicador = $scope.indicadorAtivo.estrategias;
 			objetivosDoIndicador = $scope.indicadorAtivo.objetivos;
@@ -263,7 +267,7 @@ app.controller("cadastroIndicador", function($scope, $rootScope, $http, $filter,
 	};
 	
 	$scope.limparForm = function(){
-		$scope.indicadorAtivo = {estrategias: [], objetivos: []};
+		$scope.indicadorAtivo = {estrategias: [], tipo_grafico: 'column'};
 		$scope.indicadorComposicao = [];
 		$scope.estado = "inserir";
 	};

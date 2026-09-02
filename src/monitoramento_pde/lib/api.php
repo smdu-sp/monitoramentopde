@@ -897,7 +897,8 @@ function atualizar_indicador(WP_REST_Request $request){
 			$comando->bindParam(':id_territorio_padrao',$indicador['id_territorio_padrao']);
 			$comando->bindParam(':observacao',$indicador['observacao']);
 			$comando->bindParam(':preencher_zero',$indicador['preencher_zero']);
-			$comando->bindParam(':tipo_grafico',$indicador['tipo_grafico']);
+			$$tipo_grafico = (isset($indicador['tipo_grafico']) && $indicador['tipo_grafico'] != '') ? $indicador['tipo_grafico'] : 'column';
+			$comando->bindParam(':tipo_grafico', $tipo_grafico);
 		}
  
  	if(!$comando->execute()){
@@ -2249,7 +2250,8 @@ function inserir_indicador(WP_REST_Request $request){
 	$comando->bindParam(':id_territorio_padrao',$indicador['id_territorio_padrao']);
 	$comando->bindParam(':observacao',$indicador['observacao']);
 	$comando->bindParam(':preencher_zero',$indicador['preencher_zero']);
-	$comando->bindParam(':tipo_grafico',$indicador['tipo_grafico']);
+	$tipo_grafico = (isset($indicador['tipo_grafico']) && $indicador['tipo_grafico'] != '') ? $indicador['tipo_grafico'] : 'column';
+	$comando->bindParam(':tipo_grafico', $tipo_grafico);
  
   if(!$comando->execute()){
 		$erro = $comando->errorInfo();
