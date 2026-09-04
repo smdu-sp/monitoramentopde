@@ -2939,6 +2939,7 @@ app.controller("dashboard", function($scope,
 				<p><strong> Unidade de medida </strong> <br> <span ng-bind-html="indicador.tipo_valor"></span> </p>
 				<p><strong> Série histórica </strong> <br> De {{indicador.datas[indicador.datas.length-1] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy'}} a {{indicador.datas[0] | date: indicador.periodicidade == 'anual' ? 'yyyy' : 'MMMM yyyy' }}</p>
 				<p><strong> Fontes </strong> <br> <span ng-bind-html="indicador.fonte"></span> </p>
+				<p><strong> Base de Dados (Disponível em Dados Abertos) </strong> <br> <span>{{indicador.nome_fontes_dados}}</span> </p>
 				<p><strong> Periodicidade de atualização </strong> <br> <span class="primeira-maiuscula">{{indicador.periodicidade}}</span> </p>
 				<p><strong> Unidade territorial de análise </strong> <br>
 				<span ng-repeat="territorio in indicador.territorios | orderBy: 'ordem'">

@@ -4028,7 +4028,8 @@ function indicador_cadastro(WP_REST_Request $request){
 				,json_agg(distinct case when grupo.tipo = 'objetivo' then jsonb_build_object('id_grupo_indicador',grupo.id_grupo_indicador,'nome',grupo.nome,'ordem',grupo.ordem) else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as objetivos
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
 				,json_agg(distinct case when grupo.tipo = 'objetivo' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as id_objetivo
-				,fonte_var.data_atualizacao 
+				,fonte_var.data_atualizacao
+				,fonte_var.nome_fontes_dados 
 				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
 				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
 		from sistema.indicador indic
@@ -4038,6 +4039,7 @@ function indicador_cadastro(WP_REST_Request $request){
 			 (select indic_var.id_indicador
 				,max(fonte.data_atualizacao) as data_atualizacao
 				
+				,string_agg(distinct fonte.nome, ', ') as nome_fontes_dados
 				,string_agg(coalesce(indic_var.aninhamento,'') || coalesce(var.nome,'') || '' || coalesce('\n (' || indic_var.operador || ') \n','') || '', ' ' order by indic_var.ordem) as formula_calculo
 				from sistema.indicador_x_variavel indic_var
 					left join sistema.variavel var 
@@ -4077,7 +4079,8 @@ function indicador_cadastro(WP_REST_Request $request){
 							,indic.fonte
 							,indic.preencher_zero
 							,fonte_var.data_atualizacao 
-							,fonte_var.formula_calculo".
+							,fonte_var.formula_calculo
+							,fonte_var.nome_fontes_dados".
 		$comando_group;
 	
 
@@ -4394,6 +4397,7 @@ function cache_indicadores() {
 				,json_agg(distinct case when grupo.tipo = 'estrategia' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'estrategia') as id_estrategia
 				,json_agg(distinct case when grupo.tipo = 'objetivo' then grupo.id_grupo_indicador else null end ) FILTER (WHERE grupo.tipo = 'objetivo') as id_objetivo
 				,fonte_var.data_atualizacao 
+				,fonte_var.nome_fontes_dados
 				,json_agg(distinct calc.data order by calc.data desc) FILTER (WHERE (calc.data >= indic.data_inicio or indic.data_inicio is null) and (calc.data <= indic.data_fim or indic.data_fim is null)) as datas
 				,json_agg(distinct cast(row_to_json(ter) as jsonb)) as territorios
 		from sistema.indicador indic
@@ -4402,7 +4406,8 @@ function cache_indicadores() {
 			left join lateral 
 			 (select indic_var.id_indicador
 				,max(fonte.data_atualizacao) as data_atualizacao
-				
+
+				,string_agg(distinct fonte.nome, ', ') as nome_fontes_dados
 				,string_agg(coalesce(indic_var.aninhamento,'') || coalesce(var.nome,'') || '' || coalesce('\n (' || indic_var.operador || ') \n','') || '', ' ' order by indic_var.ordem) as formula_calculo
 				from sistema.indicador_x_variavel indic_var
 					left join sistema.variavel var 
@@ -4440,7 +4445,8 @@ function cache_indicadores() {
 							,indic.fonte
 							,indic.preencher_zero
 							,fonte_var.data_atualizacao 
-							,fonte_var.formula_calculo";
+							,fonte_var.formula_calculo
+							,fonte_var.nome_fontes_dados";
 		
 		$comando = $pdo->prepare($comando_string);
 
